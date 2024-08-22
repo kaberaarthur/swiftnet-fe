@@ -23,12 +23,12 @@ export const MenuList: MenuItem[] = [
         type: "sub",
         active: false,
         children: [
-          { path: `/widgets/general`, title: "Add new client", type: "link" },
-          { path: `/widgets/chart`, title: "Clients list", type: "link" },
-          { path: `/widgets/chart`, title: "Hotspot Clients", type: "link" },
-          { path: `/widgets/chart`, title: "PPOE Clients", type: "link" },
-          { path: `/widgets/chart`, title: "Static Clients", type: "link" },
-          { path: `/widgets/chart`, title: "Clients Lead", type: "link" },
+          { path: `/clients/addnewclient`, title: "Add new client", type: "link" },
+          { path: `/clients/clientslist`, title: "Clients list", type: "link" },
+          { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
+          { path: `/clients/pppoeclients`, title: "PPOE Clients", type: "link" },
+          { path: `/clients/staticclients`, title: "Static Clients", type: "link" },
+          { path: `/clients/clientslead`, title: "Clients Lead", type: "link" },
         ],
       },
       {
