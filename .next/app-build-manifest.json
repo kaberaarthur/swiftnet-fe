@@ -1,0 +1,115 @@
+{
+  "pages": {
+    "/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/loading.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
+    ],
+    "/auth/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/login/page.js"
+    ],
+    "/(MainBody)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/layout.js"
+    ],
+    "/(MainBody)/dashboard/default/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/default/page.js"
+    ],
+    "/(MainBody)/dashboard/ecommerce/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/ecommerce/page.js"
+    ],
+    "/(MainBody)/icons/flagicons/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/flagicons/page.js"
+    ],
+    "/(MainBody)/icons/fontawesomeicon/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/fontawesomeicon/page.js"
+    ],
+    "/(MainBody)/icons/feathericon/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/feathericon/page.js"
+    ],
+    "/(MainBody)/icons/iconlysprite/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/iconlysprite/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/baseinput/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/baseinput/page.js"
+    ],
+    "/(MainBody)/clients/addnewclient/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/clients/addnewclient/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/inputgroups/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/inputgroups/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/megaoption/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/megaoption/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/formvalidation/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/formvalidation/page.js"
+    ],
+    "/(MainBody)/forms/formslayout/formwizard1/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formslayout/formwizard1/page.js"
+    ],
+    "/(MainBody)/forms/formslayout/formwizard2/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formslayout/formwizard2/page.js"
+    ],
+    "/(MainBody)/forms/formslayout/twofactor/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formslayout/twofactor/page.js"
+    ],
+    "/(MainBody)/forms/formswidget/datepicker/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formswidget/datepicker/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/radiocheckbox/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/radiocheckbox/page.js"
+    ],
+    "/(MainBody)/table/reactstraptable/basictable/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/table/reactstraptable/basictable/page.js"
+    ],
+    "/(MainBody)/clients/clientslist/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/clients/clientslist/page.js"
+    ]
+  }
+}

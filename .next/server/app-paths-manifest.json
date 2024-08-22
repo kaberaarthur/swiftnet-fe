@@ -1,0 +1,7 @@
+{
+  "/(MainBody)/dashboard/ecommerce/page": "app/(MainBody)/dashboard/ecommerce/page.js",
+  "/(MainBody)/icons/iconlysprite/page": "app/(MainBody)/icons/iconlysprite/page.js",
+  "/(MainBody)/forms/formscontrols/baseinput/page": "app/(MainBody)/forms/formscontrols/baseinput/page.js",
+  "/(MainBody)/clients/addnewclient/page": "app/(MainBody)/clients/addnewclient/page.js",
+  "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js"
+}
