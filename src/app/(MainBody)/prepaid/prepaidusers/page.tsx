@@ -64,23 +64,22 @@ const tableData: TableRow[] = [
 const ClientsList: React.FC = () => {
   return (
     <div className="overflow-x-auto pt-4">
-      <table className="min-w-full bg-white shadow-md rounded-lg">
+      <table className="min-w-full shadow-md rounded-lg">
         <thead className="bg-gray-900">
-        <tr>
-            <th className="px-4 py-2 text-left text-gray-900">ID</th>
-            <th className="px-4 py-2 text-left text-gray-900">User Name</th>
-            <th className="px-4 py-2 text-left text-gray-900">Full Name</th>
-            <th className="px-4 py-2 text-left text-gray-900">Plan Name</th>
-            <th className="px-4 py-2 text-left text-gray-900">Type</th>
-            <th className="px-4 py-2 text-left text-gray-900">MAC $ IP</th>
-            <th className="px-4 py-2 text-left text-gray-900">Created On</th>
-            <th className="px-4 py-2 text-left text-gray-900">Expires On</th>
-            <th className="px-4 py-2 text-left text-gray-900">Method</th>
-            <th className="px-4 py-2 text-left text-gray-900">Routers</th>
-            <th className="px-4 py-2 text-left text-gray-900">Status</th>
-            <th className="px-4 py-2 text-left text-gray-900">Manage</th>
-        </tr>
-
+          <tr>
+              <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">User Name</th>
+              <th className="px-4 py-2 text-left">Full Name</th>
+              <th className="px-4 py-2 text-left">Plan Name</th>
+              <th className="px-4 py-2 text-left">Type</th>
+              <th className="px-4 py-2 text-left">MAC $ IP</th>
+              <th className="px-4 py-2 text-left">Created On</th>
+              <th className="px-4 py-2 text-left">Expires On</th>
+              <th className="px-4 py-2 text-left">Method</th>
+              <th className="px-4 py-2 text-left">Routers</th>
+              <th className="px-4 py-2 text-left">Status</th>
+              <th className="px-4 py-2 text-left">Manage</th>
+          </tr>
         </thead>
         <tbody>
           {tableData.map((data) => (
@@ -110,7 +109,7 @@ const ClientsList: React.FC = () => {
                   {data.status}
                 </Button>
               </td>
-              <td className="px-4 py-2" style={{ color: "#2563eb" }}>
+              <td className="px-4 py-2 text-center" style={{ color: "#2563eb" }}>
                 <i className={`fa fa-pencil px-2`}></i>
                 <i className={`fa fa-trash-o`}></i>
               </td>

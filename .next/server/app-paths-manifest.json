@@ -1,7 +1,7 @@
 {
-  "/(MainBody)/table/reactstraptable/basictable/page": "app/(MainBody)/table/reactstraptable/basictable/page.js",
-  "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js",
   "/(MainBody)/clients/hotspotclients/page": "app/(MainBody)/clients/hotspotclients/page.js",
   "/(MainBody)/clients/pppoeclients/page": "app/(MainBody)/clients/pppoeclients/page.js",
+  "/(MainBody)/prepaid/prepaidvouchers/page": "app/(MainBody)/prepaid/prepaidvouchers/page.js",
+  "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js",
   "/(MainBody)/prepaid/prepaidusers/page": "app/(MainBody)/prepaid/prepaidusers/page.js"
 }
