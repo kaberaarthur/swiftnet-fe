@@ -40,8 +40,8 @@ export const MenuList: MenuItem[] = [
         children: [
           { path: `/prepaid/prepaidusers`, title: "Prepaid Users", type: "link" },
           { path: `/prepaid/prepaidvouchers`, title: "Prepaid Vouchers", type: "link" },
-          { path: `/clients/hotspotclients`, title: "Refill Account", type: "link" },
-          { path: `/clients/pppoeclients`, title: "Recharge Account", type: "link" },
+          { path: `/prepaid/refillaccount`, title: "Refill Account", type: "link" },
+          { path: `/prepaid/rechargeaccount`, title: "Recharge Account", type: "link" },
         ],
       },
       {

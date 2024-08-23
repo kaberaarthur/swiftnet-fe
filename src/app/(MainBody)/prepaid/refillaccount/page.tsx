@@ -6,6 +6,7 @@ import { BaseInputs, FormsControl } from "@/Constant";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 import PlanTypesRadio from "@/Components/Forms/FormsControl/RadioCheckbox/BasicRadioAndCheckbox/PlanTypesRadio";
 
+
 interface FormData {
     account: string;
     name: string;
@@ -23,7 +24,7 @@ interface FormData {
     paymentDoneViaMpesa: string;
 }
 
-const AddNewClient: React.FC = () => {
+const RefillAccount: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     account: "",
     name: "",
@@ -56,25 +57,22 @@ const AddNewClient: React.FC = () => {
 
   return (
     <>
-      <Breadcrumbs mainTitle={'Add a Client'} parent={FormsControl} />
+      <Breadcrumbs mainTitle={'Voucher Recharge'} parent={FormsControl} />
       <Container fluid>
         <Row className="g-3">
-          <Col sm="6">
-            <Label>{'Account'}</Label>
-            <Input
-              value={formData.account}
-              name="account"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-            <Label>{'Plans'}<span className="font-danger">*</span></Label>
-            <PlanTypesRadio/>
-          </Col>
-          <Col sm="6">
-            <Label>{'Full Name'}</Label>
+          <Row xl="6">
+            <Label>{'Select Account'}</Label>
+            <Input type="select" className="btn-square digits" defaultValue={"1"}>
+              <option>F6:2B:35:D8:C8:44</option>
+              <option>12:F2:AE:A0:C5:12</option>
+              <option>58:DB:15:E3:08:43</option>
+              <option>F6:2B:35:D8:C8:44</option>
+              <option>58:DB:15:E3:08:43</option>
+              <option>12:F2:AE:A0:C5:12</option>
+            </Input>
+          </Row>
+          <Row xl="6" className="pt-4">
+            <Label>{'Code Voucher'}</Label>
             <Input
               value={formData.name}
               name="name"
@@ -82,123 +80,22 @@ const AddNewClient: React.FC = () => {
               placeholder=''
               onChange={handleInputChange}
             />
-          </Col>
-          <Col sm="6">
-              <Label>{'Routers'}</Label>
+          </Row>
+          <Row xl="6" className="pt-4">
+              <Label>{'Payment Done'}</Label>
               <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>1 </option>
-                <option>2 </option>
-                <option>3</option>
-                <option>4 </option>
-                <option>5 </option>
+                <option>No</option>
+                <option>Yes</option>
               </Input>
-          </Col>
+          </Row>
 
-          <Col sm="6">
-            <Label>{'Email'}</Label>
-            <Input
-              value={formData.email}
-              name="email"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Select Plans'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>Select Plans </option>
-                <option>2 </option>
-                <option>3</option>
-                <option>4 </option>
-                <option>5 </option>
-              </Input>
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Password'}</Label>
-            <Input
-              value={formData.password}
-              name="name"
-              type="password"
-              placeholder='*******'
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Payment Done via Mpesa'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>No :- Account will be active till midnight </option>
-                <option>Yes :- Account valid for plan validity </option>
-              </Input>
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Address'}</Label>
-            <Input
-              value={formData.address}
-              name="address"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'FAT NO.'}</Label>
-              <Input
-                value={formData.address}
-                name="address"
-                type="text"
-                placeholder=''
-                onChange={handleInputChange}
-                />
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Phone Number'}</Label>
-            <Input
-              value={formData.phoneNumber}
-              name="phonenumber"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Payments No. Used for Payments'}</Label>
-              <Input
-                value={formData.paymentsNo}
-                name="paymentsnumber"
-                type="text"
-                placeholder=''
-                onChange={handleInputChange}
-                />
-          </Col>
-
-          <Col sm="6">
-            <Label>{'SMS Group'}</Label>
-            <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>None </option>
-            </Input>
-          </Col>
-          <Col sm="6">
-              <Label>{'Installaction fee or other payments needed'}</Label>
-              <Input
-                value={formData.installationFee}
-                name="installationfee"
-                type="text"
-                placeholder=''
-                onChange={handleInputChange}
-                />
-          </Col>
-
-          <Col sm="6">
-            <Button>Add New Client</Button>
-          </Col>
+          <Row xl="6" className="pt-4">
+            <Button>Refill</Button>
+          </Row>
         </Row>
       </Container>
     </>
   );
 };
 
-export default AddNewClient;
+export default RefillAccount;

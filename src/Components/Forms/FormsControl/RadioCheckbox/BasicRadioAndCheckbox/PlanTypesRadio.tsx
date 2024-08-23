@@ -5,7 +5,7 @@ import { planTypesRadioDataList } from '@/Data/Forms/FormsControl/RadioCheckbox/
 const PlanTypesRadio = () => {
   return (
     <Col md="12">
-      <div className="card-wrapper border rounded-3 checkbox-checked">
+      <div className="card-wrapper border checkbox-checked">
         <div className="form-check-size">
           {planTypesRadioDataList.map(({ id, text }, i) => (
             <Label className="d-block" for={id} check key={i}>

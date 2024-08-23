@@ -70,6 +70,26 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/prepaid/prepaidvouchers/page.js"
+    ],
+    "/(MainBody)/prepaid/refillaccount/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/prepaid/refillaccount/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/baseinput/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/baseinput/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/inputgroups/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/inputgroups/page.js"
+    ],
+    "/(MainBody)/prepaid/rechargeaccount/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/prepaid/rechargeaccount/page.js"
     ]
   }
 }

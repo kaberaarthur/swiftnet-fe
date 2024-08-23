@@ -23,7 +23,7 @@ interface FormData {
     paymentDoneViaMpesa: string;
 }
 
-const AddNewClient: React.FC = () => {
+const RechargeAccount: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     account: "",
     name: "",
@@ -41,6 +41,21 @@ const AddNewClient: React.FC = () => {
     paymentDoneViaMpesa: "",
   });
 
+  const planTypes = [
+    {
+      id: "1",
+      text: "PPPOE Plans",
+    },
+    {
+      id: "2",
+      text: "Static Plans",
+    },
+    {
+      id: "3",
+      text: "Hotspot Plans",
+    },
+  ];
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -56,144 +71,76 @@ const AddNewClient: React.FC = () => {
 
   return (
     <>
-      <Breadcrumbs mainTitle={'Add a Client'} parent={FormsControl} />
+      <Breadcrumbs mainTitle={'Recharge Account'} parent={FormsControl} />
       <Container fluid>
         <Row className="g-3">
-          <Col sm="6">
-            <Label>{'Account'}</Label>
-            <Input
-              value={formData.account}
-              name="account"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-            <Label>{'Plans'}<span className="font-danger">*</span></Label>
-            <PlanTypesRadio/>
-          </Col>
-          <Col sm="6">
-            <Label>{'Full Name'}</Label>
-            <Input
-              value={formData.name}
-              name="name"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Routers'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>1 </option>
-                <option>2 </option>
-                <option>3</option>
-                <option>4 </option>
-                <option>5 </option>
-              </Input>
-          </Col>
+          <Row lg="12" className="pb-4">
+            <Label>{'Select Account'}</Label>
+            <select
+              id="simple-select"
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            >
+              <option>F6:2B:35:D8:C8:44</option>
+              <option>12:F2:AE:A0:C5:12</option>
+              <option>58:DB:15:E3:08:43</option>
+              <option>F6:2B:35:D8:C8:44</option>
+              <option>58:DB:15:E3:08:43</option>
+              <option>12:F2:AE:A0:C5:12</option>
+            </select>
+          </Row>
+          <Row lg="12" className="pb-4">
+            <Label>{'Plan Types'}</Label>
+            <div className="card-wrapper border checkbox-checked">
+              <div className="form-check-size">
+                {planTypes.map(({ id, text }, i) => (
+                  <Label className="d-block" for={id} check key={i}>
+                    <Input id={id} type="radio" name="radio5" className="radio-primary" defaultChecked key={i} />
+                    {text}
+                  </Label>
+                ))}
+              </div>
+            </div>
+          </Row>
+          <Row lg="12" className="pb-4">
+            <Label>{'Select Routers'}</Label>
+            <select
+              id="simple-select"
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            >
+              <option>Router 1</option>
+              <option>Router 2</option>
+            </select>
+          </Row>
+
+          <Row lg="12" className="pb-4">
+            <Label>{'Service Plans'}</Label>
+            <select
+              id="simple-select"
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            >
+              <option>Plan 1</option>
+              <option>Plan 2</option>
+            </select>
+          </Row>
+
+          <Row lg="12" className="pb-4">
+            <Label>{'Service Plans'}</Label>
+            <select
+              id="simple-select"
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            >
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </Row>
+
+          <Row lg="12" className="pb-4">
+            <Label>{'Expiry Date'}</Label>
+            <input className="form-control" type="date" value=""></input>
+          </Row>
 
           <Col sm="6">
-            <Label>{'Email'}</Label>
-            <Input
-              value={formData.email}
-              name="email"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Select Plans'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>Select Plans </option>
-                <option>2 </option>
-                <option>3</option>
-                <option>4 </option>
-                <option>5 </option>
-              </Input>
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Password'}</Label>
-            <Input
-              value={formData.password}
-              name="name"
-              type="password"
-              placeholder='*******'
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Payment Done via Mpesa'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>No :- Account will be active till midnight </option>
-                <option>Yes :- Account valid for plan validity </option>
-              </Input>
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Address'}</Label>
-            <Input
-              value={formData.address}
-              name="address"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'FAT NO.'}</Label>
-              <Input
-                value={formData.address}
-                name="address"
-                type="text"
-                placeholder=''
-                onChange={handleInputChange}
-                />
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Phone Number'}</Label>
-            <Input
-              value={formData.phoneNumber}
-              name="phonenumber"
-              type="text"
-              placeholder=''
-              onChange={handleInputChange}
-            />
-          </Col>
-          <Col sm="6">
-              <Label>{'Payments No. Used for Payments'}</Label>
-              <Input
-                value={formData.paymentsNo}
-                name="paymentsnumber"
-                type="text"
-                placeholder=''
-                onChange={handleInputChange}
-                />
-          </Col>
-
-          <Col sm="6">
-            <Label>{'SMS Group'}</Label>
-            <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>None </option>
-            </Input>
-          </Col>
-          <Col sm="6">
-              <Label>{'Installaction fee or other payments needed'}</Label>
-              <Input
-                value={formData.installationFee}
-                name="installationfee"
-                type="text"
-                placeholder=''
-                onChange={handleInputChange}
-                />
-          </Col>
-
-          <Col sm="6">
-            <Button>Add New Client</Button>
+            <Button>Recharge</Button>
           </Col>
         </Row>
       </Container>
@@ -201,4 +148,4 @@ const AddNewClient: React.FC = () => {
   );
 };
 
-export default AddNewClient;
+export default RechargeAccount;
