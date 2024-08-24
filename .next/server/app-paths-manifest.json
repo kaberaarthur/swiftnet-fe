@@ -1,5 +1,4 @@
 {
-  "/(MainBody)/icons/iconlysprite/page": "app/(MainBody)/icons/iconlysprite/page.js",
   "/(MainBody)/burst/addburst/page": "app/(MainBody)/burst/addburst/page.js",
   "/(MainBody)/forms/formscontrols/baseinput/page": "app/(MainBody)/forms/formscontrols/baseinput/page.js",
   "/(MainBody)/forms/formscontrols/radiocheckbox/page": "app/(MainBody)/forms/formscontrols/radiocheckbox/page.js",

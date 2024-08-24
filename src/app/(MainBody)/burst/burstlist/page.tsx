@@ -57,16 +57,17 @@ const ClientsList: React.FC = () => {
         <thead className="bg-gray-900">
           <tr>
             <th className="px-4 py-2 text-left text-gray-900">Id</th>
-            <th className="px-4 py-2 text-left text-gray-900">Account</th>
-            <th className="px-4 py-2 text-left text-gray-900">Payment</th>
-            <th className="px-4 py-2 text-left text-gray-900">Full Name</th>
-            <th className="px-4 py-2 text-left text-gray-900">Phone Number</th>
-            <th className="px-4 py-2 text-left text-gray-900">Phone Hash</th>
-            <th className="px-4 py-2 text-left text-gray-900">Service Plan</th>
-            <th className="px-4 py-2 text-left text-gray-900">Service</th>
-            <th className="px-4 py-2 text-left text-gray-900">Balance</th>
-            <th className="px-4 py-2 text-left text-gray-900">Router</th>
-            <th className="px-4 py-2 text-left text-gray-900">Status</th>
+            <th className="px-4 py-2 text-left text-gray-900">Plan</th>
+            <th className="px-4 py-2 text-left text-gray-900">Type</th>
+            <th className="px-4 py-2 text-left text-gray-900">Max Limit</th>
+            <th className="px-4 py-2 text-left text-gray-900">Burst</th>
+            <th className="px-4 py-2 text-left text-gray-900">Burst Threshhold</th>
+            <th className="px-4 py-2 text-left text-gray-900">Burst Time</th>
+            <th className="px-4 py-2 text-left text-gray-900">Limit At</th>
+            <th className="px-4 py-2 text-left text-gray-900">Priority</th>
+            <th className="px-4 py-2 text-left text-gray-900">Queue Type</th>
+            <th className="px-4 py-2 text-left text-gray-900">Routers</th>
+            <th className="px-4 py-2 text-left text-gray-900">Sync_Status</th>
             <th className="px-4 py-2 text-left text-gray-900">Manage</th>
           </tr>
         </thead>
@@ -94,6 +95,7 @@ const ClientsList: React.FC = () => {
               <td className="px-4 py-2">{data.servicePlan}</td>
               <td className="px-4 py-2">{data.service}</td>
               <td className="px-4 py-2">{data.balance}</td>
+              <td className="px-4 py-2">{data.router}</td>
               <td className="px-4 py-2">{data.router}</td>
               <td className="px-4 py-2">
                 <i className="fa fa-circle" style={{ color: "#dc2626" }}></i>
