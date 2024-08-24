@@ -45,6 +45,17 @@ export const MenuList: MenuItem[] = [
         ],
       },
       {
+        title: "Burst",
+        id: 34,
+        icon: "Pie",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/burst/addburst`, title: "Add Burst", type: "link" },
+          { path: `/burst/burstlist`, title: "Burst List", type: "link" },
+        ],
+      },
+      {
         title: "Widgets",
         id: 2,
         icon: "Pie",

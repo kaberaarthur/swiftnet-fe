@@ -90,6 +90,46 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/prepaid/rechargeaccount/page.js"
+    ],
+    "/(MainBody)/dashboard/default/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/default/page.js"
+    ],
+    "/(MainBody)/dashboard/ecommerce/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/ecommerce/page.js"
+    ],
+    "/(MainBody)/clients/staticclients/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/clients/staticclients/page.js"
+    ],
+    "/(MainBody)/clients/clientslead/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/clients/clientslead/page.js"
+    ],
+    "/(MainBody)/dashboard/project/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/project/page.js"
+    ],
+    "/(MainBody)/burst/addburst/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/burst/addburst/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/radiocheckbox/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/radiocheckbox/page.js"
+    ],
+    "/(MainBody)/burst/burstlist/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/burst/burstlist/page.js"
     ]
   }
 }
