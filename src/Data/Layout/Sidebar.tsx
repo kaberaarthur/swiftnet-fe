@@ -56,6 +56,72 @@ export const MenuList: MenuItem[] = [
         ],
       },
       {
+        title: "Services",
+        id: 34,
+        icon: "Paper",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/services/staticplans`, title: "Static Plans", type: "link" },
+          { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
+          { path: `/services/pppoeplans`, title: "PPPOE Plans", type: "link" },
+          { path: `/services/bandwidthplans`, title: "Bandwidth Plans", type: "link" },
+        ],
+      },
+      {
+        title: "Payments",
+        id: 34,
+        icon: "Wallet",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/payments/mpesatransactions`, title: "Mpesa Transactions", type: "link" },
+          { path: `/payments/mpesalogs`, title: "Mpesa Logs", type: "link" },
+          { path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },
+          { path: `/payments/mpesatransactionstatus`, title: "Transaction Status", type: "link" },
+        ],
+      },
+      {
+        title: "Network",
+        id: 34,
+        icon: "Discovery",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/network/routers`, title: "Routers", type: "link" },
+          { path: `/network/ippool`, title: "IP Pool", type: "link" },
+        ]
+      },
+      {
+        title: "System Logs",
+        id: 34,
+        icon: "Activity",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/systemlogs/hotspotlogs`, title: "Hotspot Logs", type: "link" },
+          { path: `/systemlogs/pppoelogs`, title: "PPPOE Logs", type: "link" },
+          { path: `/systemlogs/activitylogs`, title: "Activity Logs", type: "link" },
+        ]
+      },
+      {
+        title: "Settings",
+        id: 34,
+        icon: "Setting",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/settings/generalsettings`, title: "General Settings", type: "link" },
+          { path: `/settings/localization`, title: "Localization", type: "link" },
+          { path: `/settings/administratorusers`, title: "Administrator Users", type: "link" },
+          { path: `/settings/administratorroles`, title: "Administrator Roles", type: "link" },
+          { path: `/settings/systemupdate`, title: "System Update", type: "link" },
+          { path: `/settings/paymentsettings`, title: "Payment Settings", type: "link" },
+          { path: `/settings/restorebackup`, title: "Restore Backup", type: "link" },
+          { path: `/settings/invoicesettings`, title: "Invoice Settings", type: "link" }
+        ]
+      },      
+      {
         title: "Widgets",
         id: 2,
         icon: "Pie",

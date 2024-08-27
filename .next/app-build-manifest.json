@@ -130,6 +130,96 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/burst/burstlist/page.js"
+    ],
+    "/(MainBody)/services/staticplans/addstaticplan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/staticplans/addstaticplan/page.js"
+    ],
+    "/(MainBody)/services/hotspotplans/addhotspotplan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/hotspotplans/addhotspotplan/page.js"
+    ],
+    "/(MainBody)/services/bandwidthplans/addbandwidthplan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/bandwidthplans/addbandwidthplan/page.js"
+    ],
+    "/(MainBody)/services/staticplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/staticplans/page.js"
+    ],
+    "/(MainBody)/services/hotspotplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/hotspotplans/page.js"
+    ],
+    "/(MainBody)/services/pppoeplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/pppoeplans/page.js"
+    ],
+    "/(MainBody)/services/pppoeplans/addpppoeplan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/pppoeplans/addpppoeplan/page.js"
+    ],
+    "/(MainBody)/services/bandwidthplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/bandwidthplans/page.js"
+    ],
+    "/(MainBody)/payments/mpesatransactions/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/payments/mpesatransactions/page.js"
+    ],
+    "/(MainBody)/payments/mpesalogs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/payments/mpesalogs/page.js"
+    ],
+    "/(MainBody)/payments/mpesareports/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/payments/mpesareports/page.js"
+    ],
+    "/(MainBody)/payments/mpesatransactionstatus/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/payments/mpesatransactionstatus/page.js"
+    ],
+    "/(MainBody)/network/routers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/page.js"
+    ],
+    "/(MainBody)/network/routers/addrouter/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/addrouter/page.js"
+    ],
+    "/(MainBody)/network/ippool/addippool/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/ippool/addippool/page.js"
+    ],
+    "/(MainBody)/network/ippool/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/ippool/page.js"
+    ],
+    "/(MainBody)/systemlogs/hotspotlogs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/systemlogs/hotspotlogs/page.js"
+    ],
+    "/(MainBody)/systemlogs/activitylogs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/systemlogs/activitylogs/page.js"
     ]
   }
 }

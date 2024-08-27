@@ -1,7 +1,7 @@
 {
-  "/(MainBody)/burst/addburst/page": "app/(MainBody)/burst/addburst/page.js",
-  "/(MainBody)/forms/formscontrols/baseinput/page": "app/(MainBody)/forms/formscontrols/baseinput/page.js",
-  "/(MainBody)/forms/formscontrols/radiocheckbox/page": "app/(MainBody)/forms/formscontrols/radiocheckbox/page.js",
-  "/(MainBody)/forms/formscontrols/inputgroups/page": "app/(MainBody)/forms/formscontrols/inputgroups/page.js",
-  "/(MainBody)/burst/burstlist/page": "app/(MainBody)/burst/burstlist/page.js"
+  "/(MainBody)/network/routers/addrouter/page": "app/(MainBody)/network/routers/addrouter/page.js",
+  "/(MainBody)/network/ippool/addippool/page": "app/(MainBody)/network/ippool/addippool/page.js",
+  "/(MainBody)/network/ippool/page": "app/(MainBody)/network/ippool/page.js",
+  "/(MainBody)/services/staticplans/addstaticplan/page": "app/(MainBody)/services/staticplans/addstaticplan/page.js",
+  "/(MainBody)/icons/iconlysprite/page": "app/(MainBody)/icons/iconlysprite/page.js"
 }
