@@ -220,6 +220,21 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/systemlogs/activitylogs/page.js"
+    ],
+    "/(MainBody)/settings/generalsettings/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/settings/generalsettings/page.js"
+    ],
+    "/(MainBody)/settings/administratorusers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/settings/administratorusers/page.js"
+    ],
+    "/(MainBody)/settings/administratorusers/addnewadministrator/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/settings/administratorusers/addnewadministrator/page.js"
     ]
   }
 }
