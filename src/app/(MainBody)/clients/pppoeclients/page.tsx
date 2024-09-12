@@ -1,118 +1,149 @@
+'use client'
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Row, Button } from 'reactstrap';
 
 // Define the TableRow interface
 interface TableRow {
-  id: number;
-  account: string;
-  profile: string;
-  updated_at: string;
-  state: string;
-  payment: string;
-  fullName: string;
-  phoneNumber: string;
-  phoneHash: string;
-  servicePlan: string;
+  ".id": string;
+  address: string;
+  "caller-id": string;
+  name: string;
   service: string;
-  balance: string;
-  router: string;
-  statusColor: string;
-  manageColor: string;
+  uptime: string;
+  "session-id": string;
 }
 
-// Sample data
-const tableData: TableRow[] = [
-  {
-    id: 645,
-    account: "F6:2B:35:D8:C8:44",
-    profile: "6hours",
-    updated_at: "2024-08-22 21:55:42",
-    state: "OK",
-    payment: "TRUE",
-    fullName: "David Kuria",
-    phoneNumber: "254713614318",
-    phoneHash: "01501029827857af5a7185bc4ed613712e16467afc79313d556f49aa6ec35961",
-    servicePlan: "8 Mbps profile",
-    service: "pppoe",
-    balance: "0",
-    router: "NEXAHUB_951",
-    statusColor: "text-red-500", // Tailwind text color
-    manageColor: "text-blue-500", // Tailwind text color
-  },
-  {
-    id: 301,
-    account: "16:EA:27:6E:C8:33",
-    profile: "6hours",
-    updated_at: "2024-08-22 21:55:42",
-    state: "OK",
-    payment: "TRUE",
-    fullName: "King Kong",
-    phoneNumber: "254713614318",
-    phoneHash: "01501029827857af5a7185bc4ed613712e16467afc79313d556f49aa6ec35961",
-    servicePlan: "5 Mbps profile",
-    service: "pppoe",
-    balance: "0",
-    router: "NEXAHUB_951",
-    statusColor: "text-red-500", // Tailwind text color
-    manageColor: "text-blue-500", // Tailwind text color
-  },
-  // Add more rows as needed
-];
+// ClientsList component
+const ClientsList: React.FC = () => {
+  const [tableData, setTableData] = useState<TableRow[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
+  const itemsPerPage = 10; // Number of items per page
 
-const PPPOEClients: React.FC = () => {
+  function removeStar(id: string): string {
+    if (id.startsWith('*')) {
+      return id.substring(1);
+    }
+    return id;
+  }
+
+  function extractPhoneNumber(comment: string): string | null {
+    const phoneNumberRegex = /254\d+/;
+    const match = comment.match(phoneNumberRegex);
+    return match ? match[0] : null;
+  }
+
+  useEffect(() => {
+    const fetchHotspotProfiles = async () => {
+      const url = '/api/ppp/active'; // Use the local API route after the proxy
+      const username = 'Arthur';
+      const password = 'Arthur';
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Basic ' + btoa(username + ':' + password),
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('PPPOE User Profiles:', data);
+
+        setTableData(data);
+      } catch (error) {
+        console.error('Failed to fetch Hotspot Profiles:', error);
+      }
+    };
+
+    fetchHotspotProfiles();
+  }, []);
+
+  // Calculate the current slice of data for the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentData = tableData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(tableData.length / itemsPerPage);
+
+  // Function to handle page changes
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <div className="overflow-x-auto pt-4">
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead className="bg-gray-900">
           <tr>
-            <th className="px-4 py-2 text-left text-gray-900">Id</th>
-            <th className="px-4 py-2 text-left text-gray-900">Account</th>
-            <th className="px-4 py-2 text-left text-gray-900">Payment</th>
-            <th className="px-4 py-2 text-left text-gray-900">Full Name</th>
+            <th className="px-4 py-2 text-left text-gray-900">ID</th>
+            <th className="px-4 py-2 text-left text-gray-900">IP Address</th>
+            <th className="px-4 py-2 text-left text-gray-900">Mac Address</th>
             <th className="px-4 py-2 text-left text-gray-900">Phone Number</th>
-            <th className="px-4 py-2 text-left text-gray-900">Phone Hash</th>
-            <th className="px-4 py-2 text-left text-gray-900">Service Plan</th>
             <th className="px-4 py-2 text-left text-gray-900">Service</th>
-            <th className="px-4 py-2 text-left text-gray-900">Balance</th>
-            <th className="px-4 py-2 text-left text-gray-900">Router</th>
-            <th className="px-4 py-2 text-left text-gray-900">Status</th>
+            <th className="px-4 py-2 text-left text-gray-900">Session ID</th>
+            <th className="px-4 py-2 text-left text-gray-900">Uptime</th>
             <th className="px-4 py-2 text-left text-gray-900">Manage</th>
           </tr>
         </thead>
         <tbody>
-          {tableData.map((data) => (
-            <tr key={data.id} className="bg-white border-b">
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline"  style={{ color: "#2563eb" }}>
-                    {data.id}
-                </Link>
-              </td>
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
-                    {data.account}
-                </Link>
-              </td>
-              <td className="px-4 py-2">{data.payment}</td>
-              <td className="px-4 py-2">{data.fullName}</td>
-              <td className="px-4 py-2">{data.phoneNumber}</td>
-              <td className="px-4 py-2">{data.phoneHash}</td>
-              <td className="px-4 py-2">{data.servicePlan}</td>
-              <td className="px-4 py-2">{data.service}</td>
-              <td className="px-4 py-2">{data.balance}</td>
-              <td className="px-4 py-2">{data.router}</td>
-              <td className="px-4 py-2">
-                <i className="fa fa-circle" style={{ color: "#dc2626" }}></i>
-              </td>
-              <td className="px-4 py-2" style={{ color: "#2563eb" }}>
-                <i className={`fa fa-pencil px-2`}></i>
-                <i className={`fa fa-trash-o`}></i>
-              </td>
+          {currentData.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-2 text-center">No Data Available</td>
             </tr>
-          ))}
+          ) : (
+            currentData.map((data) => (
+              <tr key={data['.id']} className="bg-white border-b">
+                <td className="px-4 py-2">
+                  <Link href={`/clients/details/${removeStar(data['.id'])}`} className="hover:underline" style={{ color: "#2563eb" }}>
+                    {removeStar(data['.id'])}
+                  </Link>
+                </td>
+                <td className="px-4 py-2">{data['address']}</td>
+                <td className="px-4 py-2">
+                  <Link href={`/clients/details/${removeStar(data['.id'])}`} className="hover:underline" style={{ color: "#2563eb" }}>
+                    {data['caller-id']}
+                  </Link>
+                </td>
+                <td className="px-4 py-2">{data['name']}</td>
+                <td className="px-4 py-2">{data['service']}</td>
+                <td className="px-4 py-2">{data['session-id']}</td>
+                <td className="px-4 py-2">{data.uptime}</td>
+                <td className="px-4 py-2" style={{ color: "#2563eb" }}>
+                  <i className="fa fa-pencil px-2"></i>
+                  <i className="fa fa-trash-o"></i>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          disabled={currentPage === totalPages}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default PPPOEClients;
+export default ClientsList;

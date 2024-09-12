@@ -1,73 +1,126 @@
 'use client'
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Button } from 'reactstrap';
 
-// Define the TableRow interface
-interface TableRow {
-  id: string | number;
-  firstName: string;
-  transId: string;
-  msisdn: string;
-  paybillAccount: string;
-  transactionAmount: number;
-  updatedAt: string;
+// Define the MpesaTransaction interface
+interface MpesaTransaction {
+  id: number;
+  Amount: string;
+  CheckoutRequestID: string;
+  ExternalReference: string;
+  MerchantRequestID: string;
+  MpesaReceiptNumber: string;
+  Phone: string;
+  ResultCode: number;
+  ResultDesc: string;
+  Status: string;
+  timestamp: string;
 }
 
-// Sample data
-const tableData: TableRow[] = [
-  {
-    id: 1,
-    firstName: "John",
-    transId: "TRX123456",
-    msisdn: "+254712345678",
-    paybillAccount: "123456",
-    transactionAmount: 1000.50,
-    updatedAt: "2024-08-25 23:35:39"
-  },
-  // ... more rows
-];
+// MpesaTransactionsList component
+const MpesaTransactionsList: React.FC = () => {
+  const [transactions, setTransactions] = useState<MpesaTransaction[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
+  const itemsPerPage = 10; // Number of items per page
 
-const Page: React.FC = () => {
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const url = '/backend/payments'; // API endpoint for fetching Mpesa transactions
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("Mpesa Transactions: ", data)
+        setTransactions(data); // Set transactions data
+      } catch (error) {
+        console.error('Failed to fetch Mpesa transactions:', error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  // Calculate the current slice of data for the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentData = transactions.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
+
+  // Function to handle page changes
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <div className="overflow-x-auto pt-4">
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead className="bg-gray-900">
           <tr>
             <th className="px-4 py-2 text-left text-gray-900">ID</th>
-            <th className="px-4 py-2 text-left text-gray-900">First Name</th>
-            <th className="px-4 py-2 text-left text-gray-900">Trans ID</th>
-            <th className="px-4 py-2 text-left text-gray-900">MSISDN</th>
-            <th className="px-4 py-2 text-left text-gray-900">Paybill Account</th>
-            <th className="px-4 py-2 text-left text-gray-900">Transaction Amount</th>
-            <th className="px-4 py-2 text-left text-gray-900">Updated At</th>
+            <th className="px-4 py-2 text-left text-gray-900">Amount</th>
+            <th className="px-4 py-2 text-left text-gray-900">Phone</th>
+            <th className="px-4 py-2 text-left text-gray-900">Mpesa Receipt</th>
+            <th className="px-4 py-2 text-left text-gray-900">Status</th>
+            <th className="px-4 py-2 text-left text-gray-900">Timestamp</th>
+            <th className="px-4 py-2 text-left text-gray-900">Manage</th>
           </tr>
         </thead>
         <tbody>
-          {tableData.map((data) => (
-            <tr key={data.id} className="bg-white border-b">
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline"  style={{ color: "#2563eb" }}>
-                    {data.id}
-                </Link>
-              </td>
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
-                    {data.firstName}
-                </Link>
-              </td>
-              <td className="px-4 py-2">{data.transId}</td>
-              <td className="px-4 py-2">{data.msisdn}</td>
-              <td className="px-4 py-2">{data.paybillAccount}</td>
-              <td className="px-4 py-2">{data.transactionAmount}</td>
-              <td className="px-4 py-2">{data.updatedAt}</td>
-              
+          {currentData.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-2 text-center">No Transactions Available</td>
             </tr>
-          ))}
+          ) : (
+            currentData.map((transaction) => (
+              <tr key={transaction.id} className="bg-white border-b">
+                <td className="px-4 py-2">{transaction.id}</td>
+                <td className="px-4 py-2">{transaction.Amount}</td>
+                <td className="px-4 py-2">{transaction.Phone}</td>
+                <td className="px-4 py-2">{transaction.MpesaReceiptNumber}</td>
+                <td className="px-4 py-2">{transaction.Status}</td>
+                <td className="px-4 py-2">{new Date(transaction.timestamp).toLocaleString()}</td>
+                <td className="px-4 py-2" style={{ color: "#2563eb" }}>
+                  <i className="fa fa-pencil px-2"></i>
+                  <i className="fa fa-trash-o"></i>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          disabled={currentPage === totalPages}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default Page;
+export default MpesaTransactionsList;

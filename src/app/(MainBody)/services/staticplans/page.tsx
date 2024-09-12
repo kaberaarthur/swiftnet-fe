@@ -1,58 +1,84 @@
-'use client'
+'use client';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Button } from 'reactstrap';
 
-// Define the TableRow interface
-interface TableRow {
-  id: number;
-  account: string;
-  payment: string;
-  fullName: string;
-  phoneNumber: string;
-  phoneHash: string;
-  servicePlan: string;
-  service: string;
-  balance: string;
-  router: string;
-  statusColor: string;
-  manageColor: string;
+// Define the StaticPlan interface
+interface StaticPlan {
+  ".id": string;
+  "address-list": string;
+  "bridge-learning": string;
+  "change-tcp-mss": string;
+  "default": string;
+  "local-address": string;
+  "name": string;
+  "on-down": string;
+  "on-up": string;
+  "only-one": string;
+  "rate-limit": string;
+  "remote-address": string;
+  "use-compression": string;
+  "use-encryption": string;
+  "use-ipv6": string;
+  "use-mpls": string;
+  "use-upnp": string;
 }
 
-// Sample data
-const tableData: TableRow[] = [
-  {
-    id: 1,
-    account: "16:EA:27:6E:C8:52",
-    payment: "TRUE",
-    fullName: "David Kuria",
-    phoneNumber: "254790485731",
-    phoneHash: "01501029827857af5a7185bc4ed613712e16467afc79313d556f49aa6ec35961",
-    servicePlan: "6 Hours",
-    service: "Hotspot",
-    balance: "0",
-    router: "NEXAHUB_951",
-    statusColor: "text-red-500", // Tailwind text color
-    manageColor: "text-blue-500", // Tailwind text color
-  },
-  {
-    id: 2,
-    account: "16:EA:27:6E:C8:33",
-    payment: "TRUE",
-    fullName: "King Kong",
-    phoneNumber: "254747485731",
-    phoneHash: "01501029827857af5a7185bc4ed613712e16467afc79313d556f49aa6ec35961",
-    servicePlan: "6 Hours",
-    service: "Hotspot",
-    balance: "0",
-    router: "NEXAHUB_951",
-    statusColor: "text-red-500", // Tailwind text color
-    manageColor: "text-blue-500", // Tailwind text color
-  },
-  // Add more rows as needed
-];
+// StaticPlansList component
+const StaticPlansList: React.FC = () => {
+  const [staticPlans, setStaticPlans] = useState<StaticPlan[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
+  const itemsPerPage = 10; // Number of items per page
 
-const ClientsList: React.FC = () => {
+  // Helper function to remove the '*' character from the ID
+  function removeStar(id: string): string {
+    if (id.startsWith('*')) {
+      return id.substring(1);
+    }
+    return id;
+  }
+
+  useEffect(() => {
+    const fetchStaticPlans = async () => {
+      const url = '/api/ppp/profile'; // Use the appropriate local API route after the proxy
+      const username = 'Arthur';
+      const password = 'Arthur';
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Basic ' + btoa(username + ':' + password),
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setStaticPlans(data); // Set static plans data
+      } catch (error) {
+        console.error('Failed to fetch Static Plans:', error);
+      }
+    };
+
+    fetchStaticPlans();
+  }, []);
+
+  // Calculate the current slice of data for the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentData = staticPlans.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(staticPlans.length / itemsPerPage);
+
+  // Function to handle page changes
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <div className="overflow-x-auto pt-4">
       <div className='py-2'>
@@ -65,44 +91,61 @@ const ClientsList: React.FC = () => {
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead className="bg-gray-900">
           <tr>
-            <th className="px-4 py-2 text-left text-gray-900">Static Plan</th>
-            <th className="px-4 py-2 text-left text-gray-900">Bandwidth Plans</th>
-            <th className="px-4 py-2 text-left text-gray-900">Plan Price</th>
-            <th className="px-4 py-2 text-left text-gray-900">Plan Validity</th>
-            <th className="px-4 py-2 text-left text-gray-900">Routers</th>
+            <th className="px-4 py-2 text-left text-gray-900">ID</th>
+            <th className="px-4 py-2 text-left text-gray-900">Name</th>
+            <th className="px-4 py-2 text-left text-gray-900">Rate Limit</th>
+            <th className="px-4 py-2 text-left text-gray-900">Local Address</th>
+            <th className="px-4 py-2 text-left text-gray-900">Remote Address</th>
             <th className="px-4 py-2 text-left text-gray-900">Manage</th>
           </tr>
         </thead>
         <tbody>
-          {tableData.map((data) => (
-            <tr key={data.id} className="bg-white border-b">
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline"  style={{ color: "#2563eb" }}>
-                    {data.id}
-                </Link>
-              </td>
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
-                    {data.account}
-                </Link>
-              </td>
-              <td className="px-4 py-2">{data.payment}</td>
-              <td className="px-4 py-2">{data.fullName}</td>
-              <td className="px-4 py-2">
-                <Link href={`/clients/details/${data.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
-                    {data.phoneNumber}
-                </Link>
-              </td>
-              <td className="px-4 py-2" style={{ color: "#2563eb" }}>
-                <i className={`fa fa-pencil px-2`}></i>
-                <i className={`fa fa-trash-o`}></i>
-              </td>
+          {currentData.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="px-4 py-2 text-center">No Data Available</td>
             </tr>
-          ))}
+          ) : (
+            currentData.map((plan) => (
+              <tr key={plan['.id']} className="bg-white border-b">
+                <td className="px-4 py-2">
+                  <Link href={`/staticplans/details/${removeStar(plan['.id'])}`} className="hover:underline" style={{ color: "#2563eb" }}>
+                    {removeStar(plan['.id'])}
+                  </Link>
+                </td>
+                <td className="px-4 py-2">{plan['name']}</td>
+                <td className="px-4 py-2">{plan['rate-limit']}</td>
+                <td className="px-4 py-2">{plan['local-address']}</td>
+                <td className="px-4 py-2">{plan['remote-address']}</td>
+                <td className="px-4 py-2" style={{ color: "#2563eb" }}>
+                  <i className="fa fa-pencil px-2"></i>
+                  <i className="fa fa-trash-o"></i>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          disabled={currentPage === totalPages}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default ClientsList;
+export default StaticPlansList;

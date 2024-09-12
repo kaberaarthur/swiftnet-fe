@@ -1,7 +1,5 @@
 {
-  "/(MainBody)/icons/iconlysprite/page": "app/(MainBody)/icons/iconlysprite/page.js",
-  "/(MainBody)/settings/generalsettings/page": "app/(MainBody)/settings/generalsettings/page.js",
-  "/(MainBody)/settings/administratorusers/page": "app/(MainBody)/settings/administratorusers/page.js",
-  "/(MainBody)/settings/administratorusers/addnewadministrator/page": "app/(MainBody)/settings/administratorusers/addnewadministrator/page.js",
-  "/(MainBody)/burst/addburst/page": "app/(MainBody)/burst/addburst/page.js"
+  "/(MainBody)/clients/hotspotclients/page": "app/(MainBody)/clients/hotspotclients/page.js",
+  "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js",
+  "/(MainBody)/clients/pppoeclients/page": "app/(MainBody)/clients/pppoeclients/page.js"
 }

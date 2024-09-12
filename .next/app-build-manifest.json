@@ -1,5 +1,10 @@
 {
   "pages": {
+    "/(MainBody)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/layout.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -11,45 +16,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/(MainBody)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/layout.js"
-    ],
     "/(MainBody)/clients/clientslist/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/clients/clientslist/page.js"
-    ],
-    "/(MainBody)/table/reactstraptable/basictable/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/table/reactstraptable/basictable/page.js"
-    ],
-    "/(MainBody)/icons/iconlysprite/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/icons/iconlysprite/page.js"
-    ],
-    "/(MainBody)/icons/fontawesomeicon/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/icons/fontawesomeicon/page.js"
-    ],
-    "/(MainBody)/widgets/general/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/widgets/general/page.js"
-    ],
-    "/(MainBody)/clients/addnewclient/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/clients/addnewclient/page.js"
-    ],
-    "/(MainBody)/widgets/chart/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/widgets/chart/page.js"
     ],
     "/(MainBody)/clients/hotspotclients/page": [
       "static/chunks/webpack.js",
@@ -60,181 +30,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/clients/pppoeclients/page.js"
-    ],
-    "/(MainBody)/prepaid/prepaidusers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/prepaidusers/page.js"
-    ],
-    "/(MainBody)/prepaid/prepaidvouchers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/prepaidvouchers/page.js"
-    ],
-    "/(MainBody)/prepaid/refillaccount/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/refillaccount/page.js"
-    ],
-    "/(MainBody)/forms/formscontrols/baseinput/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/forms/formscontrols/baseinput/page.js"
-    ],
-    "/(MainBody)/forms/formscontrols/inputgroups/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/forms/formscontrols/inputgroups/page.js"
-    ],
-    "/(MainBody)/prepaid/rechargeaccount/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/rechargeaccount/page.js"
-    ],
-    "/(MainBody)/dashboard/default/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/dashboard/default/page.js"
-    ],
-    "/(MainBody)/dashboard/ecommerce/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/dashboard/ecommerce/page.js"
-    ],
-    "/(MainBody)/clients/staticclients/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/clients/staticclients/page.js"
-    ],
-    "/(MainBody)/clients/clientslead/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/clients/clientslead/page.js"
-    ],
-    "/(MainBody)/dashboard/project/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/dashboard/project/page.js"
-    ],
-    "/(MainBody)/burst/addburst/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/burst/addburst/page.js"
-    ],
-    "/(MainBody)/forms/formscontrols/radiocheckbox/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/forms/formscontrols/radiocheckbox/page.js"
-    ],
-    "/(MainBody)/burst/burstlist/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/burst/burstlist/page.js"
-    ],
-    "/(MainBody)/services/staticplans/addstaticplan/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/staticplans/addstaticplan/page.js"
-    ],
-    "/(MainBody)/services/hotspotplans/addhotspotplan/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/hotspotplans/addhotspotplan/page.js"
-    ],
-    "/(MainBody)/services/bandwidthplans/addbandwidthplan/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/bandwidthplans/addbandwidthplan/page.js"
-    ],
-    "/(MainBody)/services/staticplans/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/staticplans/page.js"
-    ],
-    "/(MainBody)/services/hotspotplans/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/hotspotplans/page.js"
-    ],
-    "/(MainBody)/services/pppoeplans/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/pppoeplans/page.js"
-    ],
-    "/(MainBody)/services/pppoeplans/addpppoeplan/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/pppoeplans/addpppoeplan/page.js"
-    ],
-    "/(MainBody)/services/bandwidthplans/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/bandwidthplans/page.js"
-    ],
-    "/(MainBody)/payments/mpesatransactions/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/payments/mpesatransactions/page.js"
-    ],
-    "/(MainBody)/payments/mpesalogs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/payments/mpesalogs/page.js"
-    ],
-    "/(MainBody)/payments/mpesareports/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/payments/mpesareports/page.js"
-    ],
-    "/(MainBody)/payments/mpesatransactionstatus/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/payments/mpesatransactionstatus/page.js"
-    ],
-    "/(MainBody)/network/routers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/routers/page.js"
-    ],
-    "/(MainBody)/network/routers/addrouter/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/routers/addrouter/page.js"
-    ],
-    "/(MainBody)/network/ippool/addippool/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/ippool/addippool/page.js"
-    ],
-    "/(MainBody)/network/ippool/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/ippool/page.js"
-    ],
-    "/(MainBody)/systemlogs/hotspotlogs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/systemlogs/hotspotlogs/page.js"
-    ],
-    "/(MainBody)/systemlogs/activitylogs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/systemlogs/activitylogs/page.js"
-    ],
-    "/(MainBody)/settings/generalsettings/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/settings/generalsettings/page.js"
-    ],
-    "/(MainBody)/settings/administratorusers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/settings/administratorusers/page.js"
-    ],
-    "/(MainBody)/settings/administratorusers/addnewadministrator/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/settings/administratorusers/addnewadministrator/page.js"
     ]
   }
 }

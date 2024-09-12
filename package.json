@@ -40,6 +40,7 @@
     "filepond-plugin-image-preview": "^4.6.12",
     "font-awesome": "^4.7.0",
     "formik": "^2.4.5",
+    "http-proxy-middleware": "^3.0.2",
     "i18next": "^23.10.1",
     "i18next-browser-languagedetector": "^7.2.1",
     "i18next-resources-to-backend": "^1.2.0",
