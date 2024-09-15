@@ -76,7 +76,6 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           { path: `/payments/mpesatransactions`, title: "Mpesa Transactions", type: "link" },
-          { path: `/payments/mpesalogs`, title: "Mpesa Logs", type: "link" },
           { path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },
           { path: `/payments/mpesatransactionstatus`, title: "Transaction Status", type: "link" },
         ],
@@ -112,13 +111,9 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           { path: `/settings/generalsettings`, title: "General Settings", type: "link" },
-          { path: `/settings/localization`, title: "Localization", type: "link" },
           { path: `/settings/administratorusers`, title: "Administrator Users", type: "link" },
-          { path: `/settings/administratorroles`, title: "Administrator Roles", type: "link" },
-          { path: `/settings/systemupdate`, title: "System Update", type: "link" },
+          { path: `/settings/administratorusers/addnewadministrator`, title: "Add Admins", type: "link" },
           { path: `/settings/paymentsettings`, title: "Payment Settings", type: "link" },
-          { path: `/settings/restorebackup`, title: "Restore Backup", type: "link" },
-          { path: `/settings/invoicesettings`, title: "Invoice Settings", type: "link" }
         ]
       },      
       {

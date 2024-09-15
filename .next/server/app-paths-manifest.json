@@ -1,5 +1,4 @@
 {
-  "/(MainBody)/clients/hotspotclients/page": "app/(MainBody)/clients/hotspotclients/page.js",
-  "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js",
-  "/(MainBody)/clients/pppoeclients/page": "app/(MainBody)/clients/pppoeclients/page.js"
+  "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js",
+  "/(MainBody)/prepaid/prepaidvouchers/page": "app/(MainBody)/prepaid/prepaidvouchers/page.js"
 }

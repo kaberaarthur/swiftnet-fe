@@ -1,5 +1,10 @@
 {
   "pages": {
+    "/(MainBody)/prepaid/prepaidvouchers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/prepaid/prepaidvouchers/page.js"
+    ],
     "/(MainBody)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -16,20 +21,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/(MainBody)/clients/clientslist/page": [
+    "/(MainBody)/dashboard/default/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/clients/clientslist/page.js"
-    ],
-    "/(MainBody)/clients/hotspotclients/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/clients/hotspotclients/page.js"
-    ],
-    "/(MainBody)/clients/pppoeclients/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/clients/pppoeclients/page.js"
+      "static/chunks/app/(MainBody)/dashboard/default/page.js"
     ]
   }
 }
