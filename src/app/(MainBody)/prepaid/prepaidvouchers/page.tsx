@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'reactstrap';
 import Link from 'next/link';
+import { Card, CardBody, Col, Row } from 'reactstrap'
+
 
 // Define the TableRow interface
 interface TableRow {
@@ -35,7 +37,10 @@ const VouchersList: React.FC = () => {
       const res = await fetch(`/backend/vouchers?page=${page}&limit=${PAGE_SIZE}`);
       const data = await res.json();
       setTableData(data.vouchers);
-      setTotalPages(Math.ceil(data.total / PAGE_SIZE));
+      setTotalPages(Math.ceil(data.totalItems / PAGE_SIZE));
+
+      // console.log("Total Items: ", data.totalItems)
+      // console.log("Total Pages: ", Math.ceil(data.totalItems / PAGE_SIZE))
     } catch (error) {
       console.error('Error fetching vouchers:', error);
     }
@@ -68,7 +73,7 @@ const VouchersList: React.FC = () => {
   // Delete all "Used" vouchers
   const deleteAllUsedVouchers = async () => {
     try {
-      await fetch(`/backend/vouchers/delete-used`, {
+      await fetch(`/backend/delete-used`, {
         method: 'DELETE',
       });
       fetchVouchers(currentPage); // Refresh data after bulk deletion
@@ -79,15 +84,16 @@ const VouchersList: React.FC = () => {
 
   // Handle pagination
   const handleNextPage = () => {
-    console.log("Go to Next");
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+      fetchVouchers(currentPage + 1)
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      fetchVouchers(currentPage - 1)
     }
   };
 
@@ -163,14 +169,23 @@ const VouchersList: React.FC = () => {
       </table>
 
       {/* Pagination */}
-      <div className="flex justify-between mt-4">
-        <Button color="primary" disabled={currentPage === 1} onClick={handlePreviousPage}>
-          Previous
-        </Button>
-        <Button color="primary" disabled={currentPage === totalPages} onClick={handleNextPage}>
-          Next
-        </Button>
-      </div>
+      <Row className='pt-4'>
+        <Col>
+          <Button color="primary" disabled={currentPage === 1} onClick={handlePreviousPage}>
+            Previous
+          </Button>
+        <Col>
+        </Col>
+          <p className="px-4">Showing Page {currentPage} of {totalPages}</p>
+        </Col>
+        <Col>
+          <Button color="primary" disabled={currentPage === totalPages} onClick={handleNextPage}>
+            Next
+          </Button>
+        </Col>
+      </Row>
+
+
     </div>
   );
 };

@@ -25,6 +25,36 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/dashboard/default/page.js"
+    ],
+    "/(MainBody)/prepaid/test/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/prepaid/test/page.js"
+    ],
+    "/(MainBody)/users/userprofile/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/users/userprofile/page.js"
+    ],
+    "/(MainBody)/app/letterbox/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/app/letterbox/page.js"
+    ],
+    "/(MainBody)/widgets/general/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/widgets/general/page.js"
+    ],
+    "/(MainBody)/widgets/chart/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/widgets/chart/page.js"
+    ],
+    "/(MainBody)/uikits/modal/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/uikits/modal/page.js"
     ]
   }
 }

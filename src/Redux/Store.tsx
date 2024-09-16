@@ -17,6 +17,7 @@ import HeaderBookmarkSlice from "./Reducers/HeaderBookmarkSlice";
 import ToDoSlice from "./Reducers/ToDoSlice";
 import ContactSlice from "./Reducers/ContactSlice";
 import TaskSlice from "./Reducers/TaskSlice";
+import userReducer from './Reducers/userSlice'; 
 
 const Store = configureStore({
   reducer: {
@@ -38,7 +39,7 @@ const Store = configureStore({
     todo:ToDoSlice,
     contact:ContactSlice, 
     task: TaskSlice,
-
+    user: userReducer,
   },
 });
 

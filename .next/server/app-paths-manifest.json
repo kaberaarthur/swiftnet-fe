@@ -1,4 +1,8 @@
 {
-  "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js",
-  "/(MainBody)/prepaid/prepaidvouchers/page": "app/(MainBody)/prepaid/prepaidvouchers/page.js"
+  "/(MainBody)/prepaid/test/page": "app/(MainBody)/prepaid/test/page.js",
+  "/(MainBody)/users/userprofile/page": "app/(MainBody)/users/userprofile/page.js",
+  "/(MainBody)/app/letterbox/page": "app/(MainBody)/app/letterbox/page.js",
+  "/(MainBody)/widgets/general/page": "app/(MainBody)/widgets/general/page.js",
+  "/(MainBody)/widgets/chart/page": "app/(MainBody)/widgets/chart/page.js",
+  "/(MainBody)/uikits/modal/page": "app/(MainBody)/uikits/modal/page.js"
 }
