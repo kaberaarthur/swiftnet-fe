@@ -1,8 +1,7 @@
 {
-  "/(MainBody)/prepaid/test/page": "app/(MainBody)/prepaid/test/page.js",
-  "/(MainBody)/users/userprofile/page": "app/(MainBody)/users/userprofile/page.js",
-  "/(MainBody)/app/letterbox/page": "app/(MainBody)/app/letterbox/page.js",
-  "/(MainBody)/widgets/general/page": "app/(MainBody)/widgets/general/page.js",
-  "/(MainBody)/widgets/chart/page": "app/(MainBody)/widgets/chart/page.js",
-  "/(MainBody)/uikits/modal/page": "app/(MainBody)/uikits/modal/page.js"
+  "/(MainBody)/prepaid/prepaidusers/page": "app/(MainBody)/prepaid/prepaidusers/page.js",
+  "/(MainBody)/settings/administratorusers/page": "app/(MainBody)/settings/administratorusers/page.js",
+  "/(MainBody)/settings/administratorusers/addnewadministrator/page": "app/(MainBody)/settings/administratorusers/addnewadministrator/page.js",
+  "/(MainBody)/network/routers/page": "app/(MainBody)/network/routers/page.js",
+  "/(MainBody)/network/ippool/page": "app/(MainBody)/network/ippool/page.js"
 }

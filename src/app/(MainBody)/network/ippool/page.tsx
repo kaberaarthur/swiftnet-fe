@@ -1,15 +1,14 @@
-'use client'
-import React, { useState } from "react";
+'use client';
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Input, Button, Table } from "reactstrap";
 import { FormsControl } from "@/Constant";
 import Link from 'next/link';
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
 interface PoolData {
-  id: number;
-  namePool: string;
-  rangeIP: string;
-  routers: string;
+  ".id": string;
+  name: string;
+  ranges: string;
 }
 
 const PoolList: React.FC = () => {
@@ -29,6 +28,27 @@ const PoolList: React.FC = () => {
     setEntriesPerPage(parseInt(e.target.value));
   };
 
+  useEffect(() => {
+    const fetchPoolData = async () => {
+      try {
+        const response = await fetch('/api/ip/pool', {
+          headers: {
+            'Authorization': 'Basic ' + btoa('Arthur:Arthur'), // Base64 encode your username:password
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch pool data');
+        }
+        const data: PoolData[] = await response.json();
+        setPoolData(data);
+      } catch (error) {
+        console.error('Error fetching pool data:', error);
+      }
+    };
+  
+    fetchPoolData();
+  }, []);  
+
   return (
     <>
       <Breadcrumbs mainTitle={'IP Pool List'} parent={FormsControl} />
@@ -45,8 +65,7 @@ const PoolList: React.FC = () => {
             <span>Show </span>
             <Input 
               type="select" 
-              style={{ width: 'auto', display: 'inline-block' }} 
-              // onChange={handleEntriesChange} 
+              style={{ width: 'auto', display: 'inline-block' }}
               value={entriesPerPage}
             >
               <option value={10}>10</option>
@@ -71,8 +90,8 @@ const PoolList: React.FC = () => {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Name Pool</th>
-                  <th>Range IP</th>
+                  <th>Pool Name</th>
+                  <th>IP Range</th>
                   <th>Routers</th>
                   <th>Manage</th>
                 </tr>
@@ -84,29 +103,22 @@ const PoolList: React.FC = () => {
                   </tr>
                 ) : (
                   poolData.map((pool) => (
-                    <tr key={pool.id}>
-                      <td>{pool.id}</td>
-                      <td>{pool.namePool}</td>
-                      <td>{pool.rangeIP}</td>
-                      <td>{pool.routers}</td>
+                    <tr key={pool[".id"]}>
+                      <td>{pool[".id"].replace("*", "")}</td> {/* Remove asterisk */}
+                      <td>{pool.name}</td>
+                      <td>{pool.ranges}</td>
+                      <td>{"Nexahub_101"}</td>
                       <td>
-                        <Button color="primary" size="sm" className="me-2">Edit</Button>
-                        <Button color="danger" size="sm">Delete</Button>
+                        <Link href={`/network/ippool/editippool?pool_id=${pool[".id"].replace("*", "")}`}>
+                          <Button size="sm" className="me-2" style={{ backgroundColor: '#2563eb' }}>Edit</Button>
+                        </Link>
+                        <Button color="danger" size="sm" >Delete</Button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </Table>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <p>Showing 0 to 0 of 0 entries</p>
-          </Col>
-          <Col className="text-end">
-            <Button color="info" size="sm" className="me-2 mt-4" disabled>Previous</Button>
-            <Button color="info" size="sm" className="mt-4" disabled>Next</Button>
           </Col>
         </Row>
       </Container>

@@ -1,27 +1,67 @@
-"use client";
-import { useState, ChangeEvent } from "react";
-import { Container, Row, Col, Input, Label, Button } from "reactstrap";
+'use client'
+import { useState, ChangeEvent, useEffect } from "react";
+import { Container, Row, Col, Input, Label, Button, Alert } from "reactstrap";
 import { FormsControl } from "@/Constant";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../../Redux/Store';
+
+// Alert
+import SvgIcon from "@/CommonComponent/SVG/SvgIcon";
+// Alert
+
 
 interface FormData {
-  routerName: string;
-  ipAddress: string;
+  router_name: string;
+  ip_address: string;
   username: string;
   interface: string;
-  routerSecret: string;
+  router_secret: string;
   description: string;
+  company_id: number;
+  created_by: number;
+  company_username: string;
 }
 
 const AddNewRouter: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    routerName: "",
-    ipAddress: "",
+  const user = useSelector((state: RootState) => state.user);
+
+  // Alert
+  const [visible, setVisible] = useState<boolean>(false);
+  const [visibleAlert, setVisibleAlert] = useState<boolean>(true);
+  const [visibleAlertThree, setVisibleAlertThree] = useState(true);
+  const onDismiss = () => setVisible(false);
+  const onDismissAlert = () => setVisibleAlert(false);
+  const onDismissAlertThree = () => setVisibleAlertThree(false);
+  // Alert
+
+  const [error, setError] = useState<string | null>(null); // State for error message
+
+  const initialFormData: FormData = {
+    router_name: "",
+    ip_address: "",
     username: "",
     interface: "",
-    routerSecret: "",
+    router_secret: "",
     description: "",
-  });
+    company_id: 0,
+    created_by: 0,
+    company_username: "@company",
+  };
+
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+
+  useEffect(() => {
+    // Ensure user is loaded before accessing its properties
+    if (user) {
+      setFormData((prevData) => ({
+        ...prevData,
+        company_id: user.company_id !== null ? user.company_id : 0,
+        created_by: user.id !== null ? user.id : 0,
+        company_username: user.company_username !== null ? user.company_username : "@company",
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,9 +71,47 @@ const AddNewRouter: React.FC = () => {
     }));
   };
 
-  const handleAddRouter = () => {
-    // Handle the logic to add a router here
-    console.log(formData);
+  const handleAddRouter = async () => {
+    const url = '/backend/routers';
+
+    // Validate form data
+    const requiredFields = [
+      'router_name',
+      'ip_address',
+      'username',
+      'interface',
+      'router_secret',
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData[field as keyof FormData]) {
+        setError(`Please fill out the ${field.replace(/_/g, ' ')} field.`);
+        return;
+      }
+    }
+
+    setError(null); // Reset error message if validation passes
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`Network response was not ok: ${errorBody}`);
+      }
+
+      const result = await response.json();
+      setVisible(true);
+      setFormData(initialFormData);
+    } catch (error) {
+      console.error('Error adding router:', error);
+    }
   };
 
   return (
@@ -44,8 +122,8 @@ const AddNewRouter: React.FC = () => {
           <Col sm="12">
             <Label>{'Router Name'}</Label>
             <Input
-              value={formData.routerName}
-              name="routerName"
+              value={formData.router_name}
+              name="router_name"
               type="text"
               placeholder=''
               onChange={handleInputChange}
@@ -55,8 +133,8 @@ const AddNewRouter: React.FC = () => {
           <Col sm="12">
             <Label>{'IP Address'}</Label>
             <Input
-              value={formData.ipAddress}
-              name="ipAddress"
+              value={formData.ip_address}
+              name="ip_address"
               type="text"
               placeholder=''
               onChange={handleInputChange}
@@ -88,9 +166,9 @@ const AddNewRouter: React.FC = () => {
           <Col sm="12">
             <Label>{'Router Secret'}</Label>
             <Input
-              value={formData.routerSecret}
-              name="routerSecret"
-              type="password"
+              value={formData.router_secret}
+              name="router_secret"
+              type="text"
               placeholder=''
               onChange={handleInputChange}
             />
@@ -105,6 +183,24 @@ const AddNewRouter: React.FC = () => {
               placeholder=''
               onChange={handleInputChange}
             />
+          </Col>
+
+          {error && (
+            <Col sm="12">
+              <Alert color="danger">{error}</Alert>
+            </Col>
+          )}
+
+          <Col sm="12">
+            <Alert color="transparent" fade isOpen={visible} className="border-success alert-dismissible p-0">
+              <div className="alert-arrow bg-success">
+                <SvgIcon iconId="clock" className="feather" />
+              </div>
+              <p>Router <strong className="txt-dark">added</strong> successfully</p>
+              <Button className="p-0 border-0 me-2 ms-auto" onClick={onDismiss}>
+                <span className="bg-success px-3 py-1">Dismiss</span>
+              </Button>
+            </Alert>
           </Col>
 
           <Col sm="12">

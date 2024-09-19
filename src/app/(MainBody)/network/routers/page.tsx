@@ -1,107 +1,107 @@
 'use client'
 import Link from 'next/link';
-import React from 'react';
-import { Row, Button } from 'reactstrap';
+import React, { useEffect, useState } from 'react';
+import { Row, Button, Alert, Badge } from 'reactstrap';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../Redux/Store';
 
 // Define the TableRow interface
 interface TableRow {
   id: number;
-  routerName: string;
-  ipAddress: string;
+  router_name: string;
+  ip_address: string;
   username: string;
-  routerSecret: string;
+  router_secret: string;
   interface: string;
   description: string;
-  status: string;
+  status: number;
 }
 
-// Sample data based on the image
-const tableData: TableRow[] = [
-  {
-    id: 1,
-    routerName: "NEXAHUB_951",
-    ipAddress: "10.140.0.155",
-    username: "wispman",
-    routerSecret: "********",
-    interface: "bridge",
-    description: "HOTSPOT",
-    status: "active",
-  },
-  // Add more rows if needed
-];
-
+// RoutersList component
 const RoutersList: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
+  const [routers, setRouters] = useState<TableRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRouters = async () => {
+      const url = `/backend/routers?company_id=${user.company_id}`;
+    
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to fetch routers');
+        }
+        const data = await response.json();
+        setRouters(data);
+      } catch (error) {
+        // Type assertion to specify that error is an instance of Error
+        const errorMessage = (error as Error).message || 'An unknown error occurred';
+        console.error('Error fetching routers:', errorMessage);
+        setError(errorMessage);
+      }
+    };
+    
+
+    if (user && user.company_id) {
+      fetchRouters();
+    }
+  }, [user]);
+
   return (
     <div className="overflow-x-auto pt-4">
       <div className='py-2'>
         <Row sm="6">
-        <Link href={'/network/routers/addrouter'}>
+          <Link href={'/network/routers/addrouter'}>
             <Button color='info' className="px-6 py-2">Add Router</Button>
           </Link>
         </Row>
       </div>
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          Show 
-          <select className="mx-2 border rounded">
-            <option>10</option>
-            <option>20</option>
-            <option>50</option>
-          </select>
-          entries
-        </div>
-        <div>
-          Search: 
-          <input type="text" className="ml-2 border rounded" />
-        </div>
-      </div>
+      {error && <Alert color="danger">{error}</Alert>}
+      
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead className="bg-gray-100">
           <tr>
             <th className="px-4 py-2 text-left">ID</th>
-            <th className="px-4 py-2 text-left">Router name</th>
+            <th className="px-4 py-2 text-left">Router Name</th>
             <th className="px-4 py-2 text-left">IP Address</th>
             <th className="px-4 py-2 text-left">Username</th>
             <th className="px-4 py-2 text-left">Router Secret</th>
             <th className="px-4 py-2 text-left">Interface</th>
             <th className="px-4 py-2 text-left">Description</th>
-            <th className="px-4 py-2 text-left">VIEW ROUTER</th>
-            <th className="px-4 py-2 text-left">status</th>
+            <th className="px-4 py-2 text-left">Status</th>
             <th className="px-4 py-2 text-left">Manage</th>
           </tr>
         </thead>
         <tbody>
-          {tableData.map((data) => (
+          {routers.map((data) => (
             <tr key={data.id} className="border-b">
               <td className="px-4 py-2">{data.id}</td>
-              <td className="px-4 py-2">{data.routerName}</td>
-              <td className="px-4 py-2">{data.ipAddress}</td>
+              <td className="px-4 py-2">{data.router_name}</td>
+              <td className="px-4 py-2">{data.ip_address}</td>
               <td className="px-4 py-2">{data.username}</td>
-              <td className="px-4 py-2">{data.routerSecret}</td>
+              <td className="px-4 py-2">{data.router_secret}</td>
               <td className="px-4 py-2">{data.interface}</td>
               <td className="px-4 py-2">{data.description}</td>
               <td className="px-4 py-2">
-                <i className="fa fa-cog text-blue-500"></i>
+                <Badge 
+                  color={data.status === 1 ? "success" : "danger"} 
+                  className="text-capitalize badge-primary badge bg-1"
+                >
+                  {data.status === 1 ? "Active" : "Inactive"}
+                </Badge>
               </td>
-              <td className="px-4 py-2">
-                <span className="px-2 py-1 bg-green-500 text-white rounded-full text-sm">{data.status}</span>
-              </td>
-              <td className="px-4 py-2">
-                <i className="fa fa-pencil text-blue-500 mr-2"></i>
-                <i className="fa fa-trash-o text-red-500"></i>
+              <td className="px-4 py-2 text-center">
+                <div className="d-flex justify-content-center">
+                  <Link href={`/network/routers/editrouter?router_id=${data.id}`}>
+                    <i className="fa fa-pencil mx-2" style={{ color: '#2563eb' }}></i>
+                  </Link>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="mt-4 flex justify-between items-center">
-        <div>Showing 1 to 1 of 1 entries</div>
-        <div>
-            <Button color='info' className="px-6 py-2 mr-2">Previous</Button>
-            <Button color='success' className="px-6 py-2 mr-2">1</Button>
-            <Button color='info' className="px-6 py-2 mr-2">Next</Button>
-        </div>
-      </div>
     </div>
   );
 };

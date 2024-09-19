@@ -16,7 +16,7 @@ const UserProfile = () => {
     // Function to update user details
     const updateUser = () => {
         dispatch(setUserDetails({
-            id: 1,
+            id: 9004,
             name: 'Kamau Njoroge',
             email: 'kamau@swiftnet.com',
             phone: '254722455289',
@@ -43,8 +43,8 @@ const UserProfile = () => {
             <div className="d-flex align-items-center" onClick={() => setShow(!show)}>
                 <Image width={45} height={49} src={`${ImagePath}/profile.png`} alt="avatar" />
                 <div className="flex-grow-1">
-                    <h5>{user.name || 'Arthur Kabera'}</h5>
-                    <span>{user.user_type ? capitalizeFirstLetter(user.user_type) : 'UI Designer'}</span>
+                    <h5>{user.name || 'Admin'}</h5>
+                    <span>{user.user_type ? capitalizeFirstLetter(user.user_type) : 'Admin'}</span>
                 </div>
             </div>
             <div className={`custom-menu overflow-hidden ${show ? 'show' : ''}`}>

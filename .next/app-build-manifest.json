@@ -55,6 +55,61 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/uikits/modal/page.js"
+    ],
+    "/(MainBody)/network/routers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/page.js"
+    ],
+    "/(MainBody)/network/routers/addrouter/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/addrouter/page.js"
+    ],
+    "/(MainBody)/uikits/popover/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/uikits/popover/page.js"
+    ],
+    "/(MainBody)/uikits/alert/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/uikits/alert/page.js"
+    ],
+    "/(MainBody)/buttons/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/buttons/page.js"
+    ],
+    "/(MainBody)/uikits/tagpills/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/uikits/tagpills/page.js"
+    ],
+    "/(MainBody)/network/routers/editrouter/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/editrouter/page.js"
+    ],
+    "/(MainBody)/prepaid/prepaidusers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/prepaid/prepaidusers/page.js"
+    ],
+    "/(MainBody)/settings/administratorusers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/settings/administratorusers/page.js"
+    ],
+    "/(MainBody)/settings/administratorusers/addnewadministrator/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/settings/administratorusers/addnewadministrator/page.js"
+    ],
+    "/(MainBody)/network/ippool/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/ippool/page.js"
     ]
   }
 }
