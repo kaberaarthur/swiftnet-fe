@@ -87,9 +87,6 @@ const EditRouter: React.FC = () => {
           if (response.ok) {
             const data = await response.json();
   
-            // console.log("Company ID User: ", user.company_id);
-            // console.log("Company ID Router: ", data.company_id);
-  
             // Check if user.company_id matches data.company_id
             if (user.company_id !== data.company_id) {
               setNotFound(true); // Simulate router not found if company_id doesn't match

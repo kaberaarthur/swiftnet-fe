@@ -72,30 +72,7 @@ const PoolList: React.FC = () => {
             </Link>
           </Col>
         </Row>
-        <Row className="mb-3 align-items-center">
-          <Col xs="6">
-            <span>Show </span>
-            <Input 
-              type="select" 
-              style={{ width: 'auto', display: 'inline-block' }}
-              value={entriesPerPage}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </Input>
-            <span> entries</span>
-          </Col>
-          <Col xs="6" className="text-end">
-            <span>Search: </span>
-            <Input 
-              type="text" 
-              style={{ width: 'auto', display: 'inline-block' }} 
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </Col>
-        </Row>
+        
         <Row>
           <Col>
             <Table striped bordered hover>

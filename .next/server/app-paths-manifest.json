@@ -1,5 +1,7 @@
 {
-  "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js",
-  "/(MainBody)/network/ippool/page": "app/(MainBody)/network/ippool/page.js",
-  "/(MainBody)/network/ippool/addippool/page": "app/(MainBody)/network/ippool/addippool/page.js"
+  "/(MainBody)/network/ippool/addippool/page": "app/(MainBody)/network/ippool/addippool/page.js",
+  "/(MainBody)/network/routers/page": "app/(MainBody)/network/routers/page.js",
+  "/(MainBody)/network/routers/addrouter/page": "app/(MainBody)/network/routers/addrouter/page.js",
+  "/(MainBody)/network/routers/editrouter/page": "app/(MainBody)/network/routers/editrouter/page.js",
+  "/(MainBody)/systemlogs/hotspotlogs/page": "app/(MainBody)/systemlogs/hotspotlogs/page.js"
 }

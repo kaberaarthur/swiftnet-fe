@@ -1,41 +1,39 @@
 "use client";
-import React, { useState } from "react";
-import { Container, Row, Col, Input, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { FormsControl } from "@/Constant";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
 interface LogEntry {
-  time: string;
+  timestamp: string;
   topics: string;
+  mac_address: string; // Add mac_address to the interface
   message: string;
-  router: string;
 }
 
 const HotspotLogs: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(20);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample data (3 rows)
-  const logData: LogEntry[] = [
-    {
-      time: "03:32:02",
-      topics: "hotspot,info,debug",
-      message: "D8:32:14:5B:03:68 (10.0.0.47): login failed: invalid username or password",
-      router: "NEXAHUB_951"
-    },
-    {
-      time: "03:32:02",
-      topics: "hotspot,info,debug",
-      message: "D8:32:14:5B:03:68 (10.0.0.47): trying to log in by mac",
-      router: "NEXAHUB_951"
-    },
-    {
-      time: "03:31:46",
-      topics: "hotspot,info,debug",
-      message: "58:D9:D5:13:91:98 (10.0.0.7): login failed: invalid username or password",
-      router: "NEXAHUB_951"
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch('/backend/hotspot-logs');
+      const data = await response.json();
+      // Set logs in reverse order and keep the last 200 entries
+      setLogs(data.slice(-200).reverse());
+    } catch (error) {
+      console.error('Error fetching logs:', error);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchLogs(); // Initial fetch
+
+    const intervalId = setInterval(fetchLogs, 60000); // Fetch every 1 Minute
+    return () => clearInterval(intervalId); // Cleanup on component unmount
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -43,50 +41,37 @@ const HotspotLogs: React.FC = () => {
 
   const handleEntriesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setEntriesPerPage(parseInt(e.target.value));
+    setCurrentPage(1); // Reset to page 1 when changing number of entries
   };
+
+  const filteredLogs = logs.filter((log) =>
+    log.message.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastEntry = currentPage * entriesPerPage;
+  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+  const currentLogs = filteredLogs.slice(indexOfFirstEntry, indexOfLastEntry);
+
+  const totalPages = Math.ceil(filteredLogs.length / entriesPerPage);
 
   return (
     <>
       <Breadcrumbs mainTitle={'HOTSPOT LOGS'} parent={FormsControl} />
       <Container fluid className="bg-white p-4 rounded shadow">
-        <Row className="mb-3 align-items-center">
-          <Col xs="6">
-            <span>Show </span>
-            <Input type="select" style={{ width: 'auto', display: 'inline-block' }} value={entriesPerPage}>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </Input>
-            <span> entries</span>
-          </Col>
-          <Col xs="6" className="text-end">
-            <span>Search: </span>
-            <Input 
-              type="text" 
-              style={{ width: 'auto', display: 'inline-block' }} 
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </Col>
-        </Row>
         <Row>
           <Col>
             <Table bordered hover responsive>
               <thead>
                 <tr>
-                  <th>Time</th>
-                  <th>Topics</th>
-                  <th>Message</th>
-                  <th>Router</th>
+                  <th>Timestamp</th> 
+                  <th>MAC Address</th>
                 </tr>
               </thead>
               <tbody>
-                {logData.map((log, index) => (
+                {currentLogs.map((log, index) => (
                   <tr key={index}>
-                    <td>{log.time}</td>
-                    <td>{log.topics}</td>
-                    <td>{log.message}</td>
-                    <td>{log.router}</td>
+                    <td>{log.timestamp} {log.topics}</td>
+                    <td>{log.mac_address} {log.message}</td>
                   </tr>
                 ))}
               </tbody>
@@ -94,37 +79,23 @@ const HotspotLogs: React.FC = () => {
           </Col>
         </Row>
         <Row>
-          <Col xs="6">
-            <p>Showing 1 to 3 of 124 entries</p>
+          <Col xs="4">
+            <p>
+              Showing {indexOfFirstEntry + 1} to {Math.min(indexOfLastEntry, filteredLogs.length)} of {filteredLogs.length} entries
+            </p>
           </Col>
-          <Col xs="6" className="text-end">
+          <Col xs="8" className="text-end">
             <Pagination>
-              <PaginationItem disabled>
-                <PaginationLink previous href="#">Previous</PaginationLink>
+              <PaginationItem disabled={currentPage === 1}>
+                <PaginationLink previous href="#" onClick={() => setCurrentPage(currentPage - 1)}>Previous</PaginationLink>
               </PaginationItem>
-              <PaginationItem active>
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">2</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">4</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">5</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">...</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">13</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink next href="#">Next</PaginationLink>
+              {[...Array(totalPages).keys()].map(page => (
+                <PaginationItem active={currentPage === page + 1} key={page}>
+                  <PaginationLink href="#" onClick={() => setCurrentPage(page + 1)}>{page + 1}</PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem disabled={currentPage === totalPages}>
+                <PaginationLink next href="#" onClick={() => setCurrentPage(currentPage + 1)}>Next</PaginationLink>
               </PaginationItem>
             </Pagination>
           </Col>

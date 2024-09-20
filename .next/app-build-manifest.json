@@ -30,6 +30,26 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/network/ippool/addippool/page.js"
+    ],
+    "/(MainBody)/network/routers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/page.js"
+    ],
+    "/(MainBody)/network/routers/addrouter/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/addrouter/page.js"
+    ],
+    "/(MainBody)/network/routers/editrouter/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/routers/editrouter/page.js"
+    ],
+    "/(MainBody)/systemlogs/hotspotlogs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/systemlogs/hotspotlogs/page.js"
     ]
   }
 }
