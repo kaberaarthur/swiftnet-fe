@@ -1,7 +1,5 @@
 {
-  "/(MainBody)/prepaid/prepaidusers/page": "app/(MainBody)/prepaid/prepaidusers/page.js",
-  "/(MainBody)/settings/administratorusers/page": "app/(MainBody)/settings/administratorusers/page.js",
-  "/(MainBody)/settings/administratorusers/addnewadministrator/page": "app/(MainBody)/settings/administratorusers/addnewadministrator/page.js",
-  "/(MainBody)/network/routers/page": "app/(MainBody)/network/routers/page.js",
-  "/(MainBody)/network/ippool/page": "app/(MainBody)/network/ippool/page.js"
+  "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js",
+  "/(MainBody)/network/ippool/page": "app/(MainBody)/network/ippool/page.js",
+  "/(MainBody)/network/ippool/addippool/page": "app/(MainBody)/network/ippool/addippool/page.js"
 }

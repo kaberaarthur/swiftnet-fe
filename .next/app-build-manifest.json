@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/(MainBody)/prepaid/prepaidvouchers/page": [
+    "/(MainBody)/dashboard/default/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/prepaidvouchers/page.js"
+      "static/chunks/app/(MainBody)/dashboard/default/page.js"
     ],
     "/(MainBody)/layout": [
       "static/chunks/webpack.js",
@@ -21,95 +21,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/(MainBody)/dashboard/default/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/dashboard/default/page.js"
-    ],
-    "/(MainBody)/prepaid/test/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/test/page.js"
-    ],
-    "/(MainBody)/users/userprofile/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/users/userprofile/page.js"
-    ],
-    "/(MainBody)/app/letterbox/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/app/letterbox/page.js"
-    ],
-    "/(MainBody)/widgets/general/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/widgets/general/page.js"
-    ],
-    "/(MainBody)/widgets/chart/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/widgets/chart/page.js"
-    ],
-    "/(MainBody)/uikits/modal/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/uikits/modal/page.js"
-    ],
-    "/(MainBody)/network/routers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/routers/page.js"
-    ],
-    "/(MainBody)/network/routers/addrouter/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/routers/addrouter/page.js"
-    ],
-    "/(MainBody)/uikits/popover/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/uikits/popover/page.js"
-    ],
-    "/(MainBody)/uikits/alert/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/uikits/alert/page.js"
-    ],
-    "/(MainBody)/buttons/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/buttons/page.js"
-    ],
-    "/(MainBody)/uikits/tagpills/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/uikits/tagpills/page.js"
-    ],
-    "/(MainBody)/network/routers/editrouter/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/network/routers/editrouter/page.js"
-    ],
-    "/(MainBody)/prepaid/prepaidusers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/prepaid/prepaidusers/page.js"
-    ],
-    "/(MainBody)/settings/administratorusers/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/settings/administratorusers/page.js"
-    ],
-    "/(MainBody)/settings/administratorusers/addnewadministrator/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/settings/administratorusers/addnewadministrator/page.js"
-    ],
     "/(MainBody)/network/ippool/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/network/ippool/page.js"
+    ],
+    "/(MainBody)/network/ippool/addippool/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/network/ippool/addippool/page.js"
     ]
   }
 }

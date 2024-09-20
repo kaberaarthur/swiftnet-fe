@@ -5,16 +5,29 @@ import { FormsControl } from "@/Constant";
 import Link from 'next/link';
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
-interface PoolData {
-  ".id": string;
+// Redux
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../Redux/Store';
+
+// Use IPPool interface instead of PoolData
+interface IPPool {
+  id: number;
+  mikrotik_gen_id: string;
+  company_username: string;
+  company_id: number;
+  date_created: string;
+  router_id: number;
+  router_name: string;
   name: string;
   ranges: string;
 }
 
 const PoolList: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [poolData, setPoolData] = useState<PoolData[]>([]);
+  const [poolData, setPoolData] = useState<IPPool[]>([]); // Updated to use IPPool interface
 
   const handleNewPool = () => {
     console.log("Create new pool");
@@ -31,23 +44,22 @@ const PoolList: React.FC = () => {
   useEffect(() => {
     const fetchPoolData = async () => {
       try {
-        const response = await fetch('/api/ip/pool', {
-          headers: {
-            'Authorization': 'Basic ' + btoa('Arthur:Arthur'), // Base64 encode your username:password
-          },
-        });
+        const response = await fetch(`/backend/ippools?company_id=${user.company_id}`); // No Authorization header
         if (!response.ok) {
           throw new Error('Failed to fetch pool data');
         }
-        const data: PoolData[] = await response.json();
+        const data: IPPool[] = await response.json(); // Expecting data to match IPPool interface
         setPoolData(data);
       } catch (error) {
         console.error('Error fetching pool data:', error);
       }
     };
-  
-    fetchPoolData();
-  }, []);  
+
+    if (user && user.company_id) {
+      fetchPoolData();
+    }
+    
+  }, [user]);  
 
   return (
     <>
@@ -56,7 +68,7 @@ const PoolList: React.FC = () => {
         <Row className="mb-3">
           <Col lg='3'>
             <Link href={'/network/ippool/addippool'}>
-                <Button color="info" className="w-100" onClick={handleNewPool}>New Pool</Button>
+              <Button color="info" className="w-100" onClick={handleNewPool}>New Pool</Button>
             </Link>
           </Col>
         </Row>
@@ -93,7 +105,6 @@ const PoolList: React.FC = () => {
                   <th>Pool Name</th>
                   <th>IP Range</th>
                   <th>Routers</th>
-                  <th>Manage</th>
                 </tr>
               </thead>
               <tbody>
@@ -102,20 +113,16 @@ const PoolList: React.FC = () => {
                     <td colSpan={5} className="text-center">No data available in table</td>
                   </tr>
                 ) : (
-                  poolData.map((pool) => (
-                    <tr key={pool[".id"]}>
-                      <td>{pool[".id"].replace("*", "")}</td> {/* Remove asterisk */}
-                      <td>{pool.name}</td>
-                      <td>{pool.ranges}</td>
-                      <td>{"Nexahub_101"}</td>
-                      <td>
-                        <Link href={`/network/ippool/editippool?pool_id=${pool[".id"].replace("*", "")}`}>
-                          <Button size="sm" className="me-2" style={{ backgroundColor: '#2563eb' }}>Edit</Button>
-                        </Link>
-                        <Button color="danger" size="sm" >Delete</Button>
-                      </td>
-                    </tr>
-                  ))
+                  poolData
+                    .filter(pool => pool.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((pool) => (
+                      <tr key={pool.id}>
+                        <td>{pool.id}</td>
+                        <td>{pool.name}</td>
+                        <td>{pool.ranges}</td>
+                        <td>{pool.router_name}</td>
+                      </tr>
+                    ))
                 )}
               </tbody>
             </Table>
