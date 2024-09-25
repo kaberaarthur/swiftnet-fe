@@ -59,7 +59,7 @@ const ClientsList: React.FC = () => {
   // Function to handle edit action
   const handleEdit = (id: number) => {
     console.log(`Edit bandwidth with ID: ${id}`);
-    // Implement the edit functionality here
+    
   };
 
   // Toggle the Delete Modal
@@ -153,7 +153,9 @@ const ClientsList: React.FC = () => {
               </td>
               <td className="px-4 py-2">{bandwidth.rate}/{bandwidth.rate} Mbps</td>
               <td className="px-4 py-2" style={{ color: "#2563eb" }}>
-                <i className={`fa fa-pencil px-2`} onClick={() => handleEdit(bandwidth.id)}></i>
+                <Link href={`/services/bandwidthplans/editbandwidthplan?plan_id=${bandwidth.id}`}>
+                  <i className={`fa fa-pencil px-2`} style={{ color: "#2563eb" }}></i>
+                </Link>
                 <i className={`fa fa-trash-o`} onClick={() => handlePreDelete(bandwidth.id)}></i>
               </td>
             </tr>

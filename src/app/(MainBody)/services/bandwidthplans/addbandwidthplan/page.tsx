@@ -1,44 +1,50 @@
 "use client";
-import { useState, ChangeEvent } from "react";
-import { Container, Row, Col, Input, Label, Button } from "reactstrap";
+import { useState, ChangeEvent, useEffect } from "react";
+import { Container, Row, Col, Input, Label, Button, Alert } from "reactstrap";
 import { FormsControl } from "@/Constant";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
-import PlanTypesRadio from "@/Components/Forms/FormsControl/RadioCheckbox/BasicRadioAndCheckbox/PlanTypesRadio";
+
+// Redux
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../../Redux/Store';
+
+// Save a Local Log
+import { postLocalLog } from '../../../logservice/logService';
 
 interface FormData {
-    account: string;
-    name: string;
-    email: string;
-    password: string;
-    address: string;
-    fatNo: string;
-    phoneNumber: string;
-    paymentsNo: string;
-    smsGroup: string;
-    installationFee: string;
-    type: string;
-    routers: string; 
-    servicePlan: string;
-    paymentDoneViaMpesa: string;
+  name: string;
+  rate: number;
+  company_id: number; // Ensure this is always a number
+  company_username: string;
 }
 
-const AddNewClient: React.FC = () => {
+const AddNewBandwidthPlan: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
+
   const [formData, setFormData] = useState<FormData>({
-    account: "",
     name: "",
-    email: "",
-    password: "",
-    address: "",
-    fatNo: "",
-    phoneNumber: "",
-    paymentsNo: "",
-    smsGroup: "",
-    installationFee: "",
-    type: "",
-    routers: "", 
-    servicePlan: "",
-    paymentDoneViaMpesa: "",
+    rate: 0,
+    company_id: 0, // Default to 0, but will be updated
+    company_username: "",
   });
+
+  const [rateValue, setRateValue] = useState<string>("");
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Populate company_id and company_username
+    if (user) {
+      setFormData((prevData) => ({
+        ...prevData,
+        company_id: user.company_id || 0, // Fallback to 0 if undefined
+        company_username: user.company_username || "", // Fallback to empty string if undefined
+      }));
+      setLoading(false);
+    } else {
+      console.error("User data is not available");
+    }
+  }, [user]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,93 +54,101 @@ const AddNewClient: React.FC = () => {
     }));
   };
 
-  const handleAddClient = () => {
-    // Handle the logic to add a client here
-    console.log(formData);
+  const handleAddBandwidthPlan = async () => {
+    const requestBody = {
+      ...formData,
+      rate: parseInt(rateValue), // Ensure rate is a number
+    };
+
+    try {
+      const response = await fetch('/backend/bandwidths', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add bandwidth');
+      }
+
+      const result = await response.json();
+      console.log('Success:', result);
+      setVisible(true);
+
+      // After success post a log
+      postLocalLog("Added a bandwidth plan", user);
+
+      // Automatically hide the alert after 15 seconds
+      setTimeout(() => setVisible(false), 15000);
+    } catch (error) {
+      console.error('Error adding bandwidth:', error);
+    }
   };
 
-  const [timeUnit, setTimeUnit] = useState<'days' | 'months'>('days');
-  const [value, setValue] = useState<string>('');
+  // Check for form validation
+  const isFormValid = () => {
+    const isNameValid = formData.name.trim() !== "";
+    const isRateValid = /^\d+$/.test(rateValue); // Ensure it's a whole number
 
-  const [downloadUnit, setDownloadUnit] = useState<'Mbps' | 'Kbps'>('Mbps');
-  const [downloadRateValue, setDownloadRateValue] = useState<string>('');
-
-  const [uploadUnit, setUploadUnit] = useState<'Mbps' | 'Kbps'>('Mbps');
-  const [uploadRateValue, setUploadRateValue] = useState<string>('');
+    return isNameValid && isRateValid && !loading;
+  };
 
   return (
     <>
       <Breadcrumbs mainTitle={'Add New Bandwidth'} parent={FormsControl} />
       <Container fluid>
-        <Row className="g-3">
+        <Alert color="success" className="py-2" isOpen={visible} toggle={() => setVisible(false)} fade>
+          <p>
+            <strong>Bandwidth Added Successfully!</strong>
+          </p>
+        </Alert>
+        <Row className="g-3 pb-3">
           <Col sm="6">
             <Label>{'Bandwidth Name'}</Label>
             <Input
-              value={formData.account}
-              name="account"
+              value={formData.name}
+              name="name"
               type="text"
-              placeholder=''
+              placeholder='Enter Bandwidth Name'
               onChange={handleInputChange}
             />
           </Col>
+        </Row>
+        <Row className="gy-3">
           <Col sm="6">
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Rate Download'}</Label>
+            <Label>{'Download/Upload Rate'}</Label>
             <div className="w-full flex">
-              <input
+              <span style={{ color: '#dc2626', marginLeft: '1px', marginBottom: '4px', alignSelf: 'center' }}>
+                {"(This will set an equal rate for both Download and Upload Rate)"}
+              </span>
+              <Input
                 type="number"
-                value={downloadRateValue}
-                onChange={(e) => setDownloadRateValue(e.target.value)}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder=""
+                value={rateValue}
+                onChange={(e) => setRateValue(e.target.value)}
+                className="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter Rate"
               />
-              <select
-                value={downloadUnit}
-                onChange={(e) => setDownloadUnit(e.target.value as 'Mbps' | 'Kbps')}
-                className="p-2 border border-blue-500 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Mbps">Mbps</option>
-                <option value="Kbps">Kbps</option>
-              </select>
             </div>
-          </Col>
-
-          <Col sm="6">
-          </Col>
-
-          <Col sm="6">
-            <Label>{'Rate Upload'}</Label>
-            <div className="w-full flex">
-              <input
-                type="number"
-                value={uploadRateValue}
-                onChange={(e) => setUploadRateValue(e.target.value)}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder=""
-              />
-              <select
-                value={uploadUnit}
-                onChange={(e) => setUploadUnit(e.target.value as 'Mbps' | 'Kbps')}
-                className="p-2 border border-blue-500 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Mbps">Mbps</option>
-                <option value="Kbps">Kbps</option>
-              </select>
-            </div>
-          </Col>
-
-          <Col sm="6">
-          </Col>
-
-          <Col sm="6">
-            <Button color='info' className="px-6 py-2">Save Plan</Button>
           </Col>
         </Row>
+        <Row className="gy-3 pt-3">
+          <Col sm="6">
+            <Button
+              style={{ backgroundColor: '#1d4ed8', color: 'white' }}
+              className="px-6 py-2"
+              onClick={handleAddBandwidthPlan}
+              disabled={!isFormValid()}
+            >
+              Save Plan
+            </Button>
+          </Col>
+        </Row>
+        
       </Container>
     </>
   );
 };
 
-export default AddNewClient;
+export default AddNewBandwidthPlan;

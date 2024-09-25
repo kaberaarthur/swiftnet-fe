@@ -1,7 +1,7 @@
 {
-  "/(MainBody)/services/hotspotplans/addhotspotplan/page": "app/(MainBody)/services/hotspotplans/addhotspotplan/page.js",
+  "/(MainBody)/icons/feathericon/page": "app/(MainBody)/icons/feathericon/page.js",
+  "/(MainBody)/services/bandwidthplans/addbandwidthplan/page": "app/(MainBody)/services/bandwidthplans/addbandwidthplan/page.js",
+  "/(MainBody)/services/bandwidthplans/editbandwidthplan/page": "app/(MainBody)/services/bandwidthplans/editbandwidthplan/page.js",
   "/(MainBody)/services/bandwidthplans/page": "app/(MainBody)/services/bandwidthplans/page.js",
-  "/(MainBody)/uikits/modal/page": "app/(MainBody)/uikits/modal/page.js",
-  "/(MainBody)/icons/flagicons/page": "app/(MainBody)/icons/flagicons/page.js",
-  "/(MainBody)/icons/feathericon/page": "app/(MainBody)/icons/feathericon/page.js"
+  "/(MainBody)/systemlogs/activitylogs/page": "app/(MainBody)/systemlogs/activitylogs/page.js"
 }
