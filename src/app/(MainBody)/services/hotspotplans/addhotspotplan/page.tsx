@@ -1,11 +1,14 @@
 'use client'
 import { useState, ChangeEvent, useEffect } from "react";
-import { Container, Row, Col, Input, Label, Button, FormGroup, InputGroup } from "reactstrap";
+import { Container, Row, Col, Input, Label, Button, Alert } from "reactstrap";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
 // Redux
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../../Redux/Store';
+
+// Save a Local Log
+import { postLocalLog } from '../../../logservice/logService';
 
 interface FormData {
     plan_name: string;
@@ -33,10 +36,27 @@ interface Router {
   status: number;
 }
 
+// Define the Bandwidth interface
+interface Bandwidth {
+  id: number;
+  name: string;
+  rate: number; // Assuming rate is the download/upload rate
+  date_created: string;
+  company_id: number;
+  company_username: string;
+}
+
 
 const AddHotspotPlan: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [routers, setRouters] = useState<Router[]>([]);
+
+  const [bandwidths, setBandwidths] = useState<Bandwidth[]>([]);
+  const [bandwidthName, setBandwidthName] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+  // Alerts
+  const [visible, setVisible] = useState(false);
 
   // Get Routers
   useEffect(() => {
@@ -57,6 +77,28 @@ const AddHotspotPlan: React.FC = () => {
       fetchRouters();
     }
   }, [user]);  // Dependency on user to ensure company_id is available
+
+  // Get Bandwidths
+  useEffect(() => {
+    const fetchBandwidths = async () => {
+      if (user && user.company_id) {
+        try {
+          const response = await fetch(`/backend/bandwidths?company_id=${user.company_id}`);
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          setBandwidths(data);
+        } catch (error) {
+          console.error('Error fetching bandwidths:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBandwidths();
+  }, [user]);
 
   
   const [formData, setFormData] = useState<FormData>({
@@ -119,16 +161,50 @@ const AddHotspotPlan: React.FC = () => {
         return true;
     };
 
-    const handleAddClient = () => {
-        if (validateForm()) {
-            console.log(formData); // Submit the form
+    // Add the Hotspot Plan to the DB
+    const handleAddHotspotPlan = async () => {
+      if (validateForm()) {
+        try {
+          const response = await fetch('/backend/hotspot-plans', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData), // Send formData as JSON
+          });
+    
+          if (!response.ok) {
+              alert("An error has occurred. Check if a plan with the Plan Validity you entered already exists!"); // Alert before throwing the error
+              throw new Error('Failed to submit hotspot plan');
+          }
+    
+          const result = await response.json();
+          console.log('Hotspot Plan added successfully:', result);
+          setVisible(true);
+
+          // After success post a log
+          postLocalLog("Added a hotspot plan", user);
+
+          // Automatically hide the alert after 15 seconds
+          setTimeout(() => setVisible(false), 8000);
+    
+          // You can handle additional logic here, e.g., clearing the form or showing success feedback.
+        } catch (error) {
+          console.error('Error submitting hotspot plan:', error);
         }
+      }
     };
+    
 
     return (
         <>
             <Breadcrumbs mainTitle={'Add a Hotspot Plan'} parent={""} />
             <Container fluid>
+            <Alert color="success" className="py-2" isOpen={visible} toggle={() => setVisible(false)} fade>
+              <p>
+                <strong>Bandwidth Added Successfully!</strong>
+              </p>
+            </Alert>
               <Row>
                 <p className="text-sm pb-2" style={{ color: '#dc2626' }}>The plan will be named based on the hours the plan will be valid e.g "72hours"</p>
               </Row>
@@ -176,15 +252,29 @@ const AddHotspotPlan: React.FC = () => {
 
                     {/* Bandwidth */}
                     <Col sm="12">
-                        <Label>{'Bandwidth'}</Label>
-                        <Input type="select" value={formData.bandwidth} onChange={(e) => setFormData({ ...formData, bandwidth: Number(e.target.value) })}>
-                            <option value={3}>3 Mbps</option>
-                            <option value={4}>4 Mbps</option>
-                            <option value={5}>5 Mbps</option>
-                            <option value={8}>8 Mbps</option>
-                            <option value={10}>10 Mbps</option>
-                            <option value={25}>25 Mbps</option>
-                        </Input>
+                      <Label>{'Bandwidth'}</Label>
+                      <Input
+                        type="select"
+                        value={bandwidthName}  // Bind to the new state for bandwidthName
+                        onChange={(e) => {
+                          const selectedBandwidth = bandwidths.find(bandwidth => bandwidth.name === e.target.value);
+                          if (selectedBandwidth) {
+                            setBandwidthName(selectedBandwidth.name);  // Set the bandwidthName
+                            setFormData((prevData) => ({
+                              ...prevData,
+                              bandwidth: selectedBandwidth.rate,  // Store the rate in formData
+                            }));
+                          }
+                        }}
+                        name="bandwidth"
+                      >
+                        <option value="">Select Bandwidth</option>
+                        {bandwidths.map((bandwidth) => (
+                          <option key={bandwidth.id} value={bandwidth.name}>
+                            {bandwidth.name}  {/* Display the name */}
+                          </option>
+                        ))}
+                      </Input>
                     </Col>
 
                     {/* Plan Price */}
@@ -251,7 +341,7 @@ const AddHotspotPlan: React.FC = () => {
 
                     {/* Save Plan Button */}
                     <Col sm="12" className="pb-8">
-                        <Button color='info' className="px-6 py-2" onClick={handleAddClient}>Save Plan</Button>
+                        <Button color='info' className="px-6 py-2" onClick={handleAddHotspotPlan}>Save Plan</Button>
                     </Col>
                 </Row>
             </Container>
