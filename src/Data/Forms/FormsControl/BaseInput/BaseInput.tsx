@@ -103,7 +103,7 @@ export const basicHTMLSubTitle = [
   export const edgesInputStyleSubTitle = [
     {
       text: `Use the`,
-      code: `.btn-pill`,
+      code: `.btn-square`,
     },
     {
       text: `through defined border-radius.`,

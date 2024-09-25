@@ -50,6 +50,81 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/systemlogs/hotspotlogs/page.js"
+    ],
+    "/(MainBody)/systemlogs/pppoelogs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/systemlogs/pppoelogs/page.js"
+    ],
+    "/(MainBody)/systemlogs/activitylogs/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/systemlogs/activitylogs/page.js"
+    ],
+    "/(MainBody)/services/staticplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/staticplans/page.js"
+    ],
+    "/(MainBody)/services/hotspotplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/hotspotplans/page.js"
+    ],
+    "/(MainBody)/services/hotspotplans/addhotspotplan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/hotspotplans/addhotspotplan/page.js"
+    ],
+    "/(MainBody)/widgets/general/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/widgets/general/page.js"
+    ],
+    "/(MainBody)/uikits/typography/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/uikits/typography/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/baseinput/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/baseinput/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/radiocheckbox/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/radiocheckbox/page.js"
+    ],
+    "/(MainBody)/forms/formscontrols/inputgroups/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/forms/formscontrols/inputgroups/page.js"
+    ],
+    "/(MainBody)/services/bandwidthplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/bandwidthplans/page.js"
+    ],
+    "/(MainBody)/uikits/modal/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/uikits/modal/page.js"
+    ],
+    "/(MainBody)/icons/flagicons/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/flagicons/page.js"
+    ],
+    "/(MainBody)/icons/fontawesomeicon/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/fontawesomeicon/page.js"
+    ],
+    "/(MainBody)/icons/feathericon/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/icons/feathericon/page.js"
     ]
   }
 }

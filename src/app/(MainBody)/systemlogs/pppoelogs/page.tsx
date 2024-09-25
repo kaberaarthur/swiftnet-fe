@@ -1,20 +1,37 @@
 "use client";
-import React, { useState } from "react";
-import { Container, Row, Col, Input, Table, Button } from "reactstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { FormsControl } from "@/Constant";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
 interface LogEntry {
-  time: string;
-  topics: string;
+  timestamp: string;
   message: string;
-  router: string;
 }
 
-const PPPOELogs: React.FC = () => {
+const PPPoELogs: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [logData, setLogData] = useState<LogEntry[]>([]);
+  const [entriesPerPage, setEntriesPerPage] = useState(20);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch('/backend/pppoe-logs');
+      const data = await response.json();
+      // Set logs in reverse order and keep the last 200 entries
+      setLogs(data.slice(-200).reverse());
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs(); // Initial fetch
+
+    const intervalId = setInterval(fetchLogs, 60000); // Fetch every 1 Minute
+    return () => clearInterval(intervalId); // Cleanup on component unmount
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -22,69 +39,63 @@ const PPPOELogs: React.FC = () => {
 
   const handleEntriesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setEntriesPerPage(parseInt(e.target.value));
+    setCurrentPage(1); // Reset to page 1 when changing number of entries
   };
+
+  const filteredLogs = logs.filter((log) =>
+    log.message.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastEntry = currentPage * entriesPerPage;
+  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+  const currentLogs = filteredLogs.slice(indexOfFirstEntry, indexOfLastEntry);
+
+  const totalPages = Math.ceil(filteredLogs.length / entriesPerPage);
 
   return (
     <>
-      <Breadcrumbs mainTitle={'PPPOE LOGS'} parent={FormsControl} />
+      <Breadcrumbs mainTitle={'PPPoE LOGS'} parent={FormsControl} />
       <Container fluid className="bg-white p-4 rounded shadow">
-        <Row className="mb-3 align-items-center">
-          <Col xs="6">
-            <span>Show </span>
-            <Input type="select" style={{ width: 'auto', display: 'inline-block' }} value={entriesPerPage}>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </Input>
-            <span> entries</span>
-          </Col>
-          <Col xs="6" className="text-end">
-            <span>Search: </span>
-            <Input 
-              type="text" 
-              style={{ width: 'auto', display: 'inline-block' }} 
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </Col>
-        </Row>
         <Row>
           <Col>
             <Table bordered hover responsive>
               <thead>
                 <tr>
-                  <th>Time</th>
-                  <th>Topics</th>
+                  <th>Timestamp</th>
                   <th>Message</th>
-                  <th>Router</th>
                 </tr>
               </thead>
               <tbody>
-                {logData.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="text-center">No data available in table</td>
+                {currentLogs.map((log, index) => (
+                  <tr key={index}>
+                    <td>{log.timestamp}</td>
+                    <td>{log.message}</td>
                   </tr>
-                ) : (
-                  logData.map((log, index) => (
-                    <tr key={index}>
-                      <td>{log.time}</td>
-                      <td>{log.topics}</td>
-                      <td>{log.message}</td>
-                      <td>{log.router}</td>
-                    </tr>
-                  ))
-                )}
+                ))}
               </tbody>
             </Table>
           </Col>
         </Row>
         <Row>
-          <Col xs="6">
-            <p>Showing 0 to 0 of 0 entries</p>
+          <Col xs="4">
+            <p>
+              Showing {indexOfFirstEntry + 1} to {Math.min(indexOfLastEntry, filteredLogs.length)} of {filteredLogs.length} entries
+            </p>
           </Col>
-          <Col xs="6" className="text-end">
-            <Button color="secondary" size="sm" className="me-2" disabled>Previous</Button>
-            <Button color="secondary" size="sm" disabled>Next</Button>
+          <Col xs="8" className="text-end">
+            <Pagination>
+              <PaginationItem disabled={currentPage === 1}>
+                <PaginationLink previous href="#" onClick={() => setCurrentPage(currentPage - 1)}>Previous</PaginationLink>
+              </PaginationItem>
+              {[...Array(totalPages).keys()].map(page => (
+                <PaginationItem active={currentPage === page + 1} key={page}>
+                  <PaginationLink href="#" onClick={() => setCurrentPage(page + 1)}>{page + 1}</PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem disabled={currentPage === totalPages}>
+                <PaginationLink next href="#" onClick={() => setCurrentPage(currentPage + 1)}>Next</PaginationLink>
+              </PaginationItem>
+            </Pagination>
           </Col>
         </Row>
       </Container>
@@ -92,4 +103,4 @@ const PPPOELogs: React.FC = () => {
   );
 };
 
-export default PPPOELogs;
+export default PPPoELogs;
