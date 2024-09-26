@@ -1,9 +1,14 @@
 'use client'
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Row, Button } from 'reactstrap';
+import { Row, Button, Modal, ModalBody, Alert } from 'reactstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
+
+// Modal Stuff
+import { ExploreMore, ImagePath, Simple } from '@/Constant';
+import Image from 'next/image';
+import SvgIcon from '@/CommonComponent/SVG/SvgIcon';
 
 // Define the HotspotPlan interface
 interface HotspotPlan {
@@ -68,13 +73,86 @@ const HotspotPlansList: React.FC = () => {
 
   const totalPages = Math.ceil(hotspotPlans.length / itemsPerPage);
 
+  // Bandwidth to be Deleted
+  const [planId, setPlanId] = useState<number | null>(null);
+
+  // Modal Stuff
+  const [simpleModal, setSimpleModal] = useState(false);
+  const toggle = () => setSimpleModal(!simpleModal);
+
   // Function to handle page changes
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
 
+  // Toggle the Delete Modal
+  const handlePreDelete = (id: number) => {
+    setPlanId(id); // Set the bandwidth ID
+    console.log(id);
+    toggle(); // Open the modal
+  };
+
+  // Function to handle delete action
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`/backend/hotspot-plans/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete bandwidth');
+      }
+
+      const result = await response.json(); // Optional: If your API returns a response
+      console.log(`Deleted bandwidth with ID: ${id}`, result);
+
+      // Update the hotspotPlans state to remove the deleted plan
+      setHotspotPlans((prevPlans) => prevPlans.filter(plan => plan.id !== id));
+
+      toggle(); // Close the modal after successful deletion
+    } catch (error) {
+      console.error('Error deleting bandwidth:', error);
+      // Optionally, handle the error (e.g., show a notification)
+    }
+  };
+
+
   return (
     <div className="overflow-x-auto pt-4">
+      <Modal isOpen={simpleModal} toggle={toggle}>
+        <ModalBody>
+          <div className="modal-toggle-wrapper text-sm-center">
+            <h4>
+              Confirm you want to <strong className="font-danger">Delete</strong>
+            </h4>
+            <div className="modal-img">
+              <Image width={200} height={200} src={`${ImagePath}/swiftnet/confirm-delete.png`} alt="confirm-delete" />
+            </div>
+            <p className="text-sm-center">
+              Once an item has been deleted it cannot be restored.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+              <Button
+                style={{ backgroundColor: '#dc2626', color: 'white', marginRight: '10px' }}
+                onClick={() => handleDelete(planId!)}
+              >
+                Confirm Delete 
+                <SvgIcon iconId='delete' className='feather' />
+              </Button>
+              <Button
+                style={{ backgroundColor: '#059669', color: 'white' }}
+                onClick={toggle}
+              >
+                Cancel 
+                <SvgIcon iconId='refresh-cw' className='feather pl-2' />
+              </Button>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
       <div className='py-2'>
         <Row sm="6">
           <Link href={'/services/hotspotplans/addhotspotplan'}>
@@ -109,10 +187,7 @@ const HotspotPlansList: React.FC = () => {
                 <td className="px-4 py-2">{plan.shared_users}</td>
                 <td className="px-4 py-2">{plan.plan_validity}</td>
                 <td className="px-4 py-2" style={{ color: "#2563eb" }}>
-                  <Link href={`/hotspotplans/details/${plan.id}`}>
-                    <i className="fa fa-pencil px-2"></i>
-                  </Link>
-                  <i className="fa fa-trash-o"></i>
+                  <i className={`fa fa-trash-o`} onClick={() => handlePreDelete(plan.id)}></i>
                 </td>
               </tr>
             ))

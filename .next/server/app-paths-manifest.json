@@ -1,5 +1,4 @@
 {
-  "/auth/login/page": "app/auth/login/page.js",
   "/(MainBody)/services/hotspotplans/addhotspotplan/page": "app/(MainBody)/services/hotspotplans/addhotspotplan/page.js",
   "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js",
   "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js",
