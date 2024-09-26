@@ -1,6 +1,6 @@
 'use client'
 import { useState, ChangeEvent, useEffect } from "react";
-import { Container, Row, Col, Input, Label, Button, Alert } from "reactstrap";
+import { Container, Row, Col, Input, Label, Button, Alert, Spinner } from "reactstrap";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
 // Redux
@@ -195,6 +195,14 @@ const AddHotspotPlan: React.FC = () => {
       }
     };
     
+    // If loading, show spinner or loading message
+    if (routers.length === 0 || bandwidths.length === 0) {
+      return (
+        <Container fluid className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner style={{ color: '#2563eb' }} />
+        </Container>
+      );
+    }
 
     return (
         <>

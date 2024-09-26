@@ -135,6 +135,66 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/services/bandwidthplans/editbandwidthplan/page.js"
+    ],
+    "/auth/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/auth/login/page.js"
+    ],
+    "/(MainBody)/users/userprofile/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/users/userprofile/page.js"
+    ],
+    "/(MainBody)/dashboard/ecommerce/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/ecommerce/page.js"
+    ],
+    "/(MainBody)/dashboard/project/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/dashboard/project/page.js"
+    ],
+    "/(MainBody)/clients/clientslist/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/clients/clientslist/page.js"
+    ],
+    "/(MainBody)/app/task/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/app/task/page.js"
+    ],
+    "/(MainBody)/clients/hotspotclients/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/clients/hotspotclients/page.js"
+    ],
+    "/(MainBody)/app/letterbox/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/app/letterbox/page.js"
+    ],
+    "/(MainBody)/settings/generalsettings/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/settings/generalsettings/page.js"
+    ],
+    "/(MainBody)/burst/burstlist/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/burst/burstlist/page.js"
+    ],
+    "/(MainBody)/burst/addburst/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/burst/addburst/page.js"
+    ],
+    "/(MainBody)/prepaid/prepaidusers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/prepaid/prepaidusers/page.js"
     ]
   }
 }

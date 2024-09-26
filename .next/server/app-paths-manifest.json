@@ -1,7 +1,7 @@
 {
-  "/(MainBody)/services/bandwidthplans/addbandwidthplan/page": "app/(MainBody)/services/bandwidthplans/addbandwidthplan/page.js",
-  "/(MainBody)/services/bandwidthplans/page": "app/(MainBody)/services/bandwidthplans/page.js",
-  "/(MainBody)/systemlogs/activitylogs/page": "app/(MainBody)/systemlogs/activitylogs/page.js",
-  "/(MainBody)/services/hotspotplans/page": "app/(MainBody)/services/hotspotplans/page.js",
-  "/(MainBody)/services/hotspotplans/addhotspotplan/page": "app/(MainBody)/services/hotspotplans/addhotspotplan/page.js"
+  "/auth/login/page": "app/auth/login/page.js",
+  "/(MainBody)/services/hotspotplans/addhotspotplan/page": "app/(MainBody)/services/hotspotplans/addhotspotplan/page.js",
+  "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js",
+  "/(MainBody)/clients/clientslist/page": "app/(MainBody)/clients/clientslist/page.js",
+  "/(MainBody)/services/hotspotplans/page": "app/(MainBody)/services/hotspotplans/page.js"
 }
