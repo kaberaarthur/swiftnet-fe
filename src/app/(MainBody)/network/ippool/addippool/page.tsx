@@ -1,12 +1,15 @@
 "use client";
 import { useState, ChangeEvent, useEffect } from "react";
-import { Container, Row, Col, Input, Label, Button } from "reactstrap";
+import { Container, Row, Col, Input, Label, Button, Alert } from "reactstrap";
 import { FormsControl } from "@/Constant";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 
 // Redux
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../../Redux/Store';
+
+// Save a Local Log
+import { postLocalLog } from '../../../logservice/logService';
 
 // Get Routers
 interface TableRow {
@@ -36,6 +39,8 @@ const AddIPRange: React.FC = () => {
   const [routers, setRouters] = useState<TableRow[]>([]);
   const [formData, setFormData] = useState<FormData | null>(null); // Form data initialized to null
   const [error, setError] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
+
 
   // Get Routers
   useEffect(() => {
@@ -105,7 +110,16 @@ const AddIPRange: React.FC = () => {
         throw new Error('Failed to save IP pool data');
       }
 
-      console.log('IP pool data saved successfully');
+      // Show Alert after success
+      setVisible(true);
+
+      // Hide Alert after 6 seconds
+      setTimeout(() => {
+        setVisible(false);
+      }, 6000);
+
+      // After success post a log
+      postLocalLog("Added an IP Pool", user);
 
       // Reset formData to default values after successful submission
       setFormData({
@@ -130,7 +144,16 @@ const AddIPRange: React.FC = () => {
   return (
     <>
       <Breadcrumbs mainTitle={'Add IP Range'} parent={FormsControl} />
+      
       <Container fluid>
+        <p style={{ fontSize: '0.875rem', color: '#dc2626' }} className="py-2">
+          {`(This is not connected to Mikrotik. Therefore, add IP Pools on Mikrotik first, then add the same here.)`}
+        </p>
+        <Alert color="success" className="py-2" isOpen={visible} toggle={() => setVisible(false)} fade>
+          <p>
+            <strong>IP Pool Added Successfully!</strong>
+          </p>
+        </Alert>
         <Row className="g-3">
           <Col sm="12">
             <Input
