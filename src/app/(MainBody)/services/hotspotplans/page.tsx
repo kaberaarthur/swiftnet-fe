@@ -10,6 +10,9 @@ import { ExploreMore, ImagePath, Simple } from '@/Constant';
 import Image from 'next/image';
 import SvgIcon from '@/CommonComponent/SVG/SvgIcon';
 
+// Save a Local Log
+import { postLocalLog } from '../../logservice/logService';
+
 // Define the HotspotPlan interface
 interface HotspotPlan {
   id: number;
@@ -108,6 +111,9 @@ const HotspotPlansList: React.FC = () => {
 
       const result = await response.json(); // Optional: If your API returns a response
       console.log(`Deleted bandwidth with ID: ${id}`, result);
+
+      // After success post a log
+      postLocalLog("Deleted a hotspot plan", user);
 
       // Update the hotspotPlans state to remove the deleted plan
       setHotspotPlans((prevPlans) => prevPlans.filter(plan => plan.id !== id));

@@ -1,6 +1,7 @@
 {
-  "/(MainBody)/services/hotspotplans/addhotspotplan/page": "app/(MainBody)/services/hotspotplans/addhotspotplan/page.js",
-  "/(MainBody)/network/ippool/page": "app/(MainBody)/network/ippool/page.js",
-  "/(MainBody)/network/ippool/addippool/page": "app/(MainBody)/network/ippool/addippool/page.js",
-  "/(MainBody)/systemlogs/activitylogs/page": "app/(MainBody)/systemlogs/activitylogs/page.js"
+  "/(MainBody)/services/pppoeplans/page": "app/(MainBody)/services/pppoeplans/page.js",
+  "/(MainBody)/systemlogs/activitylogs/page": "app/(MainBody)/systemlogs/activitylogs/page.js",
+  "/(MainBody)/network/routers/page": "app/(MainBody)/network/routers/page.js",
+  "/(MainBody)/services/staticplans/page": "app/(MainBody)/services/staticplans/page.js",
+  "/(MainBody)/services/staticplans/addstaticplan/page": "app/(MainBody)/services/staticplans/addstaticplan/page.js"
 }

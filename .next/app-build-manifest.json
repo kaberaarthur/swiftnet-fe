@@ -195,6 +195,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/prepaid/prepaidusers/page.js"
+    ],
+    "/(MainBody)/services/pppoeplans/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/pppoeplans/page.js"
+    ],
+    "/(MainBody)/services/staticplans/addstaticplan/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/services/staticplans/addstaticplan/page.js"
     ]
   }
 }

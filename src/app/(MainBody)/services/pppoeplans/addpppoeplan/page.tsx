@@ -1,45 +1,101 @@
-"use client";
-import { useState, ChangeEvent } from "react";
-import { Container, Row, Col, Input, Label, Button } from "reactstrap";
-import { FormsControl } from "@/Constant";
+'use client'
+
+import { useState, ChangeEvent, useEffect } from "react";
+import { Container, Row, Col, Input, Label, Button, Alert, Spinner } from "reactstrap";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
-import PlanTypesRadio from "@/Components/Forms/FormsControl/RadioCheckbox/BasicRadioAndCheckbox/PlanTypesRadio";
+
+// Redux
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../../Redux/Store';
+
+// Save a Local Log
+import { postLocalLog } from '../../../logservice/logService';
 
 interface FormData {
-    account: string;
-    name: string;
-    email: string;
-    password: string;
-    address: string;
-    fatNo: string;
-    phoneNumber: string;
-    paymentsNo: string;
-    smsGroup: string;
-    installationFee: string;
-    type: string;
-    routers: string; 
-    servicePlan: string;
-    paymentDoneViaMpesa: string;
+  company_id: number | null;
+  company_username: string;
+  plan_name: string;
+  rate_limit: number;
+  plan_price: string;
+  plan_validity: number;
+  router_id: number;
+  shared_users: number; // Specific to PPPoE plans
 }
 
-const AddNewClient: React.FC = () => {
+// Router Interface
+interface Router {
+  id: number;
+  router_name: string;
+}
+
+// Bandwidth Interface
+interface Bandwidth {
+  id: number;
+  name: string;
+  rate: number;
+}
+
+const AddPPPoEPlan: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user);
+
+  // Fetched Data
+  const [routers, setRouters] = useState<Router[]>([]);
+  const [bandwidths, setBandwidths] = useState<Bandwidth[]>([]);
+
+  // Alerts
+  const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Form data state
   const [formData, setFormData] = useState<FormData>({
-    account: "",
-    name: "",
-    email: "",
-    password: "",
-    address: "",
-    fatNo: "",
-    phoneNumber: "",
-    paymentsNo: "",
-    smsGroup: "",
-    installationFee: "",
-    type: "",
-    routers: "", 
-    servicePlan: "",
-    paymentDoneViaMpesa: "",
+    plan_name: "",
+    rate_limit: 1,
+    plan_price: "",
+    plan_validity: 1,  // Default to 1 day
+    router_id: 0,
+    shared_users: 1,  // Default to 1 shared user
+    company_id: user.company_id || 0,
+    company_username: user.company_username || "",
   });
 
+  // useEffect to update formData when user data is loaded
+  useEffect(() => {
+    if (user && user.company_id && user.company_username) {
+      setFormData((prevData) => ({
+        ...prevData,
+        company_id: user.company_id,
+        company_username: user.company_username
+      }));
+    }
+  }, [user]);
+
+  // Fetch Routers and Bandwidths
+  useEffect(() => {
+    if (user && user.company_id) {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          // Fetch Routers
+          const routersResponse = await fetch(`/backend/routers?company_id=${user.company_id}`);
+          const routersData: Router[] = await routersResponse.json();
+          setRouters(routersData);
+
+          // Fetch Bandwidths
+          const bandwidthsResponse = await fetch(`/backend/bandwidths?company_id=${user.company_id}`);
+          const bandwidthsData = await bandwidthsResponse.json();
+          setBandwidths(bandwidthsData);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }
+  }, [user]);
+
+  // Handle form input changes
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -48,87 +104,163 @@ const AddNewClient: React.FC = () => {
     }));
   };
 
-  const handleAddClient = () => {
-    // Handle the logic to add a client here
-    console.log(formData);
-  };
+  // Handle form submission
+  const handleAddPlan = async () => {
+    setLoading(true);
 
-  const [timeUnit, setTimeUnit] = useState<'days' | 'months'>('days');
-  const [value, setValue] = useState<string>('');
+    // Submit formData
+    try {
+      const response = await fetch('/backend/pppoe-plans', {  // Update endpoint to PPPoE plans
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add PPPoE plan');
+      }
+
+      const result = await response.json();
+      console.log(result);  // Log the response from your backend (optional)
+
+      // Simulate successful submission and show alert
+      setVisible(true);
+
+      // After success post a log
+      postLocalLog("Added a PPPoE plan", user);
+
+      // Hide alert after 5 seconds
+      setTimeout(() => {
+        setVisible(false);
+      }, 5000);
+
+      // Optionally, reset form fields after submission
+      setFormData({
+        plan_name: "",
+        rate_limit: 1,
+        plan_price: "",
+        plan_validity: 1,
+        router_id: 0,
+        shared_users: 1,
+        company_id: user.company_id || 0,
+        company_username: user.company_username || "",
+      });
+    } catch (error) {
+      console.error("Error adding PPPoE plan:", error);
+
+      // Show an alert popup when the request fails
+      alert('Failed to add PPPoE plan. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <Breadcrumbs mainTitle={'Add a Plan'} parent={FormsControl} />
+      <Breadcrumbs mainTitle={'Add a PPPoE Plan'} parent={""} />
       <Container fluid>
+        <Alert color="success" className="py-2" isOpen={visible} toggle={() => setVisible(false)} fade>
+          <p>
+            <strong>PPPoE Plan Added Successfully!</strong>
+          </p>
+        </Alert>
         <Row className="g-3">
           <Col sm="6">
-            <Label>{'Static Plan'}</Label>
+            <Label>{'Plan Name'}</Label>
             <Input
-              value={formData.account}
-              name="account"
+              value={formData.plan_name}
+              name="plan_name"
               type="text"
-              placeholder=''
+              placeholder="Enter Plan Name"
               onChange={handleInputChange}
             />
           </Col>
 
           <Col sm="6">
-              <Label>{'Bandwidth Name'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>3 Mbps</option>
-                <option>4 Mbps</option>
-                <option>8 Mbps</option>
-                <option>10 Mbps</option>
-                <option>15 Mbps</option>
-                <option>20 Mbps</option>
-              </Input>
+            <label>
+              {'Rate Limit '}
+              <span style={{ fontSize: '0.700rem', color: '#dc2626' }}>
+                {" (Download & Upload rate will be set as equal values. Enter value in Kbps.)"}
+              </span>
+            </label>
+            <Input
+              value={formData.rate_limit}
+              name="rate_limit"
+              type="text"
+              placeholder="Enter Rate Limit in Mbps"
+              onChange={handleInputChange}
+            />
           </Col>
 
           <Col sm="6">
             <Label>{'Plan Price'}</Label>
             <Input
-              value={formData.account}
-              name="account"
+              value={formData.plan_price}
+              name="plan_price"
               type="text"
-              placeholder=''
+              placeholder="Enter Price"
               onChange={handleInputChange}
             />
           </Col>
 
           <Col sm="6">
-            <Label>{'Plan Validity'}</Label>
-            <div className="w-full flex">
-              <input
-                type="number"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                className="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter time"
-              />
-              <select
-                value={timeUnit}
-                onChange={(e) => setTimeUnit(e.target.value as 'days' | 'months')}
-                className="p-2 border border-blue-500 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="days">Days</option>
-                <option value="months">Weeks</option>
-              </select>
-            </div>
+            <Label>{'Router'}</Label>
+            <Input
+              type="select"
+              name="router_id"
+              value={formData.router_id}
+              onChange={handleInputChange}
+            >
+              <option value="">Select Router</option>
+              {routers.map(router => (
+                <option key={router.id} value={router.id}>
+                  {router.router_name}
+                </option>
+              ))}
+            </Input>
           </Col>
 
           <Col sm="6">
-              <Label>{'Routers'}</Label>
-              <Input type="select" className="btn-square digits" defaultValue={"1"}>
-                <option>NEXAHUB_951</option>
-                <option>Router 2</option>
-              </Input>
+            <Label>{'Plan Validity (Days)'}</Label>
+            <Input
+              type="number"
+              name="plan_validity"
+              value={formData.plan_validity}
+              onChange={handleInputChange}
+              placeholder="Enter validity in days"
+              min="1"
+            />
           </Col>
 
           <Col sm="6">
+            <Label>{'Shared Users'}</Label>
+            <Input
+              type="number"
+              name="shared_users"
+              value={formData.shared_users}
+              onChange={handleInputChange}
+              placeholder="Enter number of shared users"
+              min="1"
+            />
           </Col>
 
           <Col sm="6">
-            <Button color='info' className="px-6 py-2">Save Plan</Button>
+            <Button 
+              color="info" 
+              className="px-6 py-2 w-full" 
+              onClick={handleAddPlan}
+              disabled={loading} // Disable button when loading is true
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="me-2" /> {/* Small spinner */}
+                </>
+              ) : (
+                "Add PPPoE Plan"
+              )}
+            </Button>
           </Col>
         </Row>
       </Container>
@@ -136,4 +268,4 @@ const AddNewClient: React.FC = () => {
   );
 };
 
-export default AddNewClient;
+export default AddPPPoEPlan;
