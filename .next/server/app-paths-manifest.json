@@ -1,7 +1,5 @@
 {
-  "/(MainBody)/services/pppoeplans/page": "app/(MainBody)/services/pppoeplans/page.js",
-  "/(MainBody)/systemlogs/activitylogs/page": "app/(MainBody)/systemlogs/activitylogs/page.js",
-  "/(MainBody)/network/routers/page": "app/(MainBody)/network/routers/page.js",
-  "/(MainBody)/services/staticplans/page": "app/(MainBody)/services/staticplans/page.js",
-  "/(MainBody)/services/staticplans/addstaticplan/page": "app/(MainBody)/services/staticplans/addstaticplan/page.js"
+  "/(MainBody)/prepaid/prepaidvouchers/page": "app/(MainBody)/prepaid/prepaidvouchers/page.js",
+  "/(MainBody)/prepaid/prepaidvouchers/addvoucher/page": "app/(MainBody)/prepaid/prepaidvouchers/addvoucher/page.js",
+  "/(MainBody)/services/hotspotplans/page": "app/(MainBody)/services/hotspotplans/page.js"
 }
