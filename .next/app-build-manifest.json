@@ -1,5 +1,10 @@
 {
   "pages": {
+    "/(MainBody)/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(MainBody)/layout.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -11,30 +16,20 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/(MainBody)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/layout.js"
-    ],
-    "/(MainBody)/services/hotspotplans/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/services/hotspotplans/page.js"
-    ],
     "/(MainBody)/prepaid/prepaidvouchers/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/prepaid/prepaidvouchers/page.js"
     ],
-    "/(MainBody)/dashboard/default/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(MainBody)/dashboard/default/page.js"
-    ],
     "/(MainBody)/prepaid/prepaidvouchers/addvoucher/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(MainBody)/prepaid/prepaidvouchers/addvoucher/page.js"
+    ],
+    "/not-found": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/not-found.js"
     ]
   }
 }

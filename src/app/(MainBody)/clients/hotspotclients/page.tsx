@@ -1,102 +1,49 @@
-'use client'
+'use client';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { Row, Button } from 'reactstrap';
 
 // Define the TableRow interface
 interface TableRow {
-  ".id": string;
-  macAddress: string;
-  name: string;
-  phoneNumber: string;
-  expiryDate: string;
-  profile: string;
-  service: string;
-  comment: string;
+  id: string;
+  mac_address: string; // Ensure this matches the API response
+  plan_name: string;
+  plan_id: number;
+  plan_validity: number;
+  phone_number: string | null; // can be null if not available
+  service_start: string; // date format as string
+  service_expiry: string; // date format as string
+  router_id: number;
+  router_name: string;
+  password: string;
+  company_name: string;
+  company_id: number;
+  date_created: string; // date format as string
 }
 
 // ClientsList component
 const ClientsList: React.FC = () => {
   const [tableData, setTableData] = useState<TableRow[]>([]);
 
-  function removeStar(id: string): string {
-    // Check if the ID starts with a '*'
-    if (id.startsWith('*')) {
-      // Remove the first character (the '*')
-      return id.substring(1);
-    } else {
-      // If the ID doesn't start with '*', return it as is
-      return id;
-    }
-  }
-
-  function extractPhoneNumber(comment: string): string | null {
-    // Use regular expression to match the phone number pattern
-    const phoneNumberRegex = /254\d+/;
-  
-    // Find the match in the comment
-    const match = comment.match(phoneNumberRegex);
-  
-    // If a match is found, return the phone number
-    if (match) {
-      return match[0];
-    } else {
-      // If no match is found, return null
-      return null;
-    }
-  }
-
-
-  function extractExpiryDate(comment: string): string | null {
-    // Use regular expression to match the YYYY-MM-DD format
-    const dateRegex = /\d{4}-\d{2}-\d{2}/;
-  
-    // Find the match in the comment
-    const match = comment.match(dateRegex);
-  
-    // If a match is found, return the expiry date
-    if (match) {
-      return match[0];
-    } else {
-      // If no match is found, return null
-      return null;
-    }
-  }
-  
-
-  console.log("Expiry Date: ", extractExpiryDate("7A:70:67:05:BE:F3 - 254704259292 Expires on:- 2024-09-12"));
-
   useEffect(() => {
-    const fetchHotspotProfiles = async () => {
-      const url = '/api/ip/hotspot/user'; // Use the local API route after the proxy
-  
-      const username = 'Arthur';
-      const password = 'Arthur';
-  
+    const fetchHotspotClients = async () => {
+      const url = '/backend/hotspot-clients'; // Updated to correct endpoint
+
       try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Basic ' + btoa(username + ':' + password),
-            'Content-Type': 'application/json',
-          },
-        });
-  
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
-  
+
         const data = await response.json();
-        console.log('Hotspot User Profiles:', data);
-  
+        console.log('Hotspot Clients:', data);
         setTableData(data); // Spread operator ensures a new array is set
-        console.log('Parsed Table Data:', data);
       } catch (error) {
-        console.error('Failed to fetch Hotspot Profiles:', error);
+        console.error('Failed to fetch Hotspot Clients:', error);
       }
     };
-  
-    fetchHotspotProfiles();
+
+    fetchHotspotClients();
   }, []);
 
   return (
@@ -106,39 +53,46 @@ const ClientsList: React.FC = () => {
           <tr>
             <th className="px-4 py-2 text-left text-gray-900">ID</th>
             <th className="px-4 py-2 text-left text-gray-900">MAC Address</th>
+            <th className="px-4 py-2 text-left text-gray-900">Plan Name</th>
+            <th className="px-4 py-2 text-left text-gray-900">Plan ID</th>
+            <th className="px-4 py-2 text-left text-gray-900">Plan Validity</th>
             <th className="px-4 py-2 text-left text-gray-900">Phone Number</th>
-            <th className="px-4 py-2 text-left text-gray-900">Expiry Date</th>
-            <th className="px-4 py-2 text-left text-gray-900">Profile</th>
-            <th className="px-4 py-2 text-left text-gray-900">Service</th>
-            <th className="px-4 py-2 text-left text-gray-900">Manage</th>
+            <th className="px-4 py-2 text-left text-gray-900">Service Start</th>
+            <th className="px-4 py-2 text-left text-gray-900">Service Expiry</th>
+            <th className="px-4 py-2 text-left text-gray-900">Router ID</th>
+            <th className="px-4 py-2 text-left text-gray-900">Router Name</th>
+            <th className="px-4 py-2 text-left text-gray-900">Password</th>
+            <th className="px-4 py-2 text-left text-gray-900">Company Name</th>
+            <th className="px-4 py-2 text-left text-gray-900">Company ID</th>
+            <th className="px-4 py-2 text-left text-gray-900">Date Created</th>
           </tr>
         </thead>
         <tbody>
           {tableData.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-2 text-center">No Data Available</td>
+              <td colSpan={14} className="px-4 py-2 text-center">No Data Available</td>
             </tr>
           ) : (
             tableData.map((data) => (
-              <tr key={data['.id']} className="bg-white border-b">
+              <tr key={data.id} className="bg-white border-b">
                 <td className="px-4 py-2">
-                  <Link href={`/clients/details/${removeStar(data['.id'])}`} className="hover:underline" style={{ color: "#2563eb" }}>
-                    {removeStar(data['.id'])}
+                  <Link href={`/clients/details/${data.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
+                    {data.id}
                   </Link>
                 </td>
-                <td className="px-4 py-2">
-                  <Link href={`/clients/details/${removeStar(data['.id'])}`} className="hover:underline" style={{ color: "#2563eb" }}>
-                    {data.name}
-                  </Link>
-                </td>
-                <td className="px-4 py-2">{extractPhoneNumber(data.comment)}</td>
-                <td className="px-4 py-2">{extractExpiryDate(data.comment)}</td>
-                <td className="px-4 py-2">{data.profile}</td>
-                <td className="px-4 py-2">{data.service}</td>
-                <td className="px-4 py-2" style={{ color: "#2563eb" }}>
-                  <i className="fa fa-pencil px-2"></i>
-                  <i className="fa fa-trash-o"></i>
-                </td>
+                <td className="px-4 py-2">{data.mac_address}</td>
+                <td className="px-4 py-2">{data.plan_name}</td>
+                <td className="px-4 py-2">{data.plan_id}</td>
+                <td className="px-4 py-2">{data.plan_validity}</td>
+                <td className="px-4 py-2">{data.phone_number || 'N/A'}</td>
+                <td className="px-4 py-2">{data.service_start}</td>
+                <td className="px-4 py-2">{data.service_expiry}</td>
+                <td className="px-4 py-2">{data.router_id}</td>
+                <td className="px-4 py-2">{data.router_name}</td>
+                <td className="px-4 py-2">{data.password}</td>
+                <td className="px-4 py-2">{data.company_name}</td>
+                <td className="px-4 py-2">{data.company_id}</td>
+                <td className="px-4 py-2">{data.date_created}</td>
               </tr>
             ))
           )}
