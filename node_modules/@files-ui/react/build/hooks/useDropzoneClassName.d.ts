@@ -1,0 +1,1 @@
+export declare function useDropzoneClassName(dropzoneId: string, className: string | undefined, color: string | undefined, background: string | undefined, minHeight: string | number | undefined): [string | undefined, string | undefined, string | undefined, string | undefined];
