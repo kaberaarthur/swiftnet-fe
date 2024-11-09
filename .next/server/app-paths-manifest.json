@@ -1,5 +1,3 @@
 {
-  "/not-found": "app/not-found.js",
-  "/(MainBody)/prepaid/prepaidvouchers/page": "app/(MainBody)/prepaid/prepaidvouchers/page.js",
-  "/(MainBody)/prepaid/prepaidvouchers/addvoucher/page": "app/(MainBody)/prepaid/prepaidvouchers/addvoucher/page.js"
+  "/(MainBody)/dashboard/default/page": "app/(MainBody)/dashboard/default/page.js"
 }
