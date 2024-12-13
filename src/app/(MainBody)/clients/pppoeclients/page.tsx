@@ -80,6 +80,7 @@ const ClientsList: React.FC = () => {
             <th className="px-4 py-2 text-left text-gray-900">End Date</th>
             <th className="px-4 py-2 text-left text-gray-900">Plan Name</th>
             <th className="px-4 py-2 text-left text-gray-900">Plan Fee</th>
+            <th className="px-4 py-2 text-left text-gray-900">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -107,6 +108,17 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{new Date(data.end_date).toLocaleString()}</td>
                 <td className="px-4 py-2">{data.plan_name}</td>
                 <td className="px-4 py-2">{data.plan_fee}</td>
+                <td className="px-4 py-2 text-blue-600">
+                  <Link
+                    href={`/clients/pppoeclients/pppoepayment?client_id=${data.id}`}
+                    className="hover:underline"
+                    style={{ color: "#2563eb" }}
+                  >
+                    <Button color="primary">
+                      {"Payment"}
+                    </Button>
+                  </Link>
+                </td>
               </tr>
             ))
           )}
