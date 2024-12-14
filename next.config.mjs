@@ -17,8 +17,8 @@ const nextConfig = {
       },
       {
         source: "/backend/:path*", // Matches API paths
-        destination: "http://localhost:8000/:path*", // Embed username:password in the URL
-        // destination: "http://139.59.60.20:8000/:path*", // Embed username:password in the URL
+        // destination: "http://localhost:8000/:path*", // Embed username:password in the URL
+        destination: "http://139.59.60.20:8000/:path*", // Embed username:password in the URL
       },
       {
         source: "/test",

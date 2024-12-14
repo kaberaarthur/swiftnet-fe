@@ -78,6 +78,8 @@ export const MenuList: MenuItem[] = [
           { path: `/payments/mpesatransactions`, title: "Mpesa Transactions", type: "link" },
           { path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },
           { path: `/payments/mpesatransactionstatus`, title: "Transaction Status", type: "link" },
+
+          { path: `/payments/pppoetransactions`, title: "PPPOE Transactions", type: "link" },
         ],
       },
       {
