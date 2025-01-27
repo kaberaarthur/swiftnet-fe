@@ -1,72 +1,80 @@
 'use client';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Row, Button, Modal, ModalBody } from 'reactstrap';
+import { Row, Col, Button, Modal, ModalBody, Label, Input } from 'reactstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 
-import { ExploreMore, ImagePath, Simple } from '@/Constant';
 import Image from 'next/image';
 import SvgIcon from '@/CommonComponent/SVG/SvgIcon';
 
 // Save a Local Log
 import { postLocalLog } from '../../logservice/logService';
 
-// Define the PPPOEPlan interface
-export interface PPPoEPlan {
+interface Router {
+  id: number;
+  router_name: string;
+}
+
+interface PPPOEPlan {
   id: number;
   plan_name: string;
-  rate_limit: number;
-  plan_price: number;
-  pool_name: string;
   plan_validity: number;
-  router_id: number;
-  company_id: number;
-  company_username: string;
-  date_created?: string;
-  type?: string | null;
-  rate_limit_string?: string | null;
-  mikrotik_id?: string | null;
+  plan_price: number;
+  rate_limit_string: string;
+  pool_name: string;
+  router_id: string;
 }
 
 const PPPoEPlansList: React.FC = () => {
-  const [pppoePlans, setPPPOEPlans] = useState<PPPoEPlan[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10; // Items per page
+
+  const [loading, setLoading] = useState(true);
+  const [routers, setRouters] = useState<Router[]>([]);
+  const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
+
+  const [selectedRouter, setSelectedRouter] = useState<number | null>(null);
 
   // Get user from Redux
   const user = useSelector((state: RootState) => state.user);
 
+  // Fetch routers based on the company_id
   useEffect(() => {
-    // Wait for user to load and have `company_id`
-    if (!user || !user.company_id) {
-      return; // Do nothing if user is not loaded
-    }
-
-    const fetchPPPOEPlans = async () => {
-      const url = `/backend/pppoe-plans?company_id=${user.company_id}&type=pppoe`;
-
-      try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    if (user.company_id) {
+      const fetchRouters = async () => {
+        try {
+          const routerResponse = await fetch(`/backend/routers?company_id=${user.company_id}`);
+          const routerData: Router[] = await routerResponse.json();
+          setRouters(routerData);
+        } catch (error) {
+          console.error('Error fetching routers:', error);
+        } finally {
+          setLoading(false);
         }
+      };
+      fetchRouters();
+    }
+  }, [user.company_id]);
 
-        const data: PPPoEPlan[] = await response.json();
-        setPPPOEPlans(data);
-      } catch (error) {
-        console.error('Failed to fetch PPPoE Plans:', error);
-      }
-    };
-
-    fetchPPPOEPlans();
-  }, [user]);
+  // Load plans based on selected router
+  useEffect(() => {
+    if (selectedRouter) {
+      setLoading(true);
+      const fetchPPPoEPlans = async () => {
+        try {
+          const plansResponse = await fetch(`/backend/pppoe-plans?router_id=${selectedRouter}&company_id=${user.company_id}&type=pppoe`);
+          const plansData: PPPOEPlan[] = await plansResponse.json();
+          setPppoePlans(plansData);
+        } catch (error) {
+          console.error('Error fetching PPPoE plans:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchPPPoEPlans();
+    }
+  }, [selectedRouter, user.company_id]);
 
   // Pagination calculations
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -80,93 +88,34 @@ const PPPoEPlansList: React.FC = () => {
     setCurrentPage(newPage);
   };
 
-  // Bandwidth to be Deleted
-  const [planId, setPlanId] = useState<number | null>(null);
-
-  // Modal Stuff
-  const [simpleModal, setSimpleModal] = useState(false);
-  const toggle = () => setSimpleModal(!simpleModal);
-
-  // Toggle the Delete Modal
-  const handlePreDelete = (id: number) => {
-    // console.log("Starting Delete Function");
-    setPlanId(id); // Set the bandwidth ID
-    // console.log(id);
-    toggle(); // Open the modal
-  };
-
-  // Function to handle delete action
-  const handleDelete = async (id: number) => {
-    try {
-      const response = await fetch(`/backend/pppoe-plans/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete pppoe plan');
-      }
-
-      const result = await response.json(); // Optional: If your API returns a response
-      // console.log(`Deleted PPPoE Plan with ID: ${id}`, result);
-
-      // After success post a log
-      postLocalLog("Deleted a PPPoE plan", user);
-
-      // Update the hotspotPlans state to remove the deleted plan
-      setPPPOEPlans((prevPlans) => prevPlans.filter(plan => plan.id !== id));
-
-      toggle(); // Close the modal after successful deletion
-    } catch (error) {
-      console.error('Error deleting PPPoE Plan:', error);
-      // Optionally, handle the error (e.g., show a notification)
-    }
-  };
-
   return (
     <div className="overflow-x-auto pt-4">
-      <Modal isOpen={simpleModal} toggle={toggle}>
-        <ModalBody>
-          <div className="modal-toggle-wrapper text-sm-center">
-            <h4>
-              Confirm you want to <strong className="font-danger">Delete</strong>
-            </h4>
-            <div className="modal-img">
-              <Image width={200} height={200} src={`${ImagePath}/swiftnet/confirm-delete.png`} alt="confirm-delete" />
-            </div>
-            <p className="text-sm-center">
-              Once an item has been deleted it cannot be restored.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-              <Button
-                style={{ backgroundColor: '#dc2626', color: 'white', marginRight: '10px' }}
-                onClick={() => handleDelete(planId!)}
-              >
-                Confirm Delete 
-                <SvgIcon iconId='delete' className='feather' />
-              </Button>
-              <Button
-                style={{ backgroundColor: '#059669', color: 'white' }}
-                onClick={toggle}
-              >
-                Cancel 
-                <SvgIcon iconId='refresh-cw' className='feather pl-2' />
-              </Button>
-            </div>
-          </div>
-        </ModalBody>
-      </Modal>
       <div className="py-2">
         <Row sm="6">
-          <Link href="/services/pppoeplans/addpppoeplan">
-            <Button color="info" className="px-6 py-2">Add PPPOE Plan</Button>
-          </Link>
+          <Col>
+            <Link href="/services/pppoeplans/addpppoeplan">
+              <Button color="info" className="px-6 py-2">Add PPPOE Plan</Button>
+            </Link>
+          </Col>
+          <Col sm="6">
+            <Label>{'Routers'}</Label>
+            <Input
+              type="select"
+              value={selectedRouter || ''}
+              onChange={(e) => setSelectedRouter(Number(e.target.value) || null)}
+            >
+              <option value="">Select Router</option>
+              {routers.map(router => (
+                <option key={router.id} value={router.id}>
+                  {router.router_name}
+                </option>
+              ))}
+            </Input>
+          </Col>
         </Row>
       </div>
       <table className="min-w-full bg-white shadow-md rounded-lg">
-        <thead className="">
+        <thead>
           <tr>
             <th className="px-4 py-2 text-left">ID</th>
             <th className="px-4 py-2 text-left">Plan Name</th>
@@ -180,17 +129,13 @@ const PPPoEPlansList: React.FC = () => {
         <tbody>
           {currentData.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-2 text-center">No Data Available</td>
+              <td colSpan={7} className="px-4 py-2 text-center">No Data Available</td>
             </tr>
           ) : (
             currentData.map((plan) => (
               <tr key={plan.id} className="bg-white border-b">
                 <td className="px-4 py-2">
-                  <Link
-                    href={`/pppoeplans/details/${plan.id}`}
-                    className="hover:underline"
-                    style={{ color: "#2563eb" }}
-                  >
+                  <Link href={`/pppoeplans/details/${plan.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
                     {plan.id}
                   </Link>
                 </td>
@@ -203,7 +148,7 @@ const PPPoEPlansList: React.FC = () => {
                   <Link href={`/services/pppoeplans/editpppoeplan?plan_id=${plan.id}`}>
                     <i className="fa fa-pencil px-2" style={{ cursor: 'pointer' }}></i>
                   </Link>
-                  <i className="fa fa-trash-o" style={{ cursor: 'pointer' }} onClick={() => handlePreDelete(plan.id)}></i>
+                  <i className="fa fa-trash-o" style={{ cursor: 'pointer' }} onClick={() => {}}></i>
                 </td>
               </tr>
             ))
