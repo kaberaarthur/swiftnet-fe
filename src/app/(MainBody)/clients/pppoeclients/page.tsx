@@ -18,6 +18,7 @@ interface TableRow {
   end_date: string;
   plan_name: string;
   plan_fee: number;
+  portal_password: string;
 }
 
 // ClientsList component
@@ -76,6 +77,7 @@ const ClientsList: React.FC = () => {
             <th className="px-4 py-2 text-left text-gray-900">Email</th>
             <th className="px-4 py-2 text-left text-gray-900">Phone Number</th>
             <th className="px-4 py-2 text-left text-gray-900">Password</th>
+            <th className="px-4 py-2 text-left text-gray-900">Portal Password</th>
             <th className="px-4 py-2 text-left text-gray-900">Start Date</th>
             <th className="px-4 py-2 text-left text-gray-900">End Date</th>
             <th className="px-4 py-2 text-left text-gray-900">Plan Name</th>
@@ -104,6 +106,7 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{data.email}</td>
                 <td className="px-4 py-2">{data.phone_number}</td>
                 <td className="px-4 py-2">{data.password}</td>
+                <td className="px-4 py-2">{data.portal_password}</td>
                 <td className="px-4 py-2">{new Date(data.start_date).toLocaleString()}</td>
                 <td className="px-4 py-2">{new Date(data.end_date).toLocaleString()}</td>
                 <td className="px-4 py-2">{data.plan_name}</td>

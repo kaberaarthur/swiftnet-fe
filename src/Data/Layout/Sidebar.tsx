@@ -424,6 +424,7 @@ export const MenuList: MenuItem[] = [
               { title: "Forget Password", type: "link", path: `/authentication/forgetpassword` },
               { title: "Reset Password", type: "link", path: `/authentication/resetpassword` },
               { title: "Maintenance", type: "link", path: `/authentication/maintenance` },
+              { title: "ACustomer", type: "link", path: `/authentication/acustomer` },
             ],
           },
           {
