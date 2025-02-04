@@ -17,8 +17,10 @@ interface FormData {
   full_name: string;
   email: string;
   password: string;
+  portal_password: string;
   address: string;
   phone_number: string;
+  secret: string;
   payment_no: string;
   sms_group: string;
   installation_fee: string;
@@ -86,8 +88,10 @@ const AddNewClient: React.FC = () => {
     full_name: "",
     email: "",
     password: "",
+    portal_password: "",
     address: "",
     phone_number: "",
+    secret: "",
     payment_no: "",
     sms_group: "",
     installation_fee: "",
@@ -168,7 +172,7 @@ const AddNewClient: React.FC = () => {
             // Hide alert after 5 seconds
             setTimeout(() => {
               setVisible(false);
-            }, 5000);
+            }, 8000);
         } else {
             console.error('Failed to add client:', result.message || 'Unknown error');
         }
@@ -254,7 +258,7 @@ const AddNewClient: React.FC = () => {
           </Col>
 
           <Col sm="6">
-            <Label>{'Password'}</Label>
+            <Label>{'Mikrotik Password'}</Label>
             <Input
               value={formData.password}
               name="password"
@@ -265,7 +269,7 @@ const AddNewClient: React.FC = () => {
           </Col>
 
           <Col sm="6">
-            <Label>{'Address'}</Label>
+            <Label>{'Location'}</Label>
             <Input
               value={formData.address}
               name="address"
@@ -275,10 +279,10 @@ const AddNewClient: React.FC = () => {
             />
           </Col>
           <Col sm="6">
-              <Label>{'FAT NO.'}</Label>
+              <Label>{'Portal Password'}</Label>
               <Input
-                value={formData.fat_no}
-                name="fat_no"
+                value={formData.portal_password}
+                name="portal_password"
                 type="text"
                 placeholder=''
                 onChange={handleInputChange}
@@ -291,33 +295,33 @@ const AddNewClient: React.FC = () => {
               value={formData.phone_number}
               name="phone_number"
               type="text"
-              placeholder='0710234567'
+              placeholder='0710******'
               onChange={handleInputChange}
             />
           </Col>
           <Col sm="6">
-              <Label>{'Payments No. Used for Payments'}</Label>
+              <Label>{'Secret'}</Label>
               <Input
-                value={formData.payment_no}
-                name="paymentsnumber"
+                value={formData.secret}
+                name="secret"
                 type="text"
-                placeholder='0710234567'
+                placeholder='0710******'
                 onChange={handleInputChange}
                 />
           </Col>
 
           <Col sm="6">
-            <Label>{'SMS Group'}</Label>
-            <Input
-                value={formData.sms_group}
-                name="sms_group"
+              <Label>{'FAT NO.'}</Label>
+              <Input
+                value={formData.fat_no}
+                name="fat_no"
                 type="text"
                 placeholder=''
                 onChange={handleInputChange}
-            />
+                />
           </Col>
           <Col sm="6">
-              <Label>{'Installaction fee or other payments needed'}</Label>
+              <Label>{'Installaction Fee'}</Label>
               <Input
                 value={formData.installation_fee}
                 name="installation_fee"
