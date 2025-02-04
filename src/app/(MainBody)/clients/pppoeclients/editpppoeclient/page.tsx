@@ -290,9 +290,9 @@ const EditClient: React.FC = () => {
         setAlertMessage("An error occurred while updating the client.");
       }
 
-        setTimeout(() => {
+        /*setTimeout(() => {
           window.location.reload();
-        }, 100); // 10000 milliseconds = 10 seconds
+        }, 100); // 10000 milliseconds = 10 seconds*/
         
     };
 
