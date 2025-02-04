@@ -111,7 +111,7 @@ const PoolList: React.FC = () => {
         setPoolData(prevData => prevData.filter(pool => pool.id !== id));
 
         // After success, post a log
-        postLocalLog("Deleted an IP Pool", user);
+        postLocalLog("Deleted an IP Pool", user, user.name);
     } catch (error) {
         console.error('Error deleting IP Pool:', error);
         // Optionally, handle the error (e.g., show a notification)

@@ -278,7 +278,7 @@ const EditClient: React.FC = () => {
 
         if (response.ok) {
           setSuccessMessage("Client updated successfully!");
-          postLocalLog(`Edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number}`, user, formData.router_id);
+          postLocalLog(`Edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number}`, user, user.name);
           setTimeout(() => setSuccessMessage(null), 5000);
         } else {
           const errorData = await response.json();

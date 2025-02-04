@@ -134,7 +134,7 @@ const AddPPPoEPlan: React.FC = () => {
       setVisible(true);
   
       // After success post a log
-      postLocalLog("Added a PPPoE plan", user);
+      postLocalLog("Added a PPPoE plan", user, user.name);
   
       // Hide alert after 5 seconds
       setTimeout(() => {

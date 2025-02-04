@@ -113,7 +113,7 @@ const HotspotPlansList: React.FC = () => {
       console.log(`Deleted bandwidth with ID: ${id}`, result);
 
       // After success post a log
-      postLocalLog("Deleted a hotspot plan", user);
+      postLocalLog("Deleted a hotspot plan", user, user.name);
 
       // Update the hotspotPlans state to remove the deleted plan
       setHotspotPlans((prevPlans) => prevPlans.filter(plan => plan.id !== id));

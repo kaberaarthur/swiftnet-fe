@@ -78,7 +78,7 @@ const AddNewBandwidthPlan: React.FC = () => {
       setVisible(true);
 
       // After success post a log
-      postLocalLog("Added a bandwidth plan", user);
+      postLocalLog("Added a bandwidth plan", user, user.name);
 
       // Automatically hide the alert after 15 seconds
       setTimeout(() => setVisible(false), 15000);

@@ -119,7 +119,7 @@ const AddIPRange: React.FC = () => {
       }, 6000);
 
       // After success post a log
-      postLocalLog("Added an IP Pool", user);
+      postLocalLog("Added an IP Pool", user, user.name);
 
       // Reset formData to default values after successful submission
       setFormData({

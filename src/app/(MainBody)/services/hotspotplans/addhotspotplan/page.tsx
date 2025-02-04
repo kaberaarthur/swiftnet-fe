@@ -183,7 +183,7 @@ const AddHotspotPlan: React.FC = () => {
           setVisible(true);
 
           // After success post a log
-          postLocalLog("Added a hotspot plan", user);
+          postLocalLog("Added a hotspot plan", user, user.name);
 
           // Automatically hide the alert after 15 seconds
           setTimeout(() => setVisible(false), 8000);

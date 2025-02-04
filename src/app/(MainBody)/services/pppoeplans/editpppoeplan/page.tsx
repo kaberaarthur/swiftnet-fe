@@ -91,7 +91,7 @@ const EditPPPoEPlan: React.FC = () => {
       }
 
       // Log the update
-      postLocalLog(`Updated plan price for plan ID: ${plan_id}`, user);
+      postLocalLog(`Updated plan price for plan ID: ${plan_id}`, user, user.name);
     } catch (error) {
       console.error('Error updating plan price:', error);
     } finally {

@@ -163,7 +163,7 @@ const AddNewClient: React.FC = () => {
             setVisible(true);
         
             // After success post a log
-            postLocalLog("Added a PPPoE client", user);
+            postLocalLog("Added a PPPoE client", user, user.name);
         
             // Hide alert after 5 seconds
             setTimeout(() => {

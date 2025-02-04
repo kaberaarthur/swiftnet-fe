@@ -115,7 +115,7 @@ const PPPoEPlansList: React.FC = () => {
        console.log(`Deleted PPPoE Plan with ID: ${id}`, result);
  
        // After success post a log
-       postLocalLog("Deleted a PPPoE plan", user);
+       postLocalLog("Deleted a PPPoE plan", user, user.name);
  
        // Update the hotspotPlans state to remove the deleted plan
        setPPPOEPlans((prevPlans) => prevPlans.filter(plan => plan.id !== id));
