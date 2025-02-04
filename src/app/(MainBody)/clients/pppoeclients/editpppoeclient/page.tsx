@@ -270,7 +270,7 @@ const EditClient: React.FC = () => {
     const updateClient = async () => {
       console.log("New Form Data: ", formData);
       try {
-        const response = await fetch(`${config.apiUrl}/edit-pppoe-client/${client_id}`, {
+        const response = await fetch(`${config.baseUrl}/edit-pppoe-client/${client_id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
