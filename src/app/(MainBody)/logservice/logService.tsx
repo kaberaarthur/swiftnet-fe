@@ -1,8 +1,10 @@
+const config = require("../config/config.json");
+
 // Function to log activities locally
-export const postLocalLog = async (description: string, user: any) => {
+export const postLocalLog = async (description: string, user: any, router_id: any) => {
   try {
     // Fetch IP address dynamically from the backend
-    const ipResponse = await fetch('/backend/ipaddress/get-ip');
+    const ipResponse = await fetch(`${config.baseUrl}/ipaddress/get-ip`);
     if (!ipResponse.ok) {
       throw new Error('Failed to fetch IP address');
     }
@@ -17,10 +19,11 @@ export const postLocalLog = async (description: string, user: any) => {
       company_username: user.company_username,
       user_id: user.id,
       name: user.name,
+      router_id: router_id,
     };
 
     // Send the log data to the backend
-    const response = await fetch('/backend/local_logs', {
+    const response = await fetch(`${config.baseUrl}/local_logs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

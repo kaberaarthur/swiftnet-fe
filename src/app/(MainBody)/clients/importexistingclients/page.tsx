@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 
+const config = require("../../config/config.json");
 
 const requiredHeaders = [
   "secret",
@@ -260,7 +261,7 @@ export default function ImportExistingClients(props: ImportExistingClientsProps)
     };
   
     try {
-      const response = await fetch('http://localhost:8000/import-users', {
+      const response = await fetch(`${config.apiUrl}/import-users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -8,6 +8,8 @@ import { Loader } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
+const config = require("../../../(MainBody)/config/config.json");
+
 // Define types based on the response data
 interface MpesaTransaction {
   id: number;
@@ -82,7 +84,7 @@ const Customer = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/customer-payments?customer_id=${id}`);
+        const response = await fetch(`${config.apiUrl}/customer-payments?customer_id=${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -106,7 +108,7 @@ const Customer = () => {
     if (id) {
       const fetchClientDetails = async () => {
         try {
-          const response = await fetch(`http://localhost:8000/pppoe-clients/${id}`);
+          const response = await fetch(`${config.apiUrl}/pppoe-clients/${id}`);
           const data: ClientDetails = await response.json();
           setClientDetails(data);
           setLoading(false);
@@ -159,7 +161,7 @@ const Customer = () => {
   function watchTransaction(CheckoutRequestID: string, clientID: string): void {
     setMpesaResponse("Waiting for transaction...");
 
-    socket = new WebSocket('ws://localhost:3001');
+    socket = new WebSocket(`ws://${config.microserviceUrl}`);
 
     socket.onopen = () => {
         console.log("Connected to WebSocket");
@@ -197,7 +199,7 @@ const Customer = () => {
   const initiatePayment = async () => {
     setReqLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/payment', {
+      const response = await fetch(`http://${config.microserviceUrl}/api/payment`, {
         method: 'POST', // HTTP method
         headers: {
           'Content-Type': 'application/json', // Ensure the server knows we're sending JSON
