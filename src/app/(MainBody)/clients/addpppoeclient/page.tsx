@@ -167,12 +167,14 @@ const AddNewClient: React.FC = () => {
             setVisible(true);
         
             // After success post a log
-            postLocalLog("Added a PPPoE client", user, user.name);
+            postLocalLog(`${user.name} Added a PPPoE client using secret ${formData.secret}`, user, formData.router_id);
         
             // Hide alert after 5 seconds
             setTimeout(() => {
               setVisible(false);
-            }, 8000);
+              // Redirect to the list page
+              window.location.href = "/clients/pppoeclients";
+            }, 4000);
         } else {
             console.error('Failed to add client:', result.message || 'Unknown error');
         }
@@ -186,22 +188,8 @@ const AddNewClient: React.FC = () => {
     <>
       <Breadcrumbs mainTitle={'Add a Client'} parent={FormsControl} />
       <Container fluid>
-        <Alert color="success" className="py-2" isOpen={visible} toggle={() => setVisible(false)} fade>
-          <p>
-            <strong>PPPoE Client Added Successfully!</strong>
-          </p>
-        </Alert>
+        
         <Row className="g-3">
-          <Col sm="6">
-            <Label>{'Username'}</Label>
-            <Input
-              value={formData.account}
-              name="account"
-              type="text"
-              placeholder='@johndoe'
-              onChange={handleInputChange}
-            />
-          </Col>
           <Col sm="6">
             <Label>{'Full Name'}</Label>
             <Input
@@ -210,6 +198,7 @@ const AddNewClient: React.FC = () => {
               type="text"
               placeholder='John Doe'
               onChange={handleInputChange}
+              required
             />
           </Col>
           <Col sm="6">
@@ -219,6 +208,7 @@ const AddNewClient: React.FC = () => {
                 name="router_id"
                 value={formData.router_id}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Select Routers</option>
                 {routers.map(router => (
@@ -237,6 +227,7 @@ const AddNewClient: React.FC = () => {
               type="text"
               placeholder='johndoe@gmail.com'
               onChange={handleInputChange}
+              required
             />
           </Col>
           <Col sm="6">
@@ -247,6 +238,7 @@ const AddNewClient: React.FC = () => {
                   value={formData.plan_id}
                   onChange={handleInputChange}
                   disabled={formData.router_id === 0}
+                  required
                 >
                   <option value="">Select Plans</option>
                   {Array.isArray(pppoePlans) && pppoePlans.map(plan => (
@@ -262,9 +254,10 @@ const AddNewClient: React.FC = () => {
             <Input
               value={formData.password}
               name="password"
-              type="password"
+              type="text"
               placeholder='*******'
               onChange={handleInputChange}
+              required
             />
           </Col>
 
@@ -276,6 +269,7 @@ const AddNewClient: React.FC = () => {
               type="text"
               placeholder=''
               onChange={handleInputChange}
+              required
             />
           </Col>
           <Col sm="6">
@@ -284,8 +278,9 @@ const AddNewClient: React.FC = () => {
                 value={formData.portal_password}
                 name="portal_password"
                 type="text"
-                placeholder=''
+                placeholder='*******'
                 onChange={handleInputChange}
+                required
                 />
           </Col>
 
@@ -297,6 +292,7 @@ const AddNewClient: React.FC = () => {
               type="text"
               placeholder='0710******'
               onChange={handleInputChange}
+              required
             />
           </Col>
           <Col sm="6">
@@ -307,6 +303,7 @@ const AddNewClient: React.FC = () => {
                 type="text"
                 placeholder='0710******'
                 onChange={handleInputChange}
+                required
                 />
           </Col>
 
@@ -318,6 +315,7 @@ const AddNewClient: React.FC = () => {
                 type="text"
                 placeholder=''
                 onChange={handleInputChange}
+                required
                 />
           </Col>
           <Col sm="6">
@@ -328,7 +326,11 @@ const AddNewClient: React.FC = () => {
                 type="text"
                 placeholder=''
                 onChange={handleInputChange}
+                required
                 />
+          </Col>
+
+          <Col sm="6">
           </Col>
 
           <Col sm="6">
@@ -336,9 +338,21 @@ const AddNewClient: React.FC = () => {
               onClick={handleAddClient}
               disabled={loading || formData.router_id === 0 || formData.plan_id === 0}
             >
-              Add New Client
+              {loading ? (
+                <Spinner size="sm" />
+              ) : (
+                'Add New Client'
+              )}
             </Button>
           </Col>
+
+        </Row>
+        <Row className="g-3">
+          <Alert color="success" className="py-2" isOpen={visible} toggle={() => setVisible(false)} fade>
+            <p>
+              <strong>PPPoE Client Added Successfully!</strong>
+            </p>
+          </Alert>
         </Row>
       </Container>
     </>

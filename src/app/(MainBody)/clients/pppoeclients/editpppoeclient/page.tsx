@@ -233,34 +233,28 @@ const EditClient: React.FC = () => {
   
 
   const validateEndDate = (selectedDateStr: string, currentEndDateStr: string) => {
-    const selectedDate = new Date(selectedDateStr);
-    const currentEndDate = new Date(currentEndDateStr);
-  
-    // Logging the dates
-    console.log("Selected Date:", selectedDate.toISOString());
-    console.log("Current End Date:", currentEndDate.toISOString());
-  
-    // Set the time part of the date to 00:00:00 to compare dates without time component
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-  
-    // Add 4 days to the currentEndDate to calculate the maxDate
-    const maxDate = new Date(currentEndDate);
-    maxDate.setDate(currentEndDate.getDate() + 4);
-  
-    // If the subscription is still active (selected date is before the current end date)
-    if (currentEndDate > selectedDate) {
-      return { valid: false, message: "You cannot extend the expiry date to a date before the set expiry date.", adjustedDate: selectedDate.toISOString().split("T")[0] };
-    }
-  
-    // If the selected date is more than 4 days from today, adjust it
-    if (selectedDate > maxDate) {
-      console.log("You cannot extend the client's expiration date by more than 4 days");
-      return { valid: true, message: "You cannot extend the client's expiration date by more than 4 days", adjustedDate: maxDate.toISOString().split("T")[0] };
-    }
-  
-    // If the selected date is valid
-    return { valid: true, message: "Correct Days Selected", adjustedDate: selectedDate.toISOString().split("T")[0] };
+      const selectedDate = new Date(selectedDateStr);
+      const currentEndDate = new Date(currentEndDateStr);
+    
+      // Logging the dates
+      console.log("Selected Date:", selectedDate.toISOString());
+      console.log("Current End Date:", currentEndDate.toISOString());
+    
+      // If the subscription is still active (selected date is before the current end date)
+      if (currentEndDate > selectedDate) {
+        return { 
+          valid: false, 
+          message: "You cannot extend the expiry date to a date before the set expiry date.", 
+          adjustedDate: selectedDate.toISOString().split("T")[0] 
+        };
+      }
+    
+      // No max limit, so just return the selected date as valid
+      return { 
+        valid: true, 
+        message: "Correct Days Selected", 
+        adjustedDate: selectedDate.toISOString().split("T")[0] 
+      };
   };
 
   const [shouldUpdateClient, setShouldUpdateClient] = useState(false);  // Flag to trigger the fetch
@@ -268,7 +262,7 @@ const EditClient: React.FC = () => {
   // The updateClient function, moved into a useEffect that listens to shouldUpdateClient
   useEffect(() => {
     const updateClient = async () => {
-      console.log("New Form Data: ", formData);
+      console.log("Editing User: ", formData);
       try {
         const response = await fetch(`${config.baseUrl}/edit-pppoe-client/${client_id}`, {
           method: "PATCH",
@@ -278,12 +272,18 @@ const EditClient: React.FC = () => {
 
         if (response.ok) {
           setSuccessMessage("Client updated successfully!");
-          postLocalLog(`Edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number}`, user, user.name);
-          setTimeout(() => setSuccessMessage(null), 5000);
+          postLocalLog(`${user.name} edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number} & End Date ${formData.end_date} hosted on Router: ${formData.router_id}`, user, formData.router_id);
+          setTimeout(() => {
+            setSuccessMessage(null);
+            window.location.reload(); // This will reload the page after 5 seconds
+          }, 5000);
         } else {
           const errorData = await response.json();
           console.error("Failed to update client:", errorData);
           setAlertMessage("Failed to update client.");
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
         }
       } catch (error) {
         console.error("Error updating client:", error);
@@ -305,6 +305,7 @@ const EditClient: React.FC = () => {
 
   // Your handleUpdateClient function to validate and update formData
   const handleUpdateClient = async () => {
+    setLoading(true);
     const validation = validateEndDate(formatDateWithTime(endDate), formatDateWithTime(formData.end_date));
 
     if (validation.valid) {
@@ -327,10 +328,12 @@ const EditClient: React.FC = () => {
         // Set the flag to trigger the updateClient function after formData is updated
         setShouldUpdateClient(true);
       }
+      setLoading(false);
+
     } else {
       setAlertMessage(validation.message ?? "");
       console.log("Invalid Date: ", validation.adjustedDate ?? "");
-
+      setLoading(false);
 
       setTimeout(() => {
         window.location.reload();
@@ -412,7 +415,11 @@ const EditClient: React.FC = () => {
         </Col>*/}
         <Col sm="6" className="mt-3">
           <Button color="primary" onClick={handleUpdateClient} disabled={loading}>
-            {loading ? <Spinner size="sm" /> : "Update Client"}
+            {loading ? (
+              <div className="animate-spin h-5 w-5 border-t-2 border-white border-solid rounded-full"></div>
+            ) : (
+              `Update Client`
+            )}
           </Button>
         </Col>
       </Row>

@@ -68,7 +68,7 @@ const Customer = () => {
   const id = searchParams.get("id"); // Get the param from the URL
 
   const [clientDetails, setClientDetails] = useState<ClientDetails | null>(null);
-  const [password, setPassword] = useState("!Ext67u5*");
+  const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isPaySuccess, setIsPaySuccess] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -80,6 +80,8 @@ const Customer = () => {
 
   // Fake transaction data for illustration
   const [mpesaTransactions, setMpesaTransactions] = useState<MpesaTransaction[]>([]);
+  const [mpesaError, setMpesaError] = useState("");
+
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -174,6 +176,7 @@ const Customer = () => {
 
             if (response.status === "found" && response.data?.MpesaReceiptNumber) {
                 setMpesaResponse("Transaction found: " + response.data.MpesaReceiptNumber);
+                setMpesaError("");
                 console.log("Transaction found: " + response.data.MpesaReceiptNumber)
                 if (response.end_date) {
                     setNewExpiryDate("Your New Expiry Date: " + formatFriendlyDate(response.end_date));
@@ -185,6 +188,8 @@ const Customer = () => {
                 setIsPaySuccess(true);
             } else {
                 setMpesaResponse("We could not verify your payment.");
+                setMpesaError("We could not verify your payment.");
+                setReqLoading(false);
                 console.log("We could not verify your payment.");
             }
         } catch (error) {
@@ -243,7 +248,7 @@ const Customer = () => {
           <div className="flex flex-col items-center justify-center text-center space-y-4">
             <h2 id="modal-title" className="font-semibold text-gray-900 pb-4">We sent you a WhatsApp message containing the password to your portal. Check WhatsApp or contact <span className="font-bold">0790485731</span></h2>
             <Input
-              type="password"
+              type="text"
               placeholder="Enter your password"
               className="pb-4"
               value={password}
@@ -289,6 +294,7 @@ const Customer = () => {
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="border border-gray-300 p-2 rounded"
                 />
+                <p id="modal-title" className="font-semibold text-danger pb-2">{mpesaError}</p>
                 <Button
                   className="w-full mt-4 flex items-center justify-center"
                   style={{ backgroundColor: "#1447E6" }}

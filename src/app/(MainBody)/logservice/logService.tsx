@@ -22,6 +22,8 @@ export const postLocalLog = async (description: string, user: any, router_id: an
       router_id: router_id,
     };
 
+    console.log("Log Data: ", data)
+
     // Send the log data to the backend
     const response = await fetch(`${config.baseUrl}/local_logs`, {
       method: 'POST',

@@ -13,6 +13,7 @@ interface LogEntry {
   description: string;
   router_id: number;
   user_id: number;
+  id: number;
 }
 
 interface Router {
@@ -57,8 +58,7 @@ const PPPoELogs: React.FC = () => {
         try {
           const response = await fetch(`${config.baseUrl}/local_logs?router_id=${selectedRouter}`);
           let data = await response.json();
-          data = data[0]
-          setLogs(data.slice(-200).reverse()); // Keep last 200 logs, reversed
+          setLogs(data.reverse());
         } catch (error) {
           console.error("Error fetching logs:", error);
         }
@@ -106,7 +106,8 @@ const PPPoELogs: React.FC = () => {
             <Table bordered hover responsive>
               <thead>
                 <tr>
-                  <th>User</th>
+                  <th>ID</th>
+                  <th>User ID</th>
                   <th>Description</th>
                   <th>Date Created</th>
                 </tr>
@@ -114,6 +115,7 @@ const PPPoELogs: React.FC = () => {
               <tbody>
                 {currentLogs.map((log, index) => (
                   <tr key={index}>
+                    <td>{log.id}</td>
                     <td>{log.user_id}</td>
                     <td>{log.description}</td>
                     <td>{log.date_created}</td>
