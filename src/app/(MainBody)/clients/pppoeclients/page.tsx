@@ -113,7 +113,7 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{data.plan_fee}</td>
                 <td className="px-4 py-2 text-blue-600">
                   <Link
-                    href={`/clients/pppoeclients/pppoepayment?client_id=${data.id}`}
+                    href={`/authentication/acustomer?id=${data.id}`}
                     className="hover:underline"
                     style={{ color: "#2563eb" }}
                   >
