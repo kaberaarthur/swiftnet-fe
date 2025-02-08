@@ -26,6 +26,10 @@ const nextConfig = {
         destination: "http://139.59.60.20:3001/:path*", // Embed username:password in the URL
       },
       {
+        source: "/ws/:path*", // Matches API paths
+        destination: "http://139.59.60.20:3001/:path*", // Embed username:password in the URL
+      },
+      {
         source: "/test",
         destination: "http://localhost:8000",
       },
