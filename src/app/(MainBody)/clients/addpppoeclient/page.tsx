@@ -146,6 +146,7 @@ const AddNewClient: React.FC = () => {
   };
 
   const handleAddClient = async () => {
+    setLoading(true);
     try {
         console.log(formData);
         // Send a POST request to the backend
@@ -171,14 +172,17 @@ const AddNewClient: React.FC = () => {
         
             // Hide alert after 5 seconds
             setTimeout(() => {
+              setLoading(false);
               setVisible(false);
               // Redirect to the list page
               window.location.href = "/clients/pppoeclients";
             }, 4000);
         } else {
+            setLoading(false);
             console.error('Failed to add client:', result.message || 'Unknown error');
         }
     } catch (error) {
+        setLoading(false);
         console.error('Error adding client:', error);
     }
   };
