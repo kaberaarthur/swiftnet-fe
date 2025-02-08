@@ -281,9 +281,9 @@ const EditClient: React.FC = () => {
           const errorData = await response.json();
           console.error("Failed to update client:", errorData);
           setAlertMessage("Failed to update client.");
-          setTimeout(() => {
+          /*setTimeout(() => {
             window.location.reload();
-          }, 100);
+          }, 100);*/
         }
       } catch (error) {
         console.error("Error updating client:", error);
