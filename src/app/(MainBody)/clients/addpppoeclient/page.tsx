@@ -339,7 +339,7 @@ const AddNewClient: React.FC = () => {
               disabled={loading || formData.router_id === 0 || formData.plan_id === 0}
             >
               {loading ? (
-                <Spinner size="sm" />
+                'Loading...'
               ) : (
                 'Add New Client'
               )}
