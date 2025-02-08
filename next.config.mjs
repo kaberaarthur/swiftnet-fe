@@ -21,6 +21,11 @@ const nextConfig = {
         destination: "http://139.59.60.20:8000/:path*", // Embed username:password in the URL
       },
       {
+        source: "/microservice/:path*", // Matches API paths
+        // destination: "http://localhost:8000/:path*", // Embed username:password in the URL
+        destination: "http://139.59.60.20:3001/:path*", // Embed username:password in the URL
+      },
+      {
         source: "/test",
         destination: "http://localhost:8000",
       },

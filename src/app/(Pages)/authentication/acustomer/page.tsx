@@ -206,7 +206,7 @@ const Customer = () => {
   const initiatePayment = async () => {
     setReqLoading(true);
     try {
-      const response = await fetch(`/backend/api/payment`, {
+      const response = await fetch(`/microservice/api/payment`, {
         method: 'POST', // HTTP method
         headers: {
           'Content-Type': 'application/json', // Ensure the server knows we're sending JSON
