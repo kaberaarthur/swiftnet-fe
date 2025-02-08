@@ -193,6 +193,9 @@ const Customer = () => {
 
 
   const initiatePayment = async () => {
+    console.log("Client ID: ", id);
+    console.log("Phone No. : ", phoneNumber);
+    
     setReqLoading(true);
     try {
       const response = await fetch(`/microservice/api/payment`, {
