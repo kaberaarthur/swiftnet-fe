@@ -54,15 +54,6 @@ interface ClientDetails {
   portal_password: string;
 }
 
-// Define an interface for WebSocket response
-interface WebSocketResponse {
-  status: "found" | "not_found";
-  data?: {
-      MpesaReceiptNumber: string;
-  };
-  end_date?: string;
-}
-
 const Customer = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id"); // Get the param from the URL
@@ -154,38 +145,36 @@ const Customer = () => {
     return date.toLocaleString('en-US', options);
   }
 
-  // Declare WebSocket instance properly
-  let socket: WebSocket | null = null;
-
   // Define types for state setters
   const [mpesaResponse, setMpesaResponse] = useState<string>("");
   const [newExpiryDate, setNewExpiryDate] = useState<string>("");
 
+  const watchTransaction = async (CheckoutRequestID: string, clientID: string) => {
+    try {
+        const response = await fetch('/microservice/watchTransaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ CheckoutRequestID, clientID }),
+        });
 
-  function watchTransaction(CheckoutRequestID: string, clientID: string): void {
-    setMpesaResponse("Waiting for transaction...");
+        const res = await response.json();
 
-    socket = new WebSocket(`ws://${config.microserviceUrl}`);
+        if (res.status === 'found') {
+            console.log('Transaction found: ', res.data?.MpesaReceiptNumber);
+            // Process payment success, update UI, etc.
 
-    socket.onopen = () => {
-        console.log("Connected to WebSocket");
-        socket?.send(JSON.stringify({ CheckoutRequestID, clientID }));
-    };
-
-    socket.onmessage = (event: MessageEvent) => {
-        try {
-            const response: WebSocketResponse = JSON.parse(event.data);
-
-            if (response.status === "found" && response.data?.MpesaReceiptNumber) {
-                setMpesaResponse("Transaction found: " + response.data.MpesaReceiptNumber);
+            if (res.status === "found" && res.data?.MpesaReceiptNumber) {
+                setMpesaResponse("Transaction found: " + res.data.MpesaReceiptNumber);
                 setMpesaError("");
-                console.log("Transaction found: " + response.data.MpesaReceiptNumber)
-                if (response.end_date) {
-                    setNewExpiryDate("Your New Expiry Date: " + formatFriendlyDate(response.end_date));
-                    console.log("Your New Expiry Date: " + formatFriendlyDate(response.end_date));
-                    setCurrEndDate(response.end_date);
+                console.log("Transaction found: " + res.data.MpesaReceiptNumber)
+                if (res.end_date) {
+                    setNewExpiryDate("Your New Expiry Date: " + formatFriendlyDate(res.end_date));
+                    console.log("Your New Expiry Date: " + formatFriendlyDate(res.end_date));
+                    setCurrEndDate(res.end_date);
                 }
-                socket?.close();
+                
                 setReqLoading(false);
                 setIsPaySuccess(true);
             } else {
@@ -194,13 +183,13 @@ const Customer = () => {
                 setReqLoading(false);
                 console.log("We could not verify your payment.");
             }
-        } catch (error) {
-            console.error("Error parsing WebSocket message:", error);
+        } else {
+            console.log('Transaction not found or error: ', res.message);
         }
-    };
-
-    socket.onclose = () => console.log("WebSocket connection closed.");
-}
+    } catch (error) {
+        console.error('Error calling API:', error);
+    }
+  };
 
 
   const initiatePayment = async () => {
@@ -227,6 +216,7 @@ const Customer = () => {
         console.error('Payment request failed with status:', response.status);
         const errorData = await response.json();
         console.error('Error details:', errorData.message);
+        setMpesaError("Could not Process Payment");
         setReqLoading(false);
       }
     } catch (error) {
