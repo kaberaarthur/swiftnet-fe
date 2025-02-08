@@ -86,7 +86,7 @@ const Customer = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`${config.apiUrl}/customer-payments?customer_id=${id}`);
+        const response = await fetch(`/backend/customer-payments?customer_id=${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -110,7 +110,7 @@ const Customer = () => {
     if (id) {
       const fetchClientDetails = async () => {
         try {
-          const response = await fetch(`${config.apiUrl}/pppoe-clients/${id}`);
+          const response = await fetch(`/backend/pppoe-clients/${id}`);
           const data: ClientDetails = await response.json();
           setClientDetails(data);
           setLoading(false);
@@ -128,6 +128,8 @@ const Customer = () => {
   }, [id]);
 
   const handlePasswordSubmit = () => {
+    console.log("Password Entered: ", password);
+    console.log("Password From DB: ", clientDetails?.portal_password);
     // Simulate password verification
     if (password === clientDetails?.portal_password) {
       setIsAuthenticated(true);
@@ -204,7 +206,7 @@ const Customer = () => {
   const initiatePayment = async () => {
     setReqLoading(true);
     try {
-      const response = await fetch(`http://${config.microserviceUrl}/api/payment`, {
+      const response = await fetch(`/backend/api/payment`, {
         method: 'POST', // HTTP method
         headers: {
           'Content-Type': 'application/json', // Ensure the server knows we're sending JSON
