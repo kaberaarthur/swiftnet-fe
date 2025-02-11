@@ -26,6 +26,7 @@ interface FormData {
   plan_id: number;
   plan_name: string;
   plan_fee: number;
+  installation_fee: number;
   router_id: number;
   company_id: number;
   company_username: string;
@@ -73,6 +74,7 @@ const EditClient: React.FC = () => {
     plan_id: 0,
     plan_name: "",
     plan_fee: 0,
+    installation_fee: 0,
     router_id: 0,
     company_id: 0,
     company_username: "",
@@ -129,6 +131,7 @@ const EditClient: React.FC = () => {
             plan_id: clientData.plan_id,
             plan_name: clientData.plan_name,
             plan_fee: clientData.plan_fee,
+            installation_fee: clientData.installation_fee,
             router_id: clientData.router_id,
             company_id: clientData.company_id,
             company_username: clientData.company_username,
@@ -190,6 +193,18 @@ const EditClient: React.FC = () => {
       setFormData((prevData) => ({
         ...prevData,
         plan_fee: numericValue, // Ensure type matches FormData
+      }));
+    }
+  };  
+
+  const handleInstallationFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const numericValue = parseFloat(value); // Convert input to a number
+  
+    if (!isNaN(numericValue) && numericValue >= 0) {
+      setFormData((prevData) => ({
+        ...prevData,
+        installation_fee: numericValue, // Ensure type matches FormData
       }));
     }
   };  
@@ -395,6 +410,15 @@ const EditClient: React.FC = () => {
             name="sms_group"
             value={formData.plan_fee}
             onChange={handleFeeChange}
+          />
+        </Col>
+        <Col sm="6">
+          <Label>Installation Fee</Label>
+          <Input
+            type="text"
+            name="sms_group"
+            value={formData.installation_fee}
+            onChange={handleInstallationFeeChange}
           />
         </Col>
         {/*<Col sm="6">
