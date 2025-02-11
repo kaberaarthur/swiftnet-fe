@@ -56,6 +56,7 @@ const AddNewClient: React.FC = () => {
 
   // Alerts
   const [visible, setVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const user = useSelector((state: RootState) => state.user);
 
@@ -75,6 +76,7 @@ const AddNewClient: React.FC = () => {
           }));
         } catch (error) {
           console.error('Error fetching routers:', error);
+          setAlertMessage("Error fetching routers");
         } finally {
           setLoading(false);
         }
@@ -129,6 +131,7 @@ const AddNewClient: React.FC = () => {
           }
         } catch (error) {
           console.error('Error fetching hotspot plans:', error);
+          setAlertMessage("Error fetching hotspot plans");
         } finally {
           setLoading(false);
         }
@@ -180,10 +183,18 @@ const AddNewClient: React.FC = () => {
         } else {
             setLoading(false);
             console.error('Failed to add client:', result.message || 'Unknown error');
+            if(result.message) {
+              setAlertMessage("Error adding client: " + result.message);
+            } else {
+              setAlertMessage("Error adding client: Unknown error");
+            }
+            
         }
     } catch (error) {
         setLoading(false);
         console.error('Error adding client:', error);
+        setAlertMessage("Error adding client");
+
     }
   };
 
@@ -357,6 +368,7 @@ const AddNewClient: React.FC = () => {
               <strong>PPPoE Client Added Successfully!</strong>
             </p>
           </Alert>
+          {alertMessage && <Alert color="danger">{alertMessage}</Alert>}
         </Row>
       </Container>
     </>
