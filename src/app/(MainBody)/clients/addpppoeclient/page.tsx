@@ -34,6 +34,7 @@ interface FormData {
   plan_id: number;
   plan_fee: number;
   type: string;
+  brand: string;
 }
 
 interface Router {
@@ -107,6 +108,7 @@ const AddNewClient: React.FC = () => {
     plan_id: 0,
     plan_fee: 0,
     type: "pppoe",
+    brand: "Default",
   });
 
   // Load plans based on selected router
@@ -152,6 +154,7 @@ const AddNewClient: React.FC = () => {
     setLoading(true);
     try {
         console.log(formData);
+
         // Send a POST request to the backend
         const response = await fetch('/backend/pppoe-clients', {
             method: 'POST',
@@ -346,6 +349,13 @@ const AddNewClient: React.FC = () => {
           </Col>
 
           <Col sm="6">
+            <Label>Brand</Label>
+            <Input
+              type="text"
+              name="brand"
+              value={formData.brand}
+              onChange={handleInputChange}
+            />
           </Col>
 
           <Col sm="6">

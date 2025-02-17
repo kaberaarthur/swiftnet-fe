@@ -16,7 +16,9 @@ const requiredHeaders = [
   "end_date",
   "plan_id",
   "location",
-  "phone_number"
+  "phone_number",
+  "brand",
+  "password"
 ];
 
 interface Router {
@@ -58,6 +60,7 @@ interface FormData {
     plan_id: number;
     plan_fee: number;
     type: string;
+    brand: string;
   }
 
 export default function ImportExistingClients(props: ImportExistingClientsProps) {
@@ -115,6 +118,7 @@ export default function ImportExistingClients(props: ImportExistingClientsProps)
         plan_id: 0,
         plan_fee: 0,
         type: "pppoe",
+        brand: "Default",
       });
 
     // Load plans based on selected router
@@ -168,26 +172,26 @@ export default function ImportExistingClients(props: ImportExistingClientsProps)
       setMessage("No file selected.");
       return;
     }
-
+  
     const reader = new FileReader();
-
+  
     reader.onload = (e) => {
       const data = new Uint8Array(e.target?.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: "array" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
-
+  
       if (jsonData.length === 0) {
         setMessage("The file is empty.");
         return;
       }
-
+  
       const headers = jsonData[0] as string[];
       const missingHeaders = requiredHeaders.filter(
         (header) => !headers.includes(header)
       );
-
+  
       if (missingHeaders.length > 0) {
         setMessage(
           `The file is missing the following required headers: ${missingHeaders.join(", ")}`
@@ -196,39 +200,43 @@ export default function ImportExistingClients(props: ImportExistingClientsProps)
       } else {
         setMessage("The file follows the required convention.");
         const rows = jsonData.slice(1).map((row) => {
-            const rowData: RowData = {};
-            headers.forEach((header, index) => {
-              let value = row[index] || "";
-          
-              // Convert Excel serial dates for start_date and end_date
-              if ((header === "start_date" || header === "end_date") && typeof value === "number") {
-                value = excelSerialToDate(value);
-              }
-          
-              // Ensure secret and phone_number start with a 0
-              if ((header === "secret" || header === "phone_number") && typeof value === "number") {
-                  value = "0" + String(value);
-              }
-          
-              rowData[header] = value;
-            });
-            return rowData;
+          const rowData: RowData = {};
+          headers.forEach((header, index) => {
+            let value = row[index] || "";
+  
+            // Convert Excel serial dates for start_date and end_date
+            if ((header === "start_date" || header === "end_date") && typeof value === "number") {
+              value = excelSerialToDate(value);
+            }
+  
+            // Ensure secret, phone_number start with a 0
+            if ((header === "secret" || header === "phone_number") && typeof value === "number") {
+              value = "0" + String(value);
+            }
+  
+            // Ensure password is a string
+            if (header === "password") {
+              value = String(value);
+            }
+  
+            rowData[header] = value;
           });
-          
-          
-          
+          return rowData;
+        });
+  
         setTableData(rows);
-        console.log("Rows: ", rows)
+        console.log("Rows: ", rows);
       }
     };
-
+  
     reader.onerror = () => {
       setMessage("Error reading the file.");
       setTableData(null);
     };
-
+  
     reader.readAsArrayBuffer(file);
   };
+  
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -259,9 +267,11 @@ export default function ImportExistingClients(props: ImportExistingClientsProps)
       router_id,
       clients: tableData, // Send the tableData as the clients
     };
+
+    // console.log("Data to Send: ", dataToSend);
   
     try {
-      const response = await fetch(`${config.apiUrl}/import-users`, {
+      const response = await fetch(`${config.baseUrl}/import-users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
