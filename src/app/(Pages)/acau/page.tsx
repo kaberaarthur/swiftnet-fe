@@ -13,7 +13,7 @@ const ACAU = () => {
             console.log("ID has been included")
         }
         // Redirect the user
-        window.location.href = `https://swiftnet-fe.vercel.app/authentication/acustomer?id=${id || 225}`;
+        window.location.href = `https://swiftnet-fe.vercel.app/authentication/atest?id=${id || 225}`;
     }, [id]);
 
     return (
