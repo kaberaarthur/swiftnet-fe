@@ -3,8 +3,28 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  if (path.split("/")[1] !== "auth" && !request.cookies.has("edmin_login")) return NextResponse.redirect(new URL("/auth/login", request.url));
-  if (path.split("/")[1] === "auth" && request.cookies.has("edmin_login")) return NextResponse.redirect(new URL(`/dashboard/default`, request.url));
+  // console.log("Requested Path: ", path)
+
+  /*
+  // Exclude /authentication/acustomer from requiring authentication
+  if (path.startsWith("/authentication/acustomer")) {
+    return NextResponse.next();
+  }
+
+  if (path.startsWith("/acau")) {
+    return NextResponse.next();
+  }
+
+  // Redirect unauthenticated users to login
+  if (path.split("/")[1] !== "auth" && !request.cookies.has("edmin_login")) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
+  // Redirect authenticated users away from auth pages
+  if (path.split("/")[1] === "auth" && request.cookies.has("edmin_login")) {
+    return NextResponse.redirect(new URL(`/dashboard/default`, request.url));
+  }
+  */
 
   return NextResponse.next();
 }
@@ -12,6 +32,10 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/authentication/(.*)",
+    "/acau/(.*)",
+    "/backend/(.*)",
+    "/assets/(.*)",
+    "/assets/(.*)",
   ],
 };
-
