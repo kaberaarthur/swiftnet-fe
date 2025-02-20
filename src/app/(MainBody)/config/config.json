@@ -1,5 +1,5 @@
 {
-    "baseUrl": "http://localhost:8000",
+    "baseUrl": "/backend",
     "apiUrl": "http://139.59.60.20:8000",
     "microserviceUrl": "139.59.60.20:3001"
 }  

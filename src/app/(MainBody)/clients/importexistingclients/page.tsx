@@ -288,6 +288,11 @@ export default function ImportExistingClients(props: ImportExistingClientsProps)
       console.log('Import successful:', result);
       setMessage("Users imported successfully.");
       setError(""); // Clear any existing errors
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+      
     } catch (error) {
       console.error("Error during import:", error);
       setError("Error occurred while importing users.");

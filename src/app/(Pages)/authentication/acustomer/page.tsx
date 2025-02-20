@@ -60,7 +60,7 @@ const Customer = () => {
 
   const [clientDetails, setClientDetails] = useState<ClientDetails | null>(null);
   const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isPaySuccess, setIsPaySuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reqLoading, setReqLoading] = useState(false);

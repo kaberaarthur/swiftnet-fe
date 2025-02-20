@@ -130,6 +130,7 @@ const ClientsList: React.FC = () => {
             <th className="px-4 py-2 text-left">Secret</th>
             <th className="px-4 py-2 text-left">Brand</th>
             <th className="px-4 py-2 text-left">Router ID</th>
+            <th className="px-4 py-2 text-left">Portal Password</th>
             <th className="px-4 py-2 text-left">Action</th>
             <th className="px-4 py-2 text-left">Delete</th>
           </tr>
@@ -141,9 +142,9 @@ const ClientsList: React.FC = () => {
             </tr>
           ) : (
             filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((data) => (
-              <tr key={data.id} className="bg-white border-b">
-                <td className="px-4 py-2">
-                  <Link href={`/clients/pppoeclients/editpppoeclient?client_id=${data.id}`} className="hover:underline text-blue-600">
+              <tr key={data.id} className="bg-white border-b" >
+                <td className="px-4 py-2 primary">
+                  <Link href={`/clients/pppoeclients/editpppoeclient?client_id=${data.id}`} className="hover:underline text-blue-600" style={{ color: "#0d6efd" }}>
                     {data.id}
                   </Link>
                 </td>
@@ -152,6 +153,7 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{data.secret}</td>
                 <td className="px-4 py-2">{data.brand || 'N/A'}</td>
                 <td className="px-4 py-2">{data.router_id || 'N/A'}</td>
+                <td className="px-4 py-2">{data.portal_password || 'N/A'}</td>
                 <td className="px-4 py-2 text-blue-600">
                   <Link href={`/authentication/acustomer?id=${data.id}`} className="hover:underline">
                     <Button color="primary">Payment</Button>

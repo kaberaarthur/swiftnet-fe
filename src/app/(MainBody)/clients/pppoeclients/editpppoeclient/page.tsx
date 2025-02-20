@@ -348,6 +348,11 @@ const EditClient: React.FC = () => {
       }
       setLoading(false);
 
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+      
+
     } else {
       setAlertMessage(validation.message ?? "");
       console.log("Invalid Date: ", validation.adjustedDate ?? "");
