@@ -17,7 +17,7 @@ const ACAU = () => {
 
     return (
         <div className="flex items-center justify-center h-screen text-xl font-bold">
-            ID: {id || "No ID Provided"}
+            ID: {id || "No IDs Provided"}
         </div>
     );
 };
