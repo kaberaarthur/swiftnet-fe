@@ -58,6 +58,8 @@ const Customer = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id"); // Get the param from the URL
 
+  console.log("##### userID ==> ", id)
+
   const [clientDetails, setClientDetails] = useState<ClientDetails | null>(null);
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
