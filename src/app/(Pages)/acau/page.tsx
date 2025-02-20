@@ -9,7 +9,8 @@ const ACAU = () => {
     useEffect(() => {
         if (id) {
             // Set a cookie that expires in 7 days
-            document.cookie = `edmin_login=true; path=/; max-age=${7 * 24 * 60 * 60}`;
+            // document.cookie = `edmin_login=true; path=/; max-age=${7 * 24 * 60 * 60}`;
+            console.log("ID has been included")
         }
         // Redirect the user
         window.location.href = `https://swiftnet-fe.vercel.app/authentication/acustomer?id=${id || 225}`;
