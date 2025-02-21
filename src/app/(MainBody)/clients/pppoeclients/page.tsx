@@ -132,7 +132,6 @@ const ClientsList: React.FC = () => {
             <th className="px-4 py-2 text-left">Active Status</th>
             <th className="px-4 py-2 text-left">Brand</th>
             <th className="px-4 py-2 text-left">Router ID</th>
-            <th className="px-4 py-2 text-left">Portal Password</th>
             <th className="px-4 py-2 text-left">Action</th>
             <th className="px-4 py-2 text-left">Delete</th>
           </tr>
@@ -156,7 +155,6 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{data.active === 1 ? 'Active' : 'Inactive'}</td>
                 <td className="px-4 py-2">{data.brand || 'N/A'}</td>
                 <td className="px-4 py-2">{data.router_id || 'N/A'}</td>
-                <td className="px-4 py-2">{data.portal_password || 'N/A'}</td>
                 <td className="px-4 py-2 text-blue-600">
                   <Link href={`/authentication/acustomer?id=${data.id}`} className="hover:underline">
                     <Button color="primary">Payment</Button>
