@@ -7,6 +7,7 @@ import { RootState } from '../../../../Redux/Store';
 
 interface TableRow {
   id: number;
+  active: number;
   full_name: string;
   email: string;
   phone_number: string;
@@ -128,6 +129,7 @@ const ClientsList: React.FC = () => {
             <th className="px-4 py-2 text-left">Full Name</th>
             <th className="px-4 py-2 text-left">Phone Number</th>
             <th className="px-4 py-2 text-left">Secret</th>
+            <th className="px-4 py-2 text-left">Active Status</th>
             <th className="px-4 py-2 text-left">Brand</th>
             <th className="px-4 py-2 text-left">Router ID</th>
             <th className="px-4 py-2 text-left">Portal Password</th>
@@ -151,6 +153,7 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{data.full_name}</td>
                 <td className="px-4 py-2">{data.phone_number}</td>
                 <td className="px-4 py-2">{data.secret}</td>
+                <td className="px-4 py-2">{data.active === 1 ? 'Active' : 'Inactive'}</td>
                 <td className="px-4 py-2">{data.brand || 'N/A'}</td>
                 <td className="px-4 py-2">{data.router_id || 'N/A'}</td>
                 <td className="px-4 py-2">{data.portal_password || 'N/A'}</td>
