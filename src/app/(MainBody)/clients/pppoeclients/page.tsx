@@ -26,6 +26,7 @@ const ClientsList: React.FC = () => {
   const [tableData, setTableData] = useState<TableRow[]>([]);
   const [filteredData, setFilteredData] = useState<TableRow[]>([]);
   const [filter, setFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
@@ -112,6 +113,26 @@ const ClientsList: React.FC = () => {
     setModalOpen(true);
   };
 
+  useEffect(() => {
+    const lowerFilter = filter.toLowerCase();
+    let filtered = tableData.filter((item) =>
+      (item.router_id ? item.router_id.toString().toLowerCase().includes(lowerFilter) : false) ||  
+      (item.phone_number ? item.phone_number.toLowerCase().includes(lowerFilter) : false) ||
+      (item.secret ? item.secret.toLowerCase().includes(lowerFilter) : false) ||
+      (item.brand ? item.brand.toLowerCase().includes(lowerFilter) : false) ||  
+      (item.full_name ? item.full_name.toLowerCase().includes(lowerFilter) : false)
+    );
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      const isActive = statusFilter === 'active' ? 1 : 0;
+      filtered = filtered.filter((item) => item.active === isActive);
+    }
+
+    setFilteredData(filtered);
+    setCurrentPage(1);
+  }, [filter, statusFilter, tableData]);
+
   return (
     <div className="overflow-x-auto pt-4">
       <Input
@@ -121,6 +142,17 @@ const ClientsList: React.FC = () => {
         onChange={(e) => setFilter(e.target.value)}
         className="mb-4 p-2 border rounded w-full"
       />
+
+      {/* Dropdown for Active Status Filter */}
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="mb-4 p-2 border rounded"
+      >
+        <option value="all">All</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
 
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead className="bg-gray-900 text-white">
