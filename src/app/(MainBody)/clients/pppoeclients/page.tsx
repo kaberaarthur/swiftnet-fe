@@ -144,15 +144,22 @@ const ClientsList: React.FC = () => {
       />
 
       {/* Dropdown for Active Status Filter */}
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-        className="mb-4 p-2 border rounded"
-      >
-        <option value="all">All</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <div className="mb-4">
+        <label htmlFor="statusFilter" className="block mb-1 font-medium text-gray-700">
+          Filter by Active Status: 
+        </label>
+        <select
+          id="statusFilter"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="p-2 border rounded w-full"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
 
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead className="bg-gray-900 text-white">
