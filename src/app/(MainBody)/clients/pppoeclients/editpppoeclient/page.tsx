@@ -32,6 +32,7 @@ interface FormData {
   company_username: string;
   secret: string;
   brand: string;
+  comments: string;
 }
 
 interface Router {
@@ -81,6 +82,7 @@ const EditClient: React.FC = () => {
     company_username: "",
     secret: "",
     brand: "",
+    comments: "",
   });
   const [routers, setRouters] = useState<Router[]>([]);
   const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
@@ -139,6 +141,7 @@ const EditClient: React.FC = () => {
             company_username: clientData.company_username,
             secret: clientData.secret,
             brand: clientData.brand,
+            comments: clientData.comments,
           });
           console.log("Current Client Date: ", formattedEndDate)
           setEndDate(formattedEndDate)
@@ -435,6 +438,19 @@ const EditClient: React.FC = () => {
             type="text"
             name="brand"
             value={formData.brand}
+            onChange={handleInputChange}
+          />
+        </Col>
+
+        <Col sm="6">
+        </Col>
+
+        <Col sm="6">
+          <Label>Comments</Label>
+          <Input
+            type="text"
+            name="comments"
+            value={formData.comments}
             onChange={handleInputChange}
           />
         </Col>
