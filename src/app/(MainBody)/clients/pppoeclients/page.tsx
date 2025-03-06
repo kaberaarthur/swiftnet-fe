@@ -133,6 +133,15 @@ const ClientsList: React.FC = () => {
     setCurrentPage(1);
   }, [filter, statusFilter, tableData]);
 
+  function formatDate(dateString:any) {
+    return new Date(dateString).toLocaleString('en-US', {
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+    });
+}
+
+
   return (
     <div className="overflow-x-auto pt-4">
       <Input
@@ -169,6 +178,7 @@ const ClientsList: React.FC = () => {
             <th className="px-4 py-2 text-left">Phone Number</th>
             <th className="px-4 py-2 text-left">Secret</th>
             <th className="px-4 py-2 text-left">Active Status</th>
+            <th className="px-4 py-2 text-left">End Date</th>
             <th className="px-4 py-2 text-left">Brand</th>
             <th className="px-4 py-2 text-left">Router ID</th>
             <th className="px-4 py-2 text-left">Action</th>
@@ -192,6 +202,7 @@ const ClientsList: React.FC = () => {
                 <td className="px-4 py-2">{data.phone_number}</td>
                 <td className="px-4 py-2">{data.secret}</td>
                 <td className="px-4 py-2">{data.active === 1 ? 'Active' : 'Inactive'}</td>
+                <td className="px-4 py-2">{formatDate(data.end_date)}</td>
                 <td className="px-4 py-2">{data.brand || 'N/A'}</td>
                 <td className="px-4 py-2">{data.router_id || 'N/A'}</td>
                 <td className="px-4 py-2 text-blue-600">
