@@ -206,7 +206,7 @@ const ClientsList: React.FC = () => {
         {/* Active Status Filter */}
         <Col>
           <label htmlFor="statusFilter" className="block mb-1 font-medium text-gray-700">
-            Filter by Active Status:
+            {"Filter by Active Status: "}
           </label>
           <select
             id="statusFilter"
