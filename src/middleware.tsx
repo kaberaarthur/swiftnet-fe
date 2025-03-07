@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  /*
   const path = request.nextUrl.pathname;
   const accessToken = request.cookies.get("accessToken"); // Check for accessToken cookie
 
@@ -25,7 +24,6 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
-  */
 }
 
 export const config = {

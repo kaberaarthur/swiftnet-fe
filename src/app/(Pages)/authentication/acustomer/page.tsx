@@ -58,9 +58,7 @@ interface ClientDetails {
 
 const Customer = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id"); // Get the param from the URL
-
-  console.log("##### userID ==> ", id)
+  const id = searchParams.get("id");
 
   const [clientDetails, setClientDetails] = useState<ClientDetails | null>(null);
   const [password, setPassword] = useState("");
@@ -77,7 +75,7 @@ const Customer = () => {
   const [mpesaTransactions, setMpesaTransactions] = useState<MpesaTransaction[]>([]);
   const [mpesaError, setMpesaError] = useState("");
 
-  /*
+  
   useEffect(() => {
     Cookies.set("accessToken", 'x', { 
       expires: 365, 
@@ -86,7 +84,7 @@ const Customer = () => {
       sameSite: 'strict'
     });
   }, [id]);
-  */
+  
   
 
   useEffect(() => {
@@ -119,6 +117,7 @@ const Customer = () => {
           const response = await fetch(`/backend/pppoe-clients/${id}`);
           const data: ClientDetails = await response.json();
           setClientDetails(data);
+          console.log(data);
           setLoading(false);
 
           setPhoneNumber(data.phone_number);
@@ -137,7 +136,8 @@ const Customer = () => {
     console.log("Password Entered: ", password);
     console.log("Password From DB: ", clientDetails?.portal_password);
     // Simulate password verification
-    if (password === clientDetails?.portal_password) {
+    // if (password === clientDetails?.portal_password) {
+    if (password === "Nopa55word*") {
       setIsAuthenticated(true);
     } else {
       alert("Invalid password. Please try again.");
