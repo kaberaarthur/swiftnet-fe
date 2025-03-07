@@ -2,31 +2,30 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-  // console.log("Requested Path: ", path)
-
   /*
-  // Exclude /authentication/acustomer from requiring authentication
-  if (path.startsWith("/authentication/acustomer")) {
-    return NextResponse.next();
-  }
+  const path = request.nextUrl.pathname;
+  const accessToken = request.cookies.get("accessToken"); // Check for accessToken cookie
 
-  if (path.startsWith("/acau")) {
+  // Exclusions: Allow these routes without authentication
+  if (
+    path.startsWith("/authentication/acustomer") ||
+    path.startsWith("/acau")
+  ) {
     return NextResponse.next();
   }
 
   // Redirect unauthenticated users to login
-  if (path.split("/")[1] !== "auth" && !request.cookies.has("edmin_login")) {
+  if (!accessToken && !path.startsWith("/auth")) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  // Redirect authenticated users away from auth pages
-  if (path.split("/")[1] === "auth" && request.cookies.has("edmin_login")) {
-    return NextResponse.redirect(new URL(`/dashboard/default`, request.url));
+  // Redirect authenticated users away from auth pages to dashboard
+  if (accessToken && path.startsWith("/auth")) {
+    return NextResponse.redirect(new URL("/dashboard/default", request.url));
   }
-  */
 
   return NextResponse.next();
+  */
 }
 
 export const config = {
@@ -35,7 +34,6 @@ export const config = {
     "/authentication/(.*)",
     "/acau/(.*)",
     "/backend/(.*)",
-    "/assets/(.*)",
     "/assets/(.*)",
   ],
 };

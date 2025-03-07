@@ -10,6 +10,7 @@ interface UserState {
   company_id: number | null;
   company_username: string;
   usertoken: string;
+  active: number | null;
 }
 
 const initialState: UserState = {
@@ -21,6 +22,7 @@ const initialState: UserState = {
   company_id: null,
   company_username: '',
   usertoken: '',
+  active: null,
 };
 
 const userSlice = createSlice({

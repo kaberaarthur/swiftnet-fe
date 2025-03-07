@@ -1,3 +1,4 @@
+"use client"
 import { ImagePath } from '@/Constant';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
@@ -7,31 +8,29 @@ import UserProfileIcons from './UserProfileIcons';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 import { setUserDetails } from '../../../../Redux/Reducers/userSlice';
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const UserProfile = () => {
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.user);
     const [show, setShow] = useState(false);
+    const router = useRouter();
 
-    // Function to update user details
-    const updateUser = () => {
-        dispatch(setUserDetails({
-            id: 9004,
-            name: 'Kamau Njoroge',
-            email: 'kamau@swiftnet.com',
-            phone: '254722455289',
-            user_type: 'admin',
-            company_id: 2,
-            company_username: '@kijaniinternet',
-            usertoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTAwNCwiaWF0IjoxNzI2NTIyMjczLCJleHAiOjE3NTgwNTgyNzN9.a_i9KdoqFcEVzDSe-frQRBiDJ_cwB8O7l_-wtEskWbQ'
-        }));
-    };
-
-    // useEffect to update user when component mounts or some dependency changes
+    /*
     useEffect(() => {
-        // Call updateUser when the component is mounted
-        updateUser();
-    }, []); 
+        // Check if accessToken cookie exists or is empty
+        const accessToken = Cookies.get("accessToken");
+        console.log("Access Token: ", accessToken);
+    
+        if (accessToken === "x") {
+            console.log("Empty Access Token Cookie");
+            // Redirect to /auth/login if token is missing or empty
+            router.push("/auth/login");
+        }
+      }, [router]);
+      */
+    
 
     // Utility function to capitalize the first letter of a string
     const capitalizeFirstLetter = (str: string) => {

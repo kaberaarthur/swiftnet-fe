@@ -7,10 +7,23 @@ import Cookies from "js-cookie";
 import { Href, Logout } from "@/Constant";
 import { LogOut } from "react-feather";
 
+// Redux Store
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../../../Redux/Store';
+import { clearUserDetails } from '../../../../Redux/Reducers/userSlice';
+
 const UserProfileIcons = () => {
+  const dispatch = useDispatch();
   const router = useRouter();
   const handleClick = () => {
     Cookies.remove("edmin_login");
+    Cookies.remove("accessToken");
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+
+    // Dispatch the action to clear user details
+    dispatch(clearUserDetails());
+
     router.push(`/auth/login`);
   };
   return (

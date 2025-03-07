@@ -8,6 +8,8 @@ import { Loader } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
+import Cookies from "js-cookie";
+
 const config = require("../../../(MainBody)/config/config.json");
 
 // Define types based on the response data
@@ -75,6 +77,17 @@ const Customer = () => {
   const [mpesaTransactions, setMpesaTransactions] = useState<MpesaTransaction[]>([]);
   const [mpesaError, setMpesaError] = useState("");
 
+  /*
+  useEffect(() => {
+    Cookies.set("accessToken", 'x', { 
+      expires: 365, 
+      path: '/',
+      secure: false,  // Always false
+      sameSite: 'strict'
+    });
+  }, [id]);
+  */
+  
 
   useEffect(() => {
     const fetchTransactions = async () => {
