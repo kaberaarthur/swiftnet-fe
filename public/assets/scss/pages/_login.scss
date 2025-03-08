@@ -2,17 +2,14 @@
     25. Authentication CSS Start
 ==========================**/
 .login_one_image {
-    background-image: url(../../images/login/2.jpg);
     background-size: cover;
     background-position: center center;
 }
 .login_two_image {
-    background-image: url(../../images/login/3.jpg);
     background-size: cover;
     background-position: center center;
 }
 .login_bs_validation {
-    background-image: url(../../images/login/1.jpg);
     background-size: cover;
     background-position: center center;
 }
@@ -22,7 +19,6 @@
     align-items: center;
     justify-content: center;
     margin: 0 auto;
-    background: url("../../images/login/login_bg.jpg");
     background-position: center;
     padding: 30px 12px;
     input[type="password"]{

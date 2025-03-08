@@ -62,7 +62,6 @@ const Customer = () => {
 
   const [clientDetails, setClientDetails] = useState<ClientDetails | null>(null);
   const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isPaySuccess, setIsPaySuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reqLoading, setReqLoading] = useState(false);
@@ -74,6 +73,10 @@ const Customer = () => {
   // Fake transaction data for illustration
   const [mpesaTransactions, setMpesaTransactions] = useState<MpesaTransaction[]>([]);
   const [mpesaError, setMpesaError] = useState("");
+
+  useEffect(() => {
+    console.log("Get User of ID => ", id)
+  }, [id]);
 
   /*
   useEffect(() => {
@@ -89,6 +92,7 @@ const Customer = () => {
   
 
   useEffect(() => {
+    console.log("Fetch Transactions")
     const fetchTransactions = async () => {
       try {
         const response = await fetch(`/backend/customer-payments?customer_id=${id}`);
@@ -97,6 +101,8 @@ const Customer = () => {
         }
         const data = await response.json();
         setMpesaTransactions([...data].reverse());
+
+        console.log("Transactions Data: ", data);
       } catch (err: unknown) {  // Now we specify 'unknown' type for 'err'
         if (err instanceof Error) {  // Check if 'err' is an instance of 'Error'
           setError(err.message);
@@ -132,18 +138,6 @@ const Customer = () => {
       fetchClientDetails();
     }
   }, [id]);
-
-  const handlePasswordSubmit = () => {
-    console.log("Password Entered: ", password);
-    console.log("Password From DB: ", clientDetails?.portal_password);
-    // Simulate password verification
-    // if (password === clientDetails?.portal_password) {
-    if (password === "Nopa55word*") {
-      setIsAuthenticated(true);
-    } else {
-      alert("Invalid password. Please try again.");
-    }
-  };
 
   function formatFriendlyDate(isoDate: string): string {
     const date = new Date(isoDate);
@@ -244,39 +238,8 @@ const Customer = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <FontAwesomeIcon icon={faSpinner} spin size="2x" color="#1447E6" />
-      </div>
-    );
-  }
-
   return (
     <div className="p-6">
-      <Modal isOpen={!isAuthenticated} toggle={() => {}} aria-labelledby="modal-title">
-        <ModalBody>
-          <div className="flex flex-col items-center justify-center text-center space-y-4">
-            <h2 id="modal-title" className="font-semibold text-gray-900 pb-4">We sent you a WhatsApp message containing the password to your portal. Check WhatsApp or contact <span className="font-bold">0790485731</span></h2>
-            <Input
-              type="text"
-              placeholder="Enter your password"
-              className="pb-4"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-label="Password input"
-            />
-            <Button 
-              className="w-full"
-              style={{ backgroundColor: "#1447E6" }}
-              onClick={handlePasswordSubmit}
-            >
-              Submit
-            </Button>
-          </div>
-        </ModalBody>
-      </Modal>
-
       <Modal isOpen={isPaySuccess} toggle={() => {}} aria-labelledby="modal-title">
         <ModalBody>
           <div className="flex flex-col items-center justify-center text-center space-y-4">
@@ -291,7 +254,7 @@ const Customer = () => {
         </ModalBody>
       </Modal>
 
-      {isAuthenticated && clientDetails && (
+      {clientDetails && (
         <Row className="p-4 md:p-16">
           <Col>
             <Card body className="mt-6 p-6">

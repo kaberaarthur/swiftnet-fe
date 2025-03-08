@@ -8,7 +8,9 @@ export function middleware(request: NextRequest) {
   // Exclusions: Allow these routes without authentication
   if (
     path.startsWith("/authentication/acustomer") ||
-    path.startsWith("/acau")
+    path.startsWith("/acau") ||
+    path.startsWith("/backend") ||
+    path.startsWith("/authentication/ape")
   ) {
     return NextResponse.next();
   }
