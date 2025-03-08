@@ -28,14 +28,14 @@ const UserProfileIcons = () => {
   };
   return (
     <ul>
-      {userProfilesData.map((item, i) => (
+      {/*userProfilesData.map((item, i) => (
         <li className="d-flex" key={i}>
           <SVG className="svg-color" iconId={item.icon} />
           <Link className="ms-2" href={item.link} >
             {item.title}
           </Link>
         </li>
-      ))}
+      ))*/}
        <li onClick={handleClick} className="d-flex"><Link href={Href}scroll={false} ><LogOut /><span className="ms-2">{Logout} </span></Link></li>
     </ul>
   );
