@@ -6,7 +6,7 @@ import { CreateYourPassword, Done, EnterOTP, EnterYourMobileNumber, Href, NewPas
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const config = require("../../config/config.json");
+import config from "../../../../app/(MainBody)/config/config.json";
 
 
 const ForgetPasswordContainer = () => {

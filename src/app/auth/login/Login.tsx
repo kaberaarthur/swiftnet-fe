@@ -14,7 +14,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../Redux/Store';
 import { setUserDetails } from '../../../Redux/Reducers/userSlice';
 
-const config = require("../../config/config.json");
+import config from "../../../app/(MainBody)/config/config.json";
 
 
 // Interface for the user data structure

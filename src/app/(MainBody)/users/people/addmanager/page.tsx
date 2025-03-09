@@ -5,8 +5,7 @@ import { useSelector } from 'react-redux';
 import Cookies from "js-cookie";
 import { RootState } from '../../../../../Redux/Store'; // Adjust path as needed
 
-const config = require("../../config/config.json");
-
+import config from "../../../../../app/(MainBody)/config/config.json";
 
 const AddManager = () => {
     const user = useSelector((state: RootState) => state.user);
