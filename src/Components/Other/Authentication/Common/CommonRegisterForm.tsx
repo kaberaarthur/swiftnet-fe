@@ -12,6 +12,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 import { setUserDetails } from '../../../../Redux/Reducers/userSlice';
 
+const config = require("../../config/config.json");
+
+
 // Interface for the user data structure
 interface User {
   id: number;
@@ -74,7 +77,7 @@ const CommonRegisterForm: React.FC<RegisterFormProps> = ({ alignLogo }) => {
     console.log("Sending signup request with: ", body);
 
     try {
-        const response = await fetch("http://localhost:8000/api/signup", {
+        const response = await fetch(`${config.baseUrl}/api/signup`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

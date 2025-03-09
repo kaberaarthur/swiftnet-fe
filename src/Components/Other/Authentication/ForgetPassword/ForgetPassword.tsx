@@ -6,6 +6,9 @@ import { CreateYourPassword, Done, EnterOTP, EnterYourMobileNumber, Href, NewPas
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const config = require("../../config/config.json");
+
+
 const ForgetPasswordContainer = () => {
   const [showPassWord, setShowPassWord] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -24,7 +27,7 @@ const ForgetPasswordContainer = () => {
 
   const sendOtp = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/send-otp", {
+      const response = await fetch(`${config.baseUrl}/api/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -52,7 +55,7 @@ const ForgetPasswordContainer = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/reset-password", {
+      const response = await fetch(`${config.baseUrl}/api/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

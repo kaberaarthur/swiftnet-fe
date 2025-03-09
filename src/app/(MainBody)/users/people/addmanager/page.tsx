@@ -5,6 +5,9 @@ import { useSelector } from 'react-redux';
 import Cookies from "js-cookie";
 import { RootState } from '../../../../../Redux/Store'; // Adjust path as needed
 
+const config = require("../../config/config.json");
+
+
 const AddManager = () => {
     const user = useSelector((state: RootState) => state.user);
     const [error, setError] = useState<string | null>(null);
@@ -65,7 +68,7 @@ const AddManager = () => {
         console.log("Request Body:", requestBody);
 
         try {
-            const response = await fetch("http://localhost:8000/api/create-user", {
+            const response = await fetch(`${config.baseUrl}/api/create-user`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -4,6 +4,9 @@ import { Button, Table, Alert } from "reactstrap";
 import Cookies from "js-cookie";
 import Link from "next/link";
 
+const config = require("../../config/config.json");
+
+
 // Interface for user data
 interface User {
   id: number;
@@ -39,7 +42,7 @@ const People = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/api/users", {
+      const response = await fetch(`${config.baseUrl}/api/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +71,7 @@ const People = () => {
       const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
       
       // This is a placeholder - you'll need to create an actual PATCH endpoint
-      const response = await fetch(`http://localhost:8000/api/users/${userId}/toggle-active`, {
+      const response = await fetch(`${config.baseUrl}/api/users/${userId}/toggle-active`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

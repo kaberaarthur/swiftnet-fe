@@ -14,6 +14,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../Redux/Store';
 import { setUserDetails } from '../../../Redux/Reducers/userSlice';
 
+const config = require("../../config/config.json");
+
+
 // Interface for the user data structure
 interface User {
   id: number;
@@ -54,7 +57,7 @@ const Login = () => {
     try {
       // Send login request to the API
       const response = await axios.post<LoginResponse>(
-        'http://localhost:8000/api/signin',
+        `${config.baseUrl}/api/signin`,
         { email, password }
       );
 
