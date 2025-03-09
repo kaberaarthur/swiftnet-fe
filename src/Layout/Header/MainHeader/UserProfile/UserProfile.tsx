@@ -3,33 +3,43 @@ import { ImagePath } from '@/Constant';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import UserProfileIcons from './UserProfileIcons';
+import Cookies from "js-cookie";
+import { useRouter } from 'next/navigation'
+
 
 // Redux Store
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 import { setUserDetails } from '../../../../Redux/Reducers/userSlice';
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 
 const UserProfile = () => {
-    const dispatch = useDispatch();
+    const router = useRouter();
     const user = useSelector((state: RootState) => state.user);
     const [show, setShow] = useState(false);
-    const router = useRouter();
+    const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+    const localUser = localStorage.getItem("user");
+    let userObject;
 
-    /*
+    const dispatch = useDispatch();
+
     useEffect(() => {
-        // Check if accessToken cookie exists or is empty
-        const accessToken = Cookies.get("accessToken");
-        console.log("Access Token: ", accessToken);
-    
-        if (accessToken === "x") {
-            console.log("Empty Access Token Cookie");
-            // Redirect to /auth/login if token is missing or empty
-            router.push("/auth/login");
+
+        if (localUser !== null) {
+            userObject = JSON.parse(localUser);
+
+            // Format data for Redux dispatch
+            const userDetailsForRedux = {
+                ...userObject,
+                usertoken: accessToken
+            };
+
+            dispatch(setUserDetails(userDetailsForRedux));
+
+        } else {
+            userObject = null;
+            router.push(`/auth/login`);
         }
-      }, [router]);
-      */
+    }, [localUser]);
     
 
     // Utility function to capitalize the first letter of a string

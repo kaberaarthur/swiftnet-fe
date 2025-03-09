@@ -75,19 +75,6 @@ const Customer = () => {
   const [mpesaTransactions, setMpesaTransactions] = useState<MpesaTransaction[]>([]);
   const [mpesaError, setMpesaError] = useState("");
 
-  /*
-  useEffect(() => {
-    Cookies.set("accessToken", 'x', { 
-      expires: 365, 
-      path: '/',
-      secure: false,  // Always false
-      sameSite: 'strict'
-    });
-  }, [id]);
-  */
-  
-  
-
   useEffect(() => {
     const fetchTransactions = async () => {
       try {

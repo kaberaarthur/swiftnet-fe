@@ -77,20 +77,8 @@ const Customer = () => {
   useEffect(() => {
     console.log("Get User of ID => ", id)
   }, [id]);
-
-  /*
-  useEffect(() => {
-    Cookies.set("accessToken", 'x', { 
-      expires: 365, 
-      path: '/',
-      secure: false,  // Always false
-      sameSite: 'strict'
-    });
-  }, [id]);
-  */
   
   
-
   useEffect(() => {
     console.log("Fetch Transactions")
     const fetchTransactions = async () => {

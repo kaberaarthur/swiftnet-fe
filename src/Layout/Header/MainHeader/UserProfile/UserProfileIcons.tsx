@@ -15,6 +15,7 @@ import { clearUserDetails } from '../../../../Redux/Reducers/userSlice';
 const UserProfileIcons = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+
   const handleClick = () => {
     Cookies.remove("edmin_login");
     Cookies.remove("accessToken");
@@ -26,6 +27,7 @@ const UserProfileIcons = () => {
 
     router.push(`/auth/login`);
   };
+  
   return (
     <ul>
       {/*userProfilesData.map((item, i) => (

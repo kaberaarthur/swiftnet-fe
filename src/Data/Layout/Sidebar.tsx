@@ -118,6 +118,15 @@ export const MenuList: MenuItem[] = [
           { path: `/settings/administratorusers/addnewadministrator`, title: "Add Admins", type: "link" },
           { path: `/settings/paymentsettings`, title: "Payment Settings", type: "link" },
         ]
+      },
+      {
+        title: "People",
+        icon: "Profile",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/users/people`, type: "link", title: "Managers" },
+        ],
       },      
       {
         title: "Widgets",
@@ -189,17 +198,6 @@ export const MenuList: MenuItem[] = [
         children: [
           { path: `/chat/privatechats`, type: "link", title: "Private Chat" },
           { path: `/chat/groupchat`, type: "link", title: "Group Chat" },
-        ],
-      },
-      {
-        title: "Users",
-        icon: "Profile",
-        type: "sub",
-        active: false,
-        children: [
-          { path: `/users/userprofile`, type: "link", title: "User Profile" },
-          { path: `/users/useredit`, type: "link", title: "User Edit" },
-          { path: `/users/cards`, type: "link", title: "User Cards" },
         ],
       },
       { path: `/app/bookmark`, icon: "Bookmark", type: "link", title: "Bookmark", id: 10 },
