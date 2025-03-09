@@ -131,7 +131,7 @@ const RoutersList: React.FC = () => {
       {/* Top Scrollbar */}
       <div 
         ref={topScrollRef}
-        className="overflow-x-auto max-w-full"
+        className="overflow-x-auto max-w-full mb-4"
         onScroll={() => handleScroll('top')}
         style={{ marginBottom: '-17px' }} // Offset for scrollbar thickness
       >
