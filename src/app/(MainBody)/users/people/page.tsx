@@ -4,7 +4,7 @@ import { Button, Table, Alert } from "reactstrap";
 import Cookies from "js-cookie";
 import Link from "next/link";
 
-const config = require("../../config/config.json");
+import config from "../../config/config.json";
 
 
 // Interface for user data

@@ -6,6 +6,7 @@ import { FormsControl } from '@/Constant';
 import Breadcrumbs from '@/CommonComponent/Breadcrumbs/Breadcrumbs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../../Redux/Store';
+import Cookies from "js-cookie";
 
 // Routing
 import Link from 'next/link';
@@ -45,6 +46,8 @@ const EditRouter: React.FC = () => {
   const onDismissError = () => setVisibleError(false);
   const onDismissSuccess = () => setVisibleSuccess(false);
 
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
   const initialFormData: FormData = {
     router_name: '',
     ip_address: '',
@@ -81,6 +84,7 @@ const EditRouter: React.FC = () => {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}` 
             },
           });
   
@@ -163,6 +167,7 @@ const EditRouter: React.FC = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}` 
         },
         body: JSON.stringify(formData),
       });
