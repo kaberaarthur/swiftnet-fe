@@ -106,7 +106,7 @@ export const MenuList: MenuItem[] = [
           { path: `/systemlogs/activitylogs`, title: "Activity Logs", type: "link" },
         ]
       },
-      {
+      /*{
         title: "Settings",
         id: 34,
         icon: "Setting",
@@ -118,7 +118,7 @@ export const MenuList: MenuItem[] = [
           { path: `/settings/administratorusers/addnewadministrator`, title: "Add Admins", type: "link" },
           { path: `/settings/paymentsettings`, title: "Payment Settings", type: "link" },
         ]
-      },
+      },*/
       {
         title: "People",
         icon: "Profile",
@@ -128,7 +128,7 @@ export const MenuList: MenuItem[] = [
           { path: `/users/people`, type: "link", title: "Managers" },
         ],
       },      
-      {
+      /*{
         title: "Widgets",
         id: 2,
         icon: "Pie",
@@ -138,10 +138,10 @@ export const MenuList: MenuItem[] = [
           { path: `/widgets/general`, title: "General", type: "link" },
           { path: `/widgets/chart`, title: "Chart", type: "link" },
         ],
-      },
+      },*/
     ],
   },
-  {
+  /*{
     title: "Applications",
     lanClass: "lan-8",
     Items: [
@@ -519,5 +519,5 @@ export const MenuList: MenuItem[] = [
       { id: 32, path: `/miscellaneous/knowledgebase`, icon: "Setting", type: "link", active: false, title: "Knowledgebase" },
       { id: 33, path: `/miscellaneous/supportticket`, icon: "Ticket", type: "link", active: false, title: "Support Ticket" },
     ],
-  },
+  },*/
 ];

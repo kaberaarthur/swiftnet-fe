@@ -1,3 +1,5 @@
+'use client';
+
 import { MenuList } from "@/Data/Layout/Sidebar";
 import { useAppSelector } from "@/Redux/Hooks";
 import { MenuItem } from "@/Type/Layout/Sidebar";
@@ -9,8 +11,7 @@ import { RootState } from "../../Redux/Store";
 
 // Define the User type based on your Redux store
 interface User {
-  user_type?: string; // Optional, as it might not always be set
-  // Add other fields as needed, e.g., id, name, etc.
+  user_type?: string;
 }
 
 const SidebarMenuList = () => {
@@ -28,35 +29,40 @@ const SidebarMenuList = () => {
   };
 
   useEffect(() => {
+    console.log("Menu List - Network: ", MenuList[0].Items);
+  }, [MenuList]);
+
+  useEffect(() => {
     if (user.user_type) {
       console.log("Menu User Type: ", user.user_type);
 
-      // Check if user is neither admin nor superadmin
-      if (user.user_type !== "admin" && user.user_type !== "superadmin") {
-        const updatedMenuList = MenuList.map((menu, index) => {
-          if (index === 0 && menu.Items) {
-            return {
-              ...menu,
-              Items: menu.Items.filter((_, itemIndex) => itemIndex !== 9),
-            };
-          }
-          return menu;
-        });
-        setModifiedMenuList(updatedMenuList);
-      } else {
-        setModifiedMenuList(MenuList);
-      }
-    }
+      const updatedMenuList = MenuList.map((menu, index) => {
+        if (index === 0 && menu.Items) {
+          return {
+            ...menu,
+            Items: menu.Items.filter((item, itemIndex) => {
+              // Hide item at index 6 (assuming it's "Routers") if not admin
+              if (itemIndex === 6 && user.user_type !== "admin") {
+                return false;
+              }
+              // Existing filter for item at index 9
+              if (itemIndex === 9 && user.user_type !== "admin" && user.user_type !== "superadmin") {
+                return false;
+              }
 
-    // Debugging logs with type safety
-    if (MenuList?.[0]) {
-      if (MenuList[0].Items?.[9]) {
-        console.log("Original MenuList[0].Items[9]:", MenuList[0].Items[9]);
-      } else {
-        console.log("MenuList[0].Items[9] is undefined or Items array is too short");
-      }
+              // Existing filter for item at index 9
+              if (itemIndex === 7 && user.user_type !== "admin" && user.user_type !== "superadmin") {
+                return false;
+              }
+              return true;
+            }),
+          };
+        }
+        return menu;
+      });
+      setModifiedMenuList(updatedMenuList);
     } else {
-      console.log("MenuList[0] is undefined or MenuList is empty");
+      setModifiedMenuList(MenuList);
     }
   }, [MenuList, user.user_type]);
 
@@ -64,8 +70,17 @@ const SidebarMenuList = () => {
   const filteredMenuList: MenuItem[] = modifiedMenuList.map((mainMenu) => ({
     ...mainMenu,
     Items: mainMenu.Items?.filter((item) => {
+      // Existing filter for "People"
       if (item.title === "People") {
         return user.user_type === "admin" || user.user_type === "superadmin";
+      }
+      // Existing filter for "Network"
+      if (item.title === "Network" && user.user_type !== "admin") {
+        return false;
+      }
+      // Existing filter for "Network"
+      if (item.title === "System Logs" && user.user_type !== "admin") {
+        return false;
       }
       return true;
     }) ?? [],
