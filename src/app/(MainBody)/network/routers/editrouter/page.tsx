@@ -7,6 +7,8 @@ import Breadcrumbs from '@/CommonComponent/Breadcrumbs/Breadcrumbs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../../Redux/Store';
 import Cookies from "js-cookie";
+import config from "../../../config/config.json";
+
 
 // Routing
 import Link from 'next/link';
@@ -79,8 +81,10 @@ const EditRouter: React.FC = () => {
     // Fetch router details only if router_id is present and user is loaded
     if (router_id && user && typeof user.company_id === 'number') {
       const fetchRouter = async () => {
+        console.log("Access Token: ", accessToken)
         try {
-          const response = await fetch(`/backend/routers/${router_id}`, {
+          // const response = await fetch(`http://localhost:8000/routers/${router_id}`, {
+          const response = await fetch(`${config.baseUrl}/routers/${router_id}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -125,7 +129,7 @@ const EditRouter: React.FC = () => {
   
       fetchRouter();
     }
-  }, [user, router_id]);  
+  }, [user, router_id, accessToken]);  
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
