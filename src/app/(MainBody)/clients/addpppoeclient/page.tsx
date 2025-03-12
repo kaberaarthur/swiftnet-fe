@@ -11,6 +11,9 @@ import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 // Save a Local Log
 import { postLocalLog } from '../../logservice/logService';
 
+import Cookies from "js-cookie";
+
+
 
 interface FormData {
   account: string;
@@ -60,6 +63,8 @@ const AddNewClient: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const user = useSelector((state: RootState) => state.user);
+
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
   // Fetch routers based on the company_id
   useEffect(() => {
@@ -160,6 +165,7 @@ const AddNewClient: React.FC = () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}` || ""
             },
             body: JSON.stringify(formData),
         });
