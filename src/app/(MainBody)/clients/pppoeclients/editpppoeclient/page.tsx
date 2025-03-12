@@ -122,7 +122,7 @@ useEffect(() => {
         const clientData = await response.json();
 
         clientData.end_date = new Date(clientData.end_date);
-        clientData.end_date.setHours(clientData.end_date.getHours() + 3);
+        clientData.end_date.setHours(clientData.end_date.getHours() + 4);
 
         console.log("DB Date (UTC+3):", clientData.end_date);
 
@@ -397,9 +397,9 @@ useEffect(() => {
       console.log("Invalid Date: ", validation.adjustedDate ?? "");
       setLoading(false);
 
-      setTimeout(() => {
+      /*setTimeout(() => {
         window.location.reload();
-      }, 100); // 10000 milliseconds = 10 seconds
+      }, 100);*/
       
       return;
     }
@@ -479,9 +479,6 @@ useEffect(() => {
         </Col>
 
         <Col sm="6">
-        </Col>
-
-        <Col sm="6">
           <Label>Comments</Label>
           <Input
             type="text"
@@ -491,22 +488,6 @@ useEffect(() => {
           />
         </Col>
 
-        {/*<Col sm="6">
-          <Label>Router</Label>
-          <Input
-            type="select"
-            name="router_id"
-            value={formData.router_id}
-            onChange={handleInputChange}
-          >
-            <option value="">Select Router</option>
-            {routers.map((router) => (
-              <option key={router.id} value={router.id}>
-                {router.router_name}
-              </option>
-            ))}
-          </Input>
-        </Col>*/}
         <Col sm="6" className="mt-3">
           <Button color="primary" onClick={handleUpdateClient} disabled={loading}>
             {loading ? (
