@@ -53,6 +53,7 @@ const EditClient: React.FC = () => {
   const searchParams = useSearchParams();
   const client_id = searchParams.get("client_id");
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
@@ -71,7 +72,6 @@ const EditClient: React.FC = () => {
     });
   }
   
-  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     phone_number: "",
     full_name: "",
@@ -106,6 +106,7 @@ const EditClient: React.FC = () => {
 useEffect(() => {
   if (client_id) {
     const fetchClientData = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`/backend/pppoe-clients/${client_id}`, {
           method: "GET",
@@ -150,6 +151,7 @@ useEffect(() => {
 
         console.log("Current Client Date: ", formattedEndDate);
         setEndDate(formattedEndDate);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching client data:", error);
       } finally {
@@ -166,6 +168,8 @@ useEffect(() => {
   useEffect(() => {
     if (user.company_id) {
       const fetchRouters = async () => {
+        setLoading(true);
+
         try {
           const response = await fetch(`/backend/routers?company_id=${user.company_id}`, {
             method: "GET",
@@ -184,6 +188,7 @@ useEffect(() => {
         } catch (error) {
           console.error("Error fetching routers:", error);
         }
+        setLoading(false);
       };
 
       fetchRouters();
@@ -195,6 +200,7 @@ useEffect(() => {
   useEffect(() => {
     if (formData.router_id) {
       const fetchPlans = async () => {
+        setLoading(true);
         try {
           const response = await fetch(
             `/backend/pppoe-plans?router_id=${formData.router_id}&type=pppoe`,
@@ -216,6 +222,7 @@ useEffect(() => {
         } catch (error) {
           console.error("Error fetching plans:", error);
         }
+        setLoading(false);
       };
 
       fetchPlans();
@@ -362,6 +369,7 @@ useEffect(() => {
   // Your handleUpdateClient function to validate and update formData
   const handleUpdateClient = async () => {
     setLoading(true);
+    console.log("Set Loading is TRUE TRUE TRUE");
     const validation = validateEndDate(formatDateWithTime(endDate), formatDateWithTime(formData.end_date));
 
     if (validation.valid) {
@@ -491,7 +499,10 @@ useEffect(() => {
         <Col sm="6" className="mt-3">
           <Button color="primary" onClick={handleUpdateClient} disabled={loading}>
             {loading ? (
-              <div className="animate-spin h-5 w-5 border-t-2 border-white border-solid rounded-full"></div>
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin h-5 w-5 border-t-2 border-white border-solid rounded-full"></div>
+                <span>Loading...</span>
+              </div>
             ) : (
               `Update Client`
             )}
