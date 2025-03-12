@@ -5,6 +5,8 @@ import { Row, Col, Button, Input, Modal, ModalHeader, ModalBody, ModalFooter } f
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 import * as XLSX from 'xlsx';
+import Cookies from "js-cookie";
+
 
 interface TableRow {
   id: number;
@@ -45,6 +47,8 @@ const ClientsList: React.FC = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+  
   // Fetch PPPOE clients
   useEffect(() => {
     if (user.company_id) {
@@ -52,7 +56,10 @@ const ClientsList: React.FC = () => {
         try {
           const response = await fetch(`/backend/pppoe-clients?company_id=${user.company_id}&type=pppoe`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}` || ""
+             },
           });
 
           if (!response.ok) {
