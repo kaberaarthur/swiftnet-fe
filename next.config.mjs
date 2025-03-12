@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const isProduction = process.env.NODE_ENV === "production";
+
 const nextConfig = {
   redirects: () => {
     return [
@@ -12,18 +14,16 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*", // Matches API paths
-        destination: "http://Arthur:Arthur@102.0.14.218/rest/:path*", // Embed username:password in the URL
+        source: "/api/:path*",
+        destination: "http://Arthur:Arthur@102.0.14.218/rest/:path*",
       },
       {
-        source: "/backend/:path*", // Matches API paths
-        destination: "http://localhost:8000/:path*", // Embed username:password in the URL
-        // destination: "http://139.59.60.20:8000/:path*", // Embed username:password in the URL
+        source: "/backend/:path*",
+        destination: isProduction ? "http://139.59.60.20:8000/:path*" : "http://localhost:8000/:path*",
       },
       {
-        source: "/microservice/:path*", // Matches API paths
-        // destination: "http://localhost:8000/:path*", // Embed username:password in the URL
-        destination: "http://139.59.60.20:3001/:path*", // Embed username:password in the URL
+        source: "/microservice/:path*",
+        destination: "http://139.59.60.20:3001/:path*",
       },
       {
         source: "/test",
