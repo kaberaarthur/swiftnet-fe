@@ -18,11 +18,12 @@ import { postLocalLog } from "../../../logservice/logService";
 import Cookies from "js-cookie";
 
 
-const config = require("../../../config/config.json");
+import config from "../../../config/config.json";
 
 interface FormData {
   phone_number: string;
   full_name: string;
+  location?: string;
   sms_group: string;
   end_date: string;
   plan_id: number;
@@ -75,6 +76,7 @@ const EditClient: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     phone_number: "",
     full_name: "",
+    location: "",
     sms_group: "",
     end_date: "",
     plan_id: 0,
@@ -135,6 +137,7 @@ useEffect(() => {
         setFormData({
           phone_number: clientData.phone_number,
           full_name: clientData.full_name,
+          location: clientData.location,
           sms_group: clientData.sms_group,
           end_date: formattedEndDate,
           plan_id: clientData.plan_id,
@@ -338,7 +341,7 @@ useEffect(() => {
           postLocalLog(`${user.name} edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number} & End Date ${formData.end_date} hosted on Router: ${formData.router_id}`, user, formData.router_id);
           setTimeout(() => {
             setSuccessMessage(null);
-            // window.location.reload(); // This will reload the page after 5 seconds
+            window.location.reload(); // This will reload the page after 5 seconds
           }, 5000);
         } else {
           const errorData = await response.json();
@@ -346,7 +349,7 @@ useEffect(() => {
           setAlertMessage("Failed to update client.");
           /*setTimeout(() => {
             window.location.reload();
-          }, 100);*/
+          }, 1000);*/
         }
       } catch (error) {
         console.error("Error updating client:", error);
@@ -355,7 +358,7 @@ useEffect(() => {
 
         /*setTimeout(() => {
           window.location.reload();
-        }, 100); // 10000 milliseconds = 10 seconds*/
+        }, 1000); // 10000 milliseconds = 10 seconds*/
         
     };
 
@@ -492,6 +495,36 @@ useEffect(() => {
             type="text"
             name="comments"
             value={formData.comments}
+            onChange={handleInputChange}
+          />
+        </Col>
+
+        <Col sm="6">
+          <Label>Full Name</Label>
+          <Input
+            type="text"
+            name="full_name"
+            value={formData.full_name}
+            onChange={handleInputChange}
+          />
+        </Col>
+
+        <Col sm="6">
+          <Label>Phone Number</Label>
+          <Input
+            type="text"
+            name="phone_number"
+            value={formData.phone_number}
+            onChange={handleInputChange}
+          />
+        </Col>
+
+        <Col sm="6">
+          <Label>Location</Label>
+          <Input
+            type="text"
+            name="location"
+            value={formData.location || ""}
             onChange={handleInputChange}
           />
         </Col>
