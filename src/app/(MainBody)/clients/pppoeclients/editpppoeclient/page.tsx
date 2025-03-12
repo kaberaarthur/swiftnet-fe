@@ -15,6 +15,8 @@ import {
 } from "reactstrap";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 import { postLocalLog } from "../../../logservice/logService";
+import Cookies from "js-cookie";
+
 
 const config = require("../../../config/config.json");
 
@@ -51,6 +53,8 @@ const EditClient: React.FC = () => {
   const searchParams = useSearchParams();
   const client_id = searchParams.get("client_id");
   const router = useRouter();
+
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
   function formatDate(utcDate: string): string {
     const date = new Date(utcDate);
@@ -99,79 +103,93 @@ const EditClient: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
 
   // Fetch client data
-  useEffect(() => {
-    if (client_id) {
-      const fetchClientData = async () => {
-        try {
-          const response = await fetch(`/backend/pppoe-clients/${client_id}`);
-          const clientData = await response.json();
+useEffect(() => {
+  if (client_id) {
+    const fetchClientData = async () => {
+      try {
+        const response = await fetch(`/backend/pppoe-clients/${client_id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method as needed
+          }
+        });
 
-          clientData.end_date = new Date(clientData.end_date);
-          clientData.end_date.setHours(clientData.end_date.getHours() + 3);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-          // const dbDate = new Date(clientData.end_date);
-          // const options = { timeZone: 'Etc/GMT-3', hour12: false };
-          console.log("DB Date (UTC+3):", clientData.end_date);
+        const clientData = await response.json();
 
-          // Convert end_date to "yyyy-MM-dd" format
-          const formattedEndDate = clientData.end_date
+        clientData.end_date = new Date(clientData.end_date);
+        clientData.end_date.setHours(clientData.end_date.getHours() + 3);
+
+        console.log("DB Date (UTC+3):", clientData.end_date);
+
+        // Convert end_date to "yyyy-MM-dd" format
+        const formattedEndDate = clientData.end_date
           ? new Date(clientData.end_date).toISOString().split("T")[0]
           : "";
-          
-          /*
-          const formattedEndDate = clientData.end_date
-            ? new Date(clientData.end_date)
-                .toISOString()
-                .replace("T", " ")
-                .substring(0, 19) // Extract "YYYY-MM-DD HH:mm:ss"
-            : "";*/
 
+        setFormData({
+          phone_number: clientData.phone_number,
+          full_name: clientData.full_name,
+          sms_group: clientData.sms_group,
+          end_date: formattedEndDate,
+          plan_id: clientData.plan_id,
+          plan_name: clientData.plan_name,
+          plan_fee: clientData.plan_fee,
+          installation_fee: clientData.installation_fee,
+          router_id: clientData.router_id,
+          company_id: clientData.company_id,
+          company_username: clientData.company_username,
+          secret: clientData.secret,
+          brand: clientData.brand,
+          comments: clientData.comments,
+        });
 
-          setFormData({
-            phone_number: clientData.phone_number,
-            full_name: clientData.full_name,
-            sms_group: clientData.sms_group,
-            end_date: formattedEndDate,
-            plan_id: clientData.plan_id,
-            plan_name: clientData.plan_name,
-            plan_fee: clientData.plan_fee,
-            installation_fee: clientData.installation_fee,
-            router_id: clientData.router_id,
-            company_id: clientData.company_id,
-            company_username: clientData.company_username,
-            secret: clientData.secret,
-            brand: clientData.brand,
-            comments: clientData.comments,
-          });
-          console.log("Current Client Date: ", formattedEndDate)
-          setEndDate(formattedEndDate)
-        } catch (error) {
-          console.error("Error fetching client data:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchClientData();
-    }
-  }, [client_id]);
+        console.log("Current Client Date: ", formattedEndDate);
+        setEndDate(formattedEndDate);
+      } catch (error) {
+        console.error("Error fetching client data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClientData();
+  }
+}, [client_id]);
+
 
   // Fetch routers
   useEffect(() => {
     if (user.company_id) {
       const fetchRouters = async () => {
         try {
-          const response = await fetch(
-            `/backend/routers?company_id=${user.company_id}`
-          );
+          const response = await fetch(`/backend/routers?company_id=${user.company_id}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method if needed
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
           const data = await response.json();
           setRouters(data);
         } catch (error) {
           console.error("Error fetching routers:", error);
         }
       };
+
       fetchRouters();
     }
   }, [user.company_id]);
+
 
   // Fetch plans based on router_id
   useEffect(() => {
@@ -179,17 +197,31 @@ const EditClient: React.FC = () => {
       const fetchPlans = async () => {
         try {
           const response = await fetch(
-            `/backend/pppoe-plans?router_id=${formData.router_id}&type=pppoe`
+            `/backend/pppoe-plans?router_id=${formData.router_id}&type=pppoe`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}` // Adjust if token is stored differently
+              }
+            }
           );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
           const plans = await response.json();
           setPppoePlans(plans);
         } catch (error) {
           console.error("Error fetching plans:", error);
         }
       };
+
       fetchPlans();
     }
   }, [formData.router_id]);
+
 
   const handleFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -287,7 +319,10 @@ const EditClient: React.FC = () => {
       try {
         const response = await fetch(`/backend/edit-pppoe-client/${client_id}`, {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization":  `Bearer ${accessToken}`
+          },
           body: JSON.stringify(formData),
         });
 
@@ -296,7 +331,7 @@ const EditClient: React.FC = () => {
           postLocalLog(`${user.name} edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number} & End Date ${formData.end_date} hosted on Router: ${formData.router_id}`, user, formData.router_id);
           setTimeout(() => {
             setSuccessMessage(null);
-            window.location.reload(); // This will reload the page after 5 seconds
+            // window.location.reload(); // This will reload the page after 5 seconds
           }, 5000);
         } else {
           const errorData = await response.json();
@@ -352,7 +387,8 @@ const EditClient: React.FC = () => {
       setLoading(false);
 
       setTimeout(() => {
-        window.location.reload();
+        // window.location.reload();
+        console.log("Successful Reload");
       }, 2000);
       
 
