@@ -10,7 +10,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 import Cookies from "js-cookie";
 
-const config = require("../../../(MainBody)/config/config.json");
+import config from "../../../(MainBody)/config/config.json";
 
 // Define types based on the response data
 interface MpesaTransaction {
