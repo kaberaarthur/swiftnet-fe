@@ -36,6 +36,7 @@ const ClientsList: React.FC = () => {
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [routerFilter, setRouterFilter] = useState('all');
+  const [showDuplicates, setShowDuplicates] = useState(false);
   const [routers, setRouters] = useState<Router[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [modalOpen, setModalOpen] = useState(false);
@@ -115,10 +116,26 @@ const ClientsList: React.FC = () => {
       const selectedRouterId = parseInt(routerFilter, 10);
       filtered = filtered.filter((item) => item.router_id === selectedRouterId);
     }
+    
+    // Apply duplicate secret filter
+    if (showDuplicates) {
+      // Find secrets that appear more than once
+      const secretCounts = filtered.reduce((acc, client) => {
+        if (client.secret) {
+          acc[client.secret] = (acc[client.secret] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+      
+      // Filter to only include clients with duplicate secrets
+      filtered = filtered.filter((client) => 
+        client.secret && secretCounts[client.secret] > 1
+      );
+    }
 
     setFilteredData(filtered);
     setCurrentPage(1);
-  }, [filter, statusFilter, routerFilter, tableData]);
+  }, [filter, statusFilter, routerFilter, tableData, showDuplicates]);
 
   const handleDeleteClient = async () => {
     if (!selectedClientId) {
@@ -198,6 +215,11 @@ const ClientsList: React.FC = () => {
     }
   };
 
+  // Function to toggle duplicate filter
+  const toggleDuplicateFilter = () => {
+    setShowDuplicates(!showDuplicates);
+  };
+
   return (
     <div className="overflow-x-auto pt-4">
       <Input
@@ -258,7 +280,17 @@ const ClientsList: React.FC = () => {
           </Button>
           <p className="font-medium text-gray-700">
             Displaying <span className="font-bold">{filteredData.length}</span> clients
+            {showDuplicates && <span className="ml-1">(showing duplicates only)</span>}
           </p>
+        </Col>
+
+        <Col>
+          <Button 
+            color={showDuplicates ? "info" : "primary"}
+            onClick={toggleDuplicateFilter}
+          >
+            {showDuplicates ? "Show All Clients" : "Filter Duplicates"}
+          </Button>
         </Col>
       </Row>
 
@@ -279,7 +311,9 @@ const ClientsList: React.FC = () => {
         <tbody>
           {filteredData.length === 0 ? (
             <tr>
-              <td colSpan={10} className="px-4 py-2 text-center">No Data Available</td>
+              <td colSpan={10} className="px-4 py-2 text-center">
+                {showDuplicates ? "No duplicate secrets found" : "No Data Available"}
+              </td>
             </tr>
           ) : (
             filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((data) => (
