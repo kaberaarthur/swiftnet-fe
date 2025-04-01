@@ -431,6 +431,19 @@ useEffect(() => {
             onChange={handleInputChange}
           />
         </Col>
+        {/*
+        <Col sm="6">
+          <Label>Active Status</Label>
+          <Input
+            type="select"
+            name="active"
+            value={formData.active}
+            onChange={handleInputChange}
+          >
+            <option value={1}>Active</option>
+            <option value={0}>Inactive</option>
+          </Input>
+        </Col>*/}
         <Col sm="6">
           <Label>End Date</Label>
           <Input
