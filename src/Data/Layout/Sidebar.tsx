@@ -11,9 +11,7 @@ export const MenuList: MenuItem[] = [
         type: "sub",
         badge: "3",
         children: [
-          { path: `/dashboard/default`, title: "Default", type: "link" },
-          { path: `/dashboard/ecommerce`, title: "Ecommerce", type: "link" },
-          { path: `/dashboard/project`, title: "Project", type: "link" },
+          { path: `/dashboard/ecommerce`, title: "Dashboard", type: "link" },
         ],
       },
       {

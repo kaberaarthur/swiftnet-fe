@@ -99,6 +99,11 @@ const EditClient: React.FC = () => {
 
   // Handle input change
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const currentTime = new Date();
+    currentTime.setHours(currentTime.getHours() + 4);
+    const updatedTime = currentTime.toLocaleTimeString("en-GB", { hour12: false });
+
+    console.log("The Selected Date: ", e.target.value + " " + updatedTime)
     setEndDate(e.target.value); // Update state directly
   };
 
@@ -303,15 +308,6 @@ useEffect(() => {
       console.log("Selected Date:", selectedDate.toISOString());
       console.log("Current End Date:", currentEndDate.toISOString());
     
-      // If the subscription is still active (selected date is before the current end date)
-      if (currentEndDate > selectedDate) {
-        return { 
-          valid: false, 
-          message: "You cannot extend the expiry date to a date before the set expiry date.", 
-          adjustedDate: selectedDate.toISOString().split("T")[0] 
-        };
-      }
-    
       // No max limit, so just return the selected date as valid
       return { 
         valid: true, 
@@ -372,7 +368,6 @@ useEffect(() => {
   // Your handleUpdateClient function to validate and update formData
   const handleUpdateClient = async () => {
     setLoading(true);
-    console.log("Set Loading is TRUE TRUE TRUE");
     const validation = validateEndDate(formatDateWithTime(endDate), formatDateWithTime(formData.end_date));
 
     if (validation.valid) {
