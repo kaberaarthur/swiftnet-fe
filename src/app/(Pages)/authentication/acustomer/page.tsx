@@ -56,6 +56,22 @@ interface ClientDetails {
   portal_password: string;
 }
 
+interface PPPoEPlan {
+  id: number;
+  plan_name: string;
+  rate_limit: number;
+  plan_price: string;
+  pool_name: string;
+  plan_validity: number;
+  router_id: number;
+  company_id: number;
+  company_username: string;
+  date_created: string;
+  type: string;
+  rate_limit_string: string;
+  mikrotik_id: number | null;
+}
+
 const Customer = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -64,9 +80,13 @@ const Customer = () => {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [isPaySuccess, setIsPaySuccess] = useState(false);
+  const [planChangeModal, setPlanChangeModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reqLoading, setReqLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("0700000000");
+  const [routerId, setRouterId] = useState<number | undefined>(undefined);
+  const [otpCode, setOtpCode] = useState<number | null>(null);
+  const [currentPlan, setCurrentPlan] = useState(1004);
   const [error, setError] = useState<string | null>(null);
 
   const [currEndDate, setCurrEndDate] = useState("");
@@ -74,6 +94,22 @@ const Customer = () => {
   // Fake transaction data for illustration
   const [mpesaTransactions, setMpesaTransactions] = useState<MpesaTransaction[]>([]);
   const [mpesaError, setMpesaError] = useState("");
+
+  const [plans, setPlans] = useState<PPPoEPlan[]>([]);
+
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Check if the value is empty or not a valid number
+    if (value === "") {
+      setOtpCode(null); // Reset to null if input is empty
+    } else {
+      // Convert value to a number
+      const numberValue = Number(value);
+      if (!isNaN(numberValue)) {
+        setOtpCode(numberValue); // Update state as a number
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -110,6 +146,8 @@ const Customer = () => {
 
           setPhoneNumber(data.phone_number);
           setCurrEndDate(data.end_date);
+          setRouterId(data.router_id);
+          setCurrentPlan(data.plan_id);
         } catch (error) {
           console.error("Error fetching client details:", error);
           setLoading(false);
@@ -119,6 +157,118 @@ const Customer = () => {
       fetchClientDetails();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await fetch(`/backend/pppoe-plans?router_id=${routerId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: PPPoEPlan[] = await response.json();
+        setPlans(data);
+        console.log("The PPPoE Plans: ", data)
+      } catch (error) {
+        console.log('Failed to fetch PPPoE plans:', error);
+      }
+    };
+
+    fetchPlans();
+  }, [routerId]);
+
+  const handlePlanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedPlanId = parseInt(e.target.value, 10);
+    setCurrentPlan(selectedPlanId);
+  };  
+
+  const [selectedPlan, setSelectedPlan] = useState<PPPoEPlan | null | undefined>(null);
+
+  const handleUpdatePlan = () => {
+    setLoading(true);
+    const theSelectedPlan = plans.find(plan => plan.id === currentPlan);
+    console.log('Updating to plan:', theSelectedPlan);
+    setSelectedPlan(theSelectedPlan); // Now it can accept `undefined`
+    setPlanChangeModal(true);
+    setChangePlanError("");
+
+    // Send Request to send OTP
+    if (selectedPlan && selectedPlan.id) {
+      const requestBody = {
+        client_id: id,
+        phone_number: phoneNumber
+      };
+  
+      console.log('Request Body:', requestBody);
+  
+      // Example API call or update logic
+      // You can replace this with your actual API request
+      fetch(`/backend/send-otp-sms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Response:', data);
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+      console.error('Selected plan is not available');
+    }
+    setLoading(false);
+  };
+
+  const [changePlanError, setChangePlanError] = useState("");
+  const [changePlanSuccess, setChangePlanSuccess] = useState("");
+
+  const handleUpdatePlanRequest = () => {
+    console.log('OTP Code:', otpCode);
+  
+    // Ensure selectedPlan is available and has a plan_id
+    if (selectedPlan && selectedPlan.id) {
+      const requestBody = {
+        otp: otpCode,
+        plan_id: selectedPlan.id,
+        plan_name: selectedPlan.plan_name,
+        plan_fee: selectedPlan.plan_price,
+      };
+  
+      console.log('Request Body:', requestBody);
+  
+      // Example API call or update logic
+      // You can replace this with your actual API request
+      fetch(`/backend/pppoe-clients-change-plan/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Response:', data);
+      
+          // Set the error message to state if there's an error message in the response
+          if (data.success == false) {
+            setChangePlanError(data.message);
+            setChangePlanSuccess("");
+
+          } else {
+            setChangePlanSuccess(data.message);
+            setChangePlanError("");
+
+          }
+      
+          // Handle the successful response here (e.g., update the UI, reset error state)
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+      console.error('Selected plan is not available');
+    }
+  };
+  
 
   const handlePasswordSubmit = () => {
     console.log("Password Entered: ", password);
@@ -278,13 +428,86 @@ const Customer = () => {
         </ModalBody>
       </Modal>
 
+      <Modal isOpen={planChangeModal} toggle={() => setPlanChangeModal(false)} aria-labelledby="otp-modal-title">
+      <ModalBody>
+        <div className="flex flex-col items-center justify-center text-center space-y-4 py-4">
+          <h2 id="otp-modal-title" className="text-lg font-semibold text-gray-900">
+            Enter the OTP Code you received via SMS
+          </h2>
+
+          <p className="text-danger">{changePlanError}</p>
+          <p className="text-success">{changePlanSuccess}</p>
+
+          <Input
+            type="text"
+            placeholder="Enter OTP Code"
+            className="w-full max-w-xs border border-gray-300 rounded px-3 py-2"
+            value={otpCode !== null ? otpCode.toString() : ""} // Convert number to string if it's not null
+            onChange={handleOtpChange}
+            aria-label="OTP Code"
+          />
+
+          <div className="flex space-x-4 pt-2">
+            <Button
+              color="primary"
+              onClick={() => {
+                // Handle verification logic here
+                handleUpdatePlanRequest();
+              }}
+              className="mr-6"
+              disabled={!otpCode}
+            >
+              Confirm Change
+            </Button>
+            <Button
+              color="secondary"
+              onClick={() => setPlanChangeModal(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </ModalBody>
+    </Modal>
+
       {isAuthenticated && clientDetails && (
         <Row className="p-4 md:p-16">
           <Col>
             <Card body className="mt-6 p-6">
               <h2 className="text-xl font-semibold mb-2">Your current subscription expires on {formatDate(currEndDate)}</h2>
               <p className="text-sm text-danger font-bold mb-2">You can edit the Mpesa No. below</p>
+              <div className="space-y-4 pb-4">
+                <label htmlFor="planSelect">Select a Plan:</label>
+                <Input 
+                  type="select" 
+                  id="planSelect" 
+                  value={currentPlan} 
+                  onChange={(e) => handlePlanChange(e as unknown as React.ChangeEvent<HTMLSelectElement>)}
+                  className="border border-gray-300 p-2 rounded"
+                >
+                  {plans.map(plan => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.plan_name} - {plan.plan_price} KES
+                    </option>
+                  ))}
+                </Input>
+
+                <Button
+                  onClick={handleUpdatePlan}
+                  style={{ marginTop: '10px' }}
+                  disabled={loading} // Disable the button when loading
+                >
+                  {loading ? (
+                    <span>
+                      Loading <i className="spinner-border spinner-border-sm"></i>
+                    </span>
+                  ) : (
+                    'Change Plan'
+                  )}
+                </Button>
+              </div>
               <div className="space-y-4">
+
                 <Input
                   type="text"
                   placeholder="Edit Phone Number"
