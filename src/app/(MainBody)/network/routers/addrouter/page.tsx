@@ -9,6 +9,7 @@ import { RootState } from '../../../../../Redux/Store';
 // Alert
 import SvgIcon from "@/CommonComponent/SVG/SvgIcon";
 // Alert
+import Cookies from "js-cookie";
 
 
 interface FormData {
@@ -36,6 +37,8 @@ const AddNewRouter: React.FC = () => {
   // Alert
 
   const [error, setError] = useState<string | null>(null); // State for error message
+
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
   const initialFormData: FormData = {
     router_name: "",
@@ -96,7 +99,8 @@ const AddNewRouter: React.FC = () => {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method as needed
         },
         body: JSON.stringify(formData),
       });
