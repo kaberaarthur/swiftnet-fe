@@ -15,6 +15,16 @@ export const MenuList: MenuItem[] = [
         ],
       },
       {
+        title: "Imports",
+        id: 34,
+        icon: "Download",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
+        ],
+      },
+      {
         title: "Clients",
         id: 34,
         icon: "Ticket",
