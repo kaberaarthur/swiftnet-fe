@@ -64,6 +64,7 @@ export const MenuList: MenuItem[] = [
           { path: `/services/staticplans`, title: "Static Plans", type: "link" },
           { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
           { path: `/services/pppoeplans`, title: "PPPOE Plans", type: "link" },
+          { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
           { path: `/services/bandwidthplans`, title: "Bandwidth Plans", type: "link" },
         ],
       },

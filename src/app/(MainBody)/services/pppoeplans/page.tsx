@@ -24,6 +24,7 @@ interface PPPOEPlan {
   rate_limit_string: string;
   pool_name: string;
   router_id: string;
+  brand: string;
 }
 
 const PPPoEPlansList: React.FC = () => {
@@ -123,6 +124,7 @@ const PPPoEPlansList: React.FC = () => {
             <th className="px-4 py-2 text-left">Plan Price</th>
             <th className="px-4 py-2 text-left">Pool Name</th>
             <th className="px-4 py-2 text-left">Router ID</th>
+            <th className="px-4 py-2 text-left">Brand</th>
             <th className="px-4 py-2 text-left">Manage</th>
           </tr>
         </thead>
@@ -141,9 +143,10 @@ const PPPoEPlansList: React.FC = () => {
                 </td>
                 <td className="px-4 py-2">{plan.plan_name}</td>
                 <td className="px-4 py-2">{plan.rate_limit_string}</td>
-                <td className="px-4 py-2">${plan.plan_price}</td>
+                <td className="px-4 py-2">Kes. {plan.plan_price}</td>
                 <td className="px-4 py-2">{plan.pool_name}</td>
                 <td className="px-4 py-2">{plan.router_id}</td>
+                <td className="px-4 py-2">{plan.brand}</td>
                 <td className="px-4 py-2" style={{ color: "#2563eb" }}>
                   <Link href={`/services/pppoeplans/editpppoeplan?plan_id=${plan.id}`}>
                     <i className="fa fa-pencil px-2" style={{ cursor: 'pointer' }}></i>
