@@ -54,6 +54,7 @@ interface ClientDetails {
   location: string;
   secret: string;
   portal_password: string;
+  brand: string;
 }
 
 interface PPPoEPlan {
@@ -84,6 +85,7 @@ const Customer = () => {
   const [loading, setLoading] = useState(true);
   const [reqLoading, setReqLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("0700000000");
+  const [customerBrand, setCustomerBrand] = useState("Swift");
   const [routerId, setRouterId] = useState<number | undefined>(undefined);
   const [otpCode, setOtpCode] = useState<number | null>(null);
   const [currentPlan, setCurrentPlan] = useState(1004);
@@ -148,6 +150,7 @@ const Customer = () => {
           setCurrEndDate(data.end_date);
           setRouterId(data.router_id);
           setCurrentPlan(data.plan_id);
+          setCustomerBrand(data.brand);
         } catch (error) {
           console.error("Error fetching client details:", error);
           setLoading(false);
@@ -161,7 +164,7 @@ const Customer = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await fetch(`/backend/pppoe-plans?router_id=${routerId}`);
+        const response = await fetch(`/backend/pppoe-plans?router_id=${routerId}&brand=${customerBrand}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -174,7 +177,7 @@ const Customer = () => {
     };
 
     fetchPlans();
-  }, [routerId]);
+  }, [routerId, customerBrand]);
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedPlanId = parseInt(e.target.value, 10);
