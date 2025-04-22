@@ -102,7 +102,7 @@ const ImportPPPoEPlans: React.FC = () => {
           // Fetch plans from the specific router API - ENSURE THIS URL IS CORRECT AND ACCESSIBLE
           // Using localhost:8000 might only work during local development.
           // Consider making this URL configurable or relative if needed.
-          const plansResponse = await fetch('http://localhost:8000/router-pppoe-plans'); // Example URL
+          const plansResponse = await fetch('/backend/router-pppoe-plans'); // Example URL
 
           if (!plansResponse.ok) {
             // Handle specific HTTP errors if possible
