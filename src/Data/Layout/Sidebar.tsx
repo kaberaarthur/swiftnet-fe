@@ -25,6 +25,17 @@ export const MenuList: MenuItem[] = [
         ],
       },
       {
+        title: "Brands",
+        id: 34,
+        icon: "Bag",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/brands/viewbrands`, title: "Brands", type: "link" },
+          { path: `/brands/addbrand`, title: "Add Brand", type: "link" },
+        ],
+      },
+      {
         title: "Clients",
         id: 34,
         icon: "Ticket",
