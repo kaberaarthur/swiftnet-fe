@@ -22,6 +22,7 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
+          { path: `/clients/mikrotikimport`, title: "Import PPPOE Clients", type: "link" },
         ],
       },
       {

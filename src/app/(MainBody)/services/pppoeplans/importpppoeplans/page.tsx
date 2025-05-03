@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 // Assuming RootState is correctly defined elsewhere
 import { RootState } from '../../../../../Redux/Store'; // Adjust path if necessary
 import Link from 'next/link';
+import Cookies from 'js-cookie'; // Import Cookies
+
 
 // Interface for the data fetched directly from /backend/routers
 interface Router {
@@ -31,13 +33,28 @@ interface ImportPPPOEPlan extends RouterPPPOEPlan {
     router_id: number;
     company_id: number;
     company_username: string; // Assuming this comes from user state
-    brand: string;
+    brand: string; // This will store the selected brand name (string)
     is_selected: boolean;
 }
 
+// Interface for Brand data
+interface Brand {
+    id: number;
+    name: string;
+    company_id: number;
+}
+
 const ImportPPPoEPlans: React.FC = () => {
+    // Retrieve accessToken safely from Cookies or localStorage
+    const [accessToken] = useState<string | null>(() => {
+        return Cookies.get('accessToken') || localStorage.getItem('accessToken') || null;
+    });
+
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 20;
+
+    const [brands, setBrands] = useState<Brand[]>([]); // State for storing fetched brands
+    const [brandsLoading, setBrandsLoading] = useState<boolean>(false); // Loading state for brands fetch
 
     const [loading, setLoading] = useState<boolean>(false); // General loading state
     const [routersLoading, setRoutersLoading] = useState<boolean>(false); // Specific for router fetch
@@ -49,23 +66,61 @@ const ImportPPPoEPlans: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [bulkPrice, setBulkPrice] = useState<string>('');
     const [bulkValidity, setBulkValidity] = useState<string>('30');
-    const [bulkBrand, setBulkBrand] = useState<string>('');
+    const [bulkBrand, setBulkBrand] = useState<string>(''); // This will store the selected brand *name* for bulk update
 
     const user = useSelector((state: RootState) => state.user);
+
+    // Function to fetch brands
+    const fetchBrands = async () => {
+        if (!accessToken) {
+            console.error('No access token found, cannot fetch brands.');
+            setErrorMessage('Authentication error: Cannot fetch brands.'); // Optional: Inform user
+            return;
+        }
+        setBrandsLoading(true); // Start loading brands
+        // Consider setting general loading if needed: setLoading(true);
+        try {
+            const response = await fetch('/backend/brands', { // Use your actual brands endpoint
+                headers: {
+                    // --- MODIFIED: Added Authorization Header ---
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error fetching brands! status: ${response.status}`);
+            }
+            const data: Brand[] = await response.json();
+            // Optionally filter brands by user.company_id if the backend doesn't do it
+             // const filteredBrands = data.filter(brand => brand.company_id === user?.company_id);
+             // setBrands(filteredBrands);
+            setBrands(data); // Assuming backend returns brands for the correct company
+        } catch (error) {
+            console.error('Failed to fetch brands:', error);
+            setErrorMessage('Failed to load brand list.'); // Inform user
+            setBrands([]); // Clear brands on error
+        } finally {
+            setBrandsLoading(false); // Stop loading brands
+            // setLoading(false); // Stop general loading if started
+        }
+    };
+
 
     // Effect 1: Fetch routers when component mounts or user's company_id changes
     useEffect(() => {
         if (user?.company_id) {
-            setRoutersLoading(true); // Start loading routers
-            setLoading(true); // Also set general loading? Optional, maybe just routersLoading is enough
+            setRoutersLoading(true);
+            setLoading(true);
             setErrorMessage('');
-            setRouters([]); // Clear previous routers
-            setSelectedRouter(0); // Reset selection when company changes
-            setPppoePlans([]); // Clear plans when company changes
+            setRouters([]);
+            setSelectedRouter(0);
+            setPppoePlans([]);
 
             const fetchRouters = async () => {
                 try {
-                    const routerResponse = await fetch(`/backend/routers?company_id=${user.company_id}`);
+                    // Assuming fetch needs Auth token too? If so, add headers like in fetchBrands
+                    const routerResponse = await fetch(`/backend/routers?company_id=${user.company_id}`, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` } // Example: Add if needed
+                    });
                     if (!routerResponse.ok) {
                         throw new Error(`HTTP error fetching routers! status: ${routerResponse.status}`);
                     }
@@ -73,65 +128,63 @@ const ImportPPPoEPlans: React.FC = () => {
                     setRouters(routerData);
                     setErrorMessage('');
 
-                    // --- NEW: Automatically select the first router if available ---
                     if (routerData && routerData.length > 0) {
-                        setSelectedRouter(routerData[0].id); // Set the first router as selected
-                        // Note: This state update will trigger the second useEffect to fetch plans
+                        setSelectedRouter(routerData[0].id);
                     } else {
-                        // No routers found, ensure no router is selected
                         setSelectedRouter(0);
                     }
-                    // --- End NEW ---
-
                 } catch (error) {
                     console.error('Error fetching routers:', error);
-                    setErrorMessage('Failed to fetch routers. Please check network or backend.');
+                    setErrorMessage('Failed to fetch routers.');
                     setRouters([]);
-                    setSelectedRouter(0); // Ensure reset on error
+                    setSelectedRouter(0);
                 } finally {
                     setRoutersLoading(false);
-                    setLoading(false); // Stop general loading if it was started
+                    setLoading(false);
                 }
             };
             fetchRouters();
         } else {
-            // No company_id, clear everything
             setRouters([]);
             setPppoePlans([]);
             setSelectedRouter(0);
             setLoading(false);
             setRoutersLoading(false);
-             // setErrorMessage("Cannot fetch routers: User company ID is missing."); // Optional message
         }
-    }, [user?.company_id]); // Depend only on company_id
+        // Refetch routers if accessToken changes *and* company_id exists
+    }, [user?.company_id, accessToken]);
 
-    // Effect 2: Fetch plans when selectedRouter changes (and is valid)
+    // Effect 2: Fetch Brands on mount or if accessToken changes
     useEffect(() => {
-        // Only fetch if a router is selected (ID > 0)
-        if (selectedRouter > 0) {
-            setPlansLoading(true); // Start loading plans
+        fetchBrands();
+        // Dependency: accessToken ensures refetch if token changes (e.g., re-login)
+    }, [accessToken]);
+
+    // Effect 3: Fetch plans when selectedRouter changes (and is valid)
+    useEffect(() => {
+        if (selectedRouter > 0 && accessToken) { // Check for token here too if needed for fetch
+            setPlansLoading(true);
             setLoading(true);
             setErrorMessage('');
-            setPppoePlans([]); // Clear previous plans before fetching new ones
+            setPppoePlans([]);
 
             const fetchPPPoEPlans = async () => {
                 try {
-                    // Find the selected router object (needed for company_id fallback)
                     const selectedRouterObj = routers.find(r => r.id === selectedRouter);
-
-                    // --- MODIFIED: Fetch plans using the selected router's ID ---
-                    const plansResponse = await fetch(`/backend/router-pppoe-plans?id=${selectedRouter}`);
-                    // --- End MODIFIED ---
+                    // --- MODIFIED URL REMAINS ---
+                    const plansResponse = await fetch(`/backend/router-pppoe-plans?id=${selectedRouter}`, {
+                         headers: { 'Authorization': `Bearer ${accessToken}` } // Example: Add if needed
+                    });
 
                     if (!plansResponse.ok) {
-                        if (plansResponse.status === 404) {
-                             throw new Error(`Plans endpoint not found for router ID ${selectedRouter} (404).`);
-                        }
-                         throw new Error(`HTTP error fetching plans! Status: ${plansResponse.status}`);
+                         if (plansResponse.status === 404) {
+                              throw new Error(`Plans endpoint not found for router ID ${selectedRouter} (404).`);
+                         }
+                          throw new Error(`HTTP error fetching plans! Status: ${plansResponse.status}`);
                     }
                     const plansData: RouterPPPOEPlan[] = await plansResponse.json();
 
-                    const companyUsernameValue = user?.company_username ?? ''; // Get username safely
+                    const companyUsernameValue = user?.company_username ?? '';
 
                     const transformedPlans: ImportPPPOEPlan[] = plansData
                         .map(plan => {
@@ -139,7 +192,7 @@ const ImportPPPoEPlans: React.FC = () => {
 
                             if (typeof companyIdValue !== 'number') {
                                 console.error(
-                                    `Could not determine a valid company_id for plan '${plan.name}' (ID: ${plan.id}). Router ID: ${selectedRouter}, User Company ID: ${user?.company_id}. Skipping.`
+                                    `Could not determine a valid company_id for plan '${plan.name}' (ID: ${plan.id}). Skipping.`
                                 );
                                 return null;
                             }
@@ -148,22 +201,22 @@ const ImportPPPoEPlans: React.FC = () => {
                                 ...plan,
                                 plan_price: '',
                                 plan_validity: '30',
-                                router_id: selectedRouter, // Store the ID of the router these plans belong to
+                                router_id: selectedRouter,
                                 company_id: companyIdValue,
-                                company_username: companyUsernameValue, // Add username
-                                brand: '',
-                                is_selected: true // Default to selected
+                                company_username: companyUsernameValue,
+                                brand: '', // Initialize brand as empty string (will select the default option)
+                                is_selected: true
                             };
                         })
                         .filter((plan): plan is ImportPPPOEPlan => plan !== null);
 
                     setPppoePlans(transformedPlans);
-                    setCurrentPage(1); // Reset to first page when plans reload
+                    setCurrentPage(1);
 
                 } catch (error: any) {
                     console.error('Error fetching or processing PPPoE plans:', error);
-                    setErrorMessage(`Failed to fetch/process plans for router ID ${selectedRouter}: ${error.message || 'Check API/network.'}`);
-                    setPppoePlans([]); // Clear plans on error
+                    setErrorMessage(`Failed to fetch/process plans: ${error.message || 'Check API/network.'}`);
+                    setPppoePlans([]);
                 } finally {
                     setPlansLoading(false);
                     setLoading(false);
@@ -171,26 +224,18 @@ const ImportPPPoEPlans: React.FC = () => {
             };
             fetchPPPoEPlans();
         } else {
-            // If no router is selected (selectedRouter is 0), clear the plans
             setPppoePlans([]);
-            setPlansLoading(false); // Ensure plans loading is false if no router selected
-            // Keep general loading based on router fetch if needed, or set false if appropriate
+            setPlansLoading(false);
             if (!routersLoading) {
                  setLoading(false);
             }
         }
-        // This effect depends *only* on the selectedRouter changing.
-        // Routers list (`routers`) and user info are used *within* the effect if needed,
-        // but the *trigger* should primarily be the router selection itself.
-        // Including `routers` ensures `selectedRouterObj` is up-to-date if the list reloads
-        // *before* a selection is made, but the main driver is `selectedRouter`.
-    }, [selectedRouter, routers, user?.company_id, user?.company_username]); // Added username dependency
+    }, [selectedRouter, routers, user?.company_id, user?.company_username, accessToken]); // Added accessToken dependency
 
 
     // --- Pagination Calculations ---
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    // Ensure pppoePlans exists before slicing
     const currentData = pppoePlans ? pppoePlans.slice(indexOfFirstItem, indexOfLastItem) : [];
     const totalPlans = pppoePlans?.length ?? 0;
     const totalPages = Math.ceil(totalPlans / itemsPerPage);
@@ -201,7 +246,7 @@ const ImportPPPoEPlans: React.FC = () => {
         }
     };
 
-    // --- Plan Selection Handlers ---
+    // --- Plan Selection Handlers --- (FIXED)
     const togglePlanSelection = (id: number) => {
         setPppoePlans(prevPlans =>
             prevPlans.map(plan =>
@@ -210,8 +255,12 @@ const ImportPPPoEPlans: React.FC = () => {
         );
     };
 
+    // FIXED: The toggleAllSelection function
     const toggleAllSelection = () => {
-        const allSelected = totalPlans > 0 && pppoePlans.every(plan => plan.is_selected);
+        // Check if all plans are currently selected
+        const allSelected = pppoePlans.length > 0 && pppoePlans.every(plan => plan.is_selected);
+        
+        // Toggle selection state for all plans
         setPppoePlans(prevPlans =>
             prevPlans.map(plan => ({ ...plan, is_selected: !allSelected }))
         );
@@ -226,28 +275,36 @@ const ImportPPPoEPlans: React.FC = () => {
         );
     };
 
+    // FIXED: The applyBulkUpdate function - ensures updates only apply to selected plans
     const applyBulkUpdate = (field: 'plan_price' | 'plan_validity' | 'brand', value: string) => {
         if (value === null || value === undefined) return;
+        
+        // If the value is empty string for brand, don't apply unless explicitly intended
+        if (field === 'brand' && value === '') {
+            console.warn("Attempting to bulk apply empty brand selection.");
+            // return; // Optional: uncomment to prevent applying empty selection
+        }
+
         setPppoePlans(prevPlans =>
             prevPlans.map(plan =>
+                // Only apply updates to plans that are actually selected
                 plan.is_selected ? { ...plan, [field]: value } : plan
             )
         );
     };
 
     const handleApplyBulkFields = () => {
-        // Apply only if the bulk input fields have values
         if (bulkPrice) applyBulkUpdate('plan_price', bulkPrice);
         if (bulkValidity) applyBulkUpdate('plan_validity', bulkValidity);
-        if (bulkBrand) applyBulkUpdate('brand', bulkBrand);
+        // Apply brand even if it's "" (meaning "-- Select --"), allowing bulk deselect essentially
+        applyBulkUpdate('brand', bulkBrand);
     };
-
 
     // --- Validation and Import ---
     const areRequiredFieldsFilled = () => {
-        if (!pppoePlans) return true; // Or false if plans must exist? Decide based on logic.
+        if (!pppoePlans) return true;
         const missingField = pppoePlans.find(plan =>
-            plan.is_selected && (!plan.plan_price || !plan.plan_validity || !plan.brand)
+            plan.is_selected && (!plan.plan_price || !plan.plan_validity || !plan.brand) // Check !plan.brand (requires a brand name string)
         );
         return !missingField;
     };
@@ -256,7 +313,7 @@ const ImportPPPoEPlans: React.FC = () => {
         return pppoePlans && pppoePlans.some(plan => plan.is_selected);
     };
 
-    const handleImportPlans = async () => { // Make async for await fetch
+    const handleImportPlans = async () => {
         const selectedPlans = pppoePlans.filter(plan => plan.is_selected);
 
         setErrorMessage('');
@@ -267,60 +324,57 @@ const ImportPPPoEPlans: React.FC = () => {
         }
 
         if (!areRequiredFieldsFilled()) {
-            setErrorMessage('Please fill in Price, Validity, and Brand for all selected plans.');
+            // Error message is now more accurate for the dropdown
+            setErrorMessage('Please fill in Price, Validity, and select a Brand for all selected plans.');
             return;
         }
 
         console.log('Importing Plans Data:', selectedPlans);
-        setLoading(true); // Indicate processing
+        setLoading(true);
 
         try {
-            const response = await fetch('/backend/router-import-pppoe-plans', { // Your actual import endpoint
+            const response = await fetch('/backend/router-import-pppoe-plans', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add Authorization headers if needed: 'Authorization': `Bearer ${token}`
+                     'Authorization': `Bearer ${accessToken}` // Add auth if needed
                 },
                 body: JSON.stringify(selectedPlans),
             });
 
             if (!response.ok) {
-                // Try to parse error message from backend response
                 let errorMsg = 'Import failed due to server error.';
                 try {
                     const errData = await response.json();
                     errorMsg = errData.message || `Import failed with status: ${response.status}`;
                 } catch (parseError) {
-                    // If response is not JSON or empty
                     errorMsg = `Import failed with status: ${response.status}`;
                 }
                 throw new Error(errorMsg);
             }
 
-            const data = await response.json(); // Or handle success response text/status
+            const data = await response.json();
             console.log('Import successful:', data);
-            alert(`Successfully imported ${selectedPlans.length} plans.`); // Consider using a more integrated notification system
+            alert(`Successfully imported ${selectedPlans.length} plans.`);
 
-            // Reset state after successful import
-            setPppoePlans(plans => plans.map(p => ({ ...p, is_selected: false }))); // Deselect all
-            setSelectedRouter(0); // Reset router selection, which will clear plans via useEffect
-            // Optionally clear bulk fields
+            setPppoePlans(plans => plans.map(p => ({ ...p, is_selected: false })));
+            setSelectedRouter(0);
             setBulkPrice('');
             setBulkValidity('30');
-            setBulkBrand('');
+            setBulkBrand(''); // Reset bulk brand selection
 
         } catch (error: any) {
             console.error('Error importing plans:', error);
             setErrorMessage(`Import failed: ${error.message}`);
         } finally {
-            setLoading(false); // Stop loading indicator regardless of success/failure
+            setLoading(false);
         }
     };
 
 
     // --- JSX Rendering ---
-    // Determine if *any* loading is happening
-    const isLoading = loading || routersLoading || plansLoading;
+    // Combine all loading states that should disable interactions
+    const isLoading = loading || routersLoading || plansLoading || brandsLoading;
     const noRoutersAvailable = !routersLoading && routers.length === 0;
 
     return (
@@ -336,38 +390,37 @@ const ImportPPPoEPlans: React.FC = () => {
             {/* Top Controls */}
             <div className="py-2">
                 <Row className="align-items-end">
-                    <Col md="6" className="mb-3">
-                        <Link href="/services/pppoeplans" passHref>
-                            <Button color="secondary" className="px-4 py-2" disabled={isLoading}>
-                                <i className="bi bi-arrow-left mr-2"></i> Back to Plans List
-                            </Button>
-                        </Link>
-                    </Col>
-                    <Col md="6" className="mb-3">
-                        <Label htmlFor="routerSelect">{'Select Router to Import From'}</Label>
-                        <Input
+                     <Col md="6" className="mb-3">
+                         <Link href="/services/pppoeplans" passHref>
+                             <Button color="secondary" className="px-4 py-2" disabled={isLoading}>
+                                 <i className="bi bi-arrow-left mr-2"></i> Back to Plans List
+                             </Button>
+                         </Link>
+                     </Col>
+                     <Col md="6" className="mb-3">
+                         <Label htmlFor="routerSelect">{'Select Router to Import From'}</Label>
+                         <Input
                             id="routerSelect"
                             type="select"
-                            value={selectedRouter || ''} // Use selectedRouter state, fallback to '' for the placeholder
-                            onChange={(e) => setSelectedRouter(Number(e.target.value))} // Update state on change
-                            disabled={routersLoading || noRoutersAvailable || plansLoading} // Disable while loading routers/plans or if none exist
+                            value={selectedRouter || ''}
+                            onChange={(e) => setSelectedRouter(Number(e.target.value))}
+                            // Disable router selection while loading routers, plans, or brands, or if no routers exist
+                            disabled={isLoading || noRoutersAvailable}
                         >
-                            {/* Dynamic placeholder option */}
-                            <option value="">
-                                {routersLoading ? 'Loading routers...' : (noRoutersAvailable ? 'No routers found' : '-- Select a Router --')}
-                            </option>
-                            {/* List fetched routers */}
-                            {routers.map(router => (
-                                <option key={router.id} value={router.id}>
-                                    {router.router_name} (ID: {router.id})
-                                </option>
-                            ))}
-                        </Input>
-                    </Col>
-                </Row>
-            </div>
+                             <option value="">
+                                 {routersLoading ? 'Loading routers...' : (noRoutersAvailable ? 'No routers found' : '-- Select a Router --')}
+                             </option>
+                             {routers.map(router => (
+                                 <option key={router.id} value={router.id}>
+                                     {router.router_name} (ID: {router.id})
+                                 </option>
+                             ))}
+                         </Input>
+                     </Col>
+                 </Row>
+             </div>
 
-             {/* Bulk Update Section - Show only when a router is selected AND plans are loaded */}
+             {/* Bulk Update Section */}
              {selectedRouter > 0 && !plansLoading && pppoePlans.length > 0 && (
                  <div className="bg-light p-4 mb-4 rounded border">
                      <h3 className="text-lg font-semibold mb-3">Bulk Update Selected Plans</h3>
@@ -382,12 +435,12 @@ const ImportPPPoEPlans: React.FC = () => {
                                 value={bulkPrice}
                                 onChange={(e) => setBulkPrice(e.target.value)}
                                 placeholder="Set price"
-                                disabled={isLoading} // Disable if any loading is true
-                                />
+                                disabled={isLoading}
+                             />
                          </Col>
                          <Col sm="4" className="mb-2">
-                              <Label htmlFor="bulkValidity">Plan Validity (days)</Label>
-                             <Input
+                             <Label htmlFor="bulkValidity">Plan Validity (days)</Label>
+                              <Input
                                 id="bulkValidity"
                                 type="number"
                                 min="1"
@@ -396,25 +449,31 @@ const ImportPPPoEPlans: React.FC = () => {
                                 onChange={(e) => setBulkValidity(e.target.value)}
                                 placeholder="Set validity"
                                 disabled={isLoading}
-                                />
+                             />
                          </Col>
                          <Col sm="4" className="mb-2">
                              <Label htmlFor="bulkBrand">Brand</Label>
-                             <Input
+                            <Input
                                 id="bulkBrand"
-                                type="text"
+                                type="select" 
                                 value={bulkBrand}
                                 onChange={(e) => setBulkBrand(e.target.value)}
-                                placeholder="Set brand"
-                                disabled={isLoading}
-                                />
+                                disabled={isLoading || brandsLoading}
+                            >
+                                <option value="">-- Select Brand --</option>
+                                {brands.map((brand) => (
+                                    <option key={brand.id} value={brand.name}>
+                                        {brand.name}
+                                    </option>
+                                ))}
+                            </Input>
                          </Col>
                      </Row>
                      <Button
                         color="primary"
                         className="mt-3"
                         onClick={handleApplyBulkFields}
-                        disabled={isLoading || !isAnyPlanSelected()} // Disable if loading or no plans are selected
+                        disabled={isLoading || !isAnyPlanSelected()}
                         >
                          <i className="bi bi-check-square mr-2"></i> Apply to Selected
                      </Button>
@@ -426,27 +485,26 @@ const ImportPPPoEPlans: React.FC = () => {
             {plansLoading && selectedRouter > 0 && (
                 <div className="text-center py-5">
                     <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading plans...</span>
+                        <span className="visually-hidden">Loading Plans...</span>
                     </div>
-                    <p className="mt-2">Loading plans from router...</p>
+                    <p className="mt-2">Loading PPPoE Plans...</p>
                 </div>
             )}
 
-            {/* Plans Table Area - Show only if NOT loading plans, a router IS selected, AND there are plans */}
+            {/* Plans Table Area */}
             {!plansLoading && selectedRouter > 0 && pppoePlans.length > 0 && (
                 <>
                     <div className="table-responsive">
                         <table className="table table-hover table-bordered table-striped">
                             <thead className="table-light">
                                 <tr>
+                                    {/* FIXED: Added proper checkbox binding for the "select all" checkbox */}
                                     <th style={{ width: '5%' }}>
-                                        <Input
-                                            type="checkbox"
-                                            aria-label="Select all plans"
-                                            // Check if all plans in the *full* list (not just current page) are selected
-                                            checked={totalPlans > 0 && pppoePlans.every(p => p.is_selected)}
+                                        <Input 
+                                            type="checkbox" 
+                                            checked={pppoePlans.length > 0 && pppoePlans.every(plan => plan.is_selected)}
                                             onChange={toggleAllSelection}
-                                            disabled={isLoading} // Disable if any loading
+                                            disabled={isLoading}
                                         />
                                     </th>
                                     <th style={{ width: '5%' }}>ID</th>
@@ -458,13 +516,12 @@ const ImportPPPoEPlans: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* Render only the plans for the current page */}
                                 {currentData.map((plan) => (
                                     <tr key={plan.id} className={plan.is_selected ? 'table-active' : ''}>
+                                        {/* FIXED: Added proper checkbox binding for each row */}
                                         <td>
-                                            <Input
-                                                type="checkbox"
-                                                aria-label={`Select plan ${plan.name}`}
+                                            <Input 
+                                                type="checkbox" 
                                                 checked={plan.is_selected}
                                                 onChange={() => togglePlanSelection(plan.id)}
                                                 disabled={isLoading}
@@ -474,22 +531,20 @@ const ImportPPPoEPlans: React.FC = () => {
                                         <td>{plan.name}</td>
                                         <td>{plan.rate_limit}</td>
                                         <td>
-                                            <Input
+                                            <Input 
                                                 type="number"
-                                                min="0"
+                                                min="0" 
                                                 step="0.01"
                                                 value={plan.plan_price}
                                                 onChange={(e) => updatePlanField(plan.id, 'plan_price', e.target.value)}
-                                                // Input is editable only if the plan is selected AND not loading
                                                 disabled={!plan.is_selected || isLoading}
-                                                // Add 'is-invalid' class if selected but field is empty
                                                 className={!plan.plan_price && plan.is_selected ? 'is-invalid' : ''}
                                             />
                                         </td>
                                         <td>
-                                            <Input
+                                            <Input 
                                                 type="number"
-                                                min="1"
+                                                min="1" 
                                                 step="1"
                                                 value={plan.plan_validity}
                                                 onChange={(e) => updatePlanField(plan.id, 'plan_validity', e.target.value)}
@@ -499,12 +554,19 @@ const ImportPPPoEPlans: React.FC = () => {
                                         </td>
                                         <td>
                                             <Input
-                                                type="text"
+                                                type="select"
                                                 value={plan.brand}
                                                 onChange={(e) => updatePlanField(plan.id, 'brand', e.target.value)}
-                                                disabled={!plan.is_selected || isLoading}
+                                                disabled={!plan.is_selected || isLoading || brandsLoading}
                                                 className={!plan.brand && plan.is_selected ? 'is-invalid' : ''}
-                                            />
+                                            >
+                                                <option value="">-- Select Brand --</option>
+                                                {brands.map((brand) => (
+                                                    <option key={brand.id} value={brand.name}>
+                                                        {brand.name}
+                                                    </option>
+                                                ))}
+                                            </Input>
                                         </td>
                                     </tr>
                                 ))}
@@ -513,31 +575,54 @@ const ImportPPPoEPlans: React.FC = () => {
                     </div>
 
                     {/* Pagination Controls */}
-                     {totalPages > 1 && (
-                         <div className="d-flex justify-content-between align-items-center mt-4 flex-wrap">
-                             <Button
-                                color="secondary"
-                                outline
-                                disabled={currentPage === 1 || isLoading}
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                className="mb-2"
-                             >
-                                 <i className="bi bi-chevron-left"></i> Previous
-                             </Button>
-                             <span className="text-muted mb-2">
-                                Page {currentPage} of {totalPages} ({totalPlans} total plans)
-                             </span>
-                             <Button
-                                color="secondary"
-                                outline
-                                disabled={currentPage === totalPages || isLoading}
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                className="mb-2"
-                             >
-                                 Next <i className="bi bi-chevron-right"></i>
-                             </Button>
-                         </div>
-                     )}
+                    {totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center mt-4 flex-wrap">
+                            <div>
+                                <span className="me-3">
+                                    Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalPlans)} of {totalPlans} plans
+                                </span>
+                            </div>
+                            <div>
+                                <Button
+                                    color="outline-primary"
+                                    size="sm"
+                                    className="me-2"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1 || isLoading}
+                                >
+                                    Previous
+                                </Button>
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    // Simple logic for showing a window of pages around current page
+                                    let pageNum = i + 1;
+                                    if (currentPage > 3 && totalPages > 5) {
+                                        pageNum = currentPage - 2 + i;
+                                        if (pageNum > totalPages) pageNum = totalPages - (4 - i);
+                                    }
+                                    return (
+                                        <Button
+                                            key={i}
+                                            color={currentPage === pageNum ? "primary" : "outline-primary"}
+                                            size="sm"
+                                            className="me-2"
+                                            onClick={() => handlePageChange(pageNum)}
+                                            disabled={isLoading}
+                                        >
+                                            {pageNum}
+                                        </Button>
+                                    );
+                                })}
+                                <Button
+                                    color="outline-primary"
+                                    size="sm"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages || isLoading}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Import Action Area */}
                     <div className="mt-4 pt-3 border-top">
@@ -547,16 +632,17 @@ const ImportPPPoEPlans: React.FC = () => {
                             size="lg"
                             className="px-5 py-2"
                             onClick={handleImportPlans}
-                            // Disable if loading, no plan selected, or required fields are missing in selected plans
                             disabled={isLoading || !isAnyPlanSelected() || !areRequiredFieldsFilled()}
                         >
-                            {isLoading && !routersLoading && !plansLoading ? ( // Show specific "Importing..." only during the import action
+                            {isLoading ? (
                                 <>
-                                    <span className="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
-                                    Importing...
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Processing...
                                 </>
                             ) : (
-                                <> <i className="bi bi-cloud-upload mr-2"></i> Import Selected Plans </>
+                                <>
+                                    <i className="bi bi-cloud-upload me-2"></i> Import Selected Plans
+                                </>
                             )}
                         </Button>
                     </div>
@@ -564,27 +650,36 @@ const ImportPPPoEPlans: React.FC = () => {
             )}
 
             {/* Informational Messages */}
-            {/* Message when no router is selected yet (and routers aren't loading/failed) */}
-            {!isLoading && !selectedRouter && routers.length > 0 && (
-                 <Alert color="info" className="text-center py-4">
-                     Please select a router from the dropdown above to view and import its PPPoE plans.
-                 </Alert>
-             )}
+            {!plansLoading && selectedRouter === 0 && (
+                <div className="text-center py-5 bg-light rounded">
+                    <i className="bi bi-router display-4 text-muted"></i>
+                    <h3 className="mt-3">Select a Router</h3>
+                    <p className="text-muted">Choose a router from the dropdown above to view and import its PPPoE plans.</p>
+                </div>
+            )}
 
-             {/* Message when a router is selected, plans are not loading, but no plans were found */}
-             {!plansLoading && selectedRouter > 0 && pppoePlans.length === 0 && !errorMessage && (
-                 <Alert color="warning" className="text-center py-4">
-                     No PPPoE plans were found on the selected router, or the API returned an empty list.
-                 </Alert>
-             )}
+            {!plansLoading && selectedRouter > 0 && pppoePlans.length === 0 && (
+                <div className="text-center py-5 bg-light rounded">
+                    <i className="bi bi-exclamation-circle display-4 text-warning"></i>
+                    <h3 className="mt-3">No Plans Found</h3>
+                    <p className="text-muted">No PPPoE plans were found for the selected router. Try selecting a different router.</p>
+                </div>
+            )}
 
-              {/* Message when router fetch finished but found no routers */}
-             {noRoutersAvailable && !errorMessage && (
-                 <Alert color="warning" className="text-center py-4">
-                     No routers associated with your company ID were found. Cannot import plans.
-                 </Alert>
-             )}
-
+            {noRoutersAvailable && !routersLoading && (
+                <div className="text-center py-5 bg-light rounded">
+                    <i className="bi bi-router-fill display-4 text-danger"></i>
+                    <h3 className="mt-3">No Routers Available</h3>
+                    <p className="text-muted">
+                        No routers were found for your company. Please add routers before attempting to import PPPoE plans.
+                    </p>
+                    <Link href="/system/routers" passHref>
+                        <Button color="primary" className="mt-3">
+                            <i className="bi bi-plus-circle me-2"></i> Add Routers
+                        </Button>
+                    </Link>
+                </div>
+            )}
 
         </div>
     );
