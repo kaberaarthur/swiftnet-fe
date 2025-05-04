@@ -58,6 +58,7 @@ const MikrotikClients = () => {
   const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
   const [clients, setClients] = useState<BackendClient[]>([]);
   const [loading, setLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
   const [error, setError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectAll, setSelectAll] = useState(false);
@@ -453,37 +454,41 @@ const MikrotikClients = () => {
           <div className="mt-4 mb-3">
             <Button 
                 color="success" 
+                disabled={loading}
                 onClick={async () => {
-                console.log('Client Data:', clients);
-                try {
+                    setImportLoading(true);
+                    console.log('Client Data:', clients);
+                    try {
                     const payload = {
-                    router_id: selectedRouterId,  // Add router ID here
-                    clients: clients              // Include the array of clients
+                        router_id: selectedRouterId,
+                        clients: clients
                     };
 
                     const response = await fetch('/backend/mikrotik/import-mikrotik-clients', {
-                    method: 'POST',
-                    headers: {
+                        method: 'POST',
+                        headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: JSON.stringify(payload)
+                        },
+                        body: JSON.stringify(payload)
                     });
                     
                     const result = await response.json();
                     if (result.success) {
-                    alert(`Successfully sent ${result.count} clients to the server`);
+                        alert(`Successfully imported ${result.count} clients`);
                     } else {
-                    alert(`Error: ${result.error}`);
+                        alert(`Error: ${result.error}`);
                     }
-                } catch (error) {
+                    } catch (error) {
                     console.error('Error importing clients:', error);
                     alert('Failed to import clients. See console for details.');
-                }
+                    } finally {
+                    setImportLoading(false);
+                    }
                 }}
-            >
-                Import Clients
-            </Button>
+              >
+                {importLoading ? <><Spinner size="sm" /> Importing...</> : 'Import Clients'}
+              </Button>
             </div>
 
         </>
