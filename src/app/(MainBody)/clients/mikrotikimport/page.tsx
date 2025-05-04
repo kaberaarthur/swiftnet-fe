@@ -47,6 +47,7 @@ interface BackendClient {
   location?: string;
   phone?: string;
   smsGroup?: string;
+  brand?: string;
   isSelected?: boolean;
 }
 
@@ -62,6 +63,7 @@ const MikrotikClients = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [bulkLocation, setBulkLocation] = useState('');
   const [bulkSmsGroup, setBulkSmsGroup] = useState('');
+  const [bulkBrand, setBulkBrand] = useState('');
   const itemsPerPage = 20;
 
   const user = useSelector((state: RootState) => state.user);
@@ -197,6 +199,10 @@ const MikrotikClients = () => {
     setBulkSmsGroup(e.target.value);
   };
 
+  const handleBulkBrandChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setBulkBrand(e.target.value);
+  };
+
   // Toggle selection for a single client
   const toggleSelect = (index: number) => {
     setClients(prev => {
@@ -232,7 +238,8 @@ const MikrotikClients = () => {
           return {
             ...client,
             location: bulkLocation || client.location,
-            smsGroup: bulkSmsGroup || client.smsGroup
+            smsGroup: bulkSmsGroup || client.smsGroup,
+            brand: bulkBrand || client.brand,
           };
         }
         return client;
@@ -286,7 +293,7 @@ const MikrotikClients = () => {
 
       {/* Bulk update row */}
       <Row className="mb-3">
-        <Col sm="4">
+        <Col sm="3">
           <FormGroup>
             <Label for="bulkLocation">Location</Label>
             <Input
@@ -298,7 +305,7 @@ const MikrotikClients = () => {
             />
           </FormGroup>
         </Col>
-        <Col sm="4">
+        <Col sm="3">
           <FormGroup>
             <Label for="bulkSmsGroup">SMS Group</Label>
             <Input
@@ -310,7 +317,26 @@ const MikrotikClients = () => {
             />
           </FormGroup>
         </Col>
-        <Col sm="4" className="d-flex align-items-end">
+        <Col sm="3">
+            <FormGroup>
+                <Label for="bulkBrandGroup">Brand</Label>
+                <Input
+                type="select"
+                id="bulkBrandGroup"
+                value={bulkBrand}
+                onChange={handleBulkBrandChange}
+                >
+                <option value="">Select Brand</option>
+                {brands.map((brand) => (
+                    <option key={brand.id} value={brand.name}>
+                    {brand.name}
+                    </option>
+                ))}
+                </Input>
+            </FormGroup>
+            </Col>
+
+        <Col sm="3" className="d-flex align-items-end">
           <Button color="primary" onClick={applyToSelected} className="mb-3">
             Apply to Selected
           </Button>
@@ -344,6 +370,7 @@ const MikrotikClients = () => {
                 <th>Location</th>
                 <th>Phone</th>
                 <th>SMS Group</th>
+                <th>Brand</th>
               </tr>
             </thead>
             <tbody>
@@ -387,6 +414,13 @@ const MikrotikClients = () => {
                       onChange={(e) => updateClientField(indexOfFirstClient + index, 'smsGroup', e.target.value)}
                     />
                   </td>
+                  <td>
+                    <Input
+                      type="text"
+                      value={client.brand || ''}
+                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'brand', e.target.value)}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -418,14 +452,40 @@ const MikrotikClients = () => {
           {/* Import Clients Button */}
           <div className="mt-4 mb-3">
             <Button 
-              color="success" 
-              onClick={() => {
+                color="success" 
+                onClick={async () => {
                 console.log('Client Data:', clients);
-              }}
+                try {
+                    const payload = {
+                    router_id: selectedRouterId,  // Add router ID here
+                    clients: clients              // Include the array of clients
+                    };
+
+                    const response = await fetch('/backend/mikrotik/import-mikrotik-clients', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                    alert(`Successfully sent ${result.count} clients to the server`);
+                    } else {
+                    alert(`Error: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error importing clients:', error);
+                    alert('Failed to import clients. See console for details.');
+                }
+                }}
             >
-              Import Clients
+                Import Clients
             </Button>
-          </div>
+            </div>
+
         </>
       )}
 
