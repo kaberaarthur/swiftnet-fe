@@ -48,7 +48,7 @@ export const MenuList: MenuItem[] = [
           { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
           { path: `/clients/pppoeclients`, title: "PPPoE Clients", type: "link" },
           { path: `/clients/staticclients`, title: "Static Clients", type: "link" },
-          { path: `/clients/importexistingclients`, title: "Import Clients", type: "link" },
+          /*{ path: `/clients/importexistingclients`, title: "Import Clients", type: "link" },*/
           /*{ path: `/clients/clientslead`, title: "Clients Lead", type: "link" },*/
         ],
       },
