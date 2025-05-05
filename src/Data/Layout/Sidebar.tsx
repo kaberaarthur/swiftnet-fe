@@ -52,7 +52,7 @@ export const MenuList: MenuItem[] = [
           /*{ path: `/clients/clientslead`, title: "Clients Lead", type: "link" },*/
         ],
       },
-      {
+      /*{
         title: "Prepaid",
         id: 34,
         icon: "Ticket",
@@ -64,7 +64,7 @@ export const MenuList: MenuItem[] = [
           { path: `/prepaid/refillaccount`, title: "Refill Account", type: "link" },
           { path: `/prepaid/rechargeaccount`, title: "Recharge Account", type: "link" },
         ],
-      },
+      },*/
       {
         title: "Burst",
         id: 34,
@@ -97,10 +97,9 @@ export const MenuList: MenuItem[] = [
         type: "sub",
         active: false,
         children: [
-          { path: `/payments/mpesatransactions`, title: "Mpesa Transactions", type: "link" },
+          /*{ path: `/payments/mpesatransactions`, title: "Mpesa Transactions", type: "link" },*/
           { path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },
           { path: `/payments/mpesatransactionstatus`, title: "Transaction Status", type: "link" },
-
           { path: `/payments/pppoetransactions`, title: "PPPOE Transactions", type: "link" },
         ],
       },

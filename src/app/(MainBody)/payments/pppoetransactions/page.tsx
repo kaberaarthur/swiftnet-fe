@@ -1,11 +1,10 @@
 'use client'
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { Row, Button } from 'reactstrap';
+import { Row, Col, Button, Input, Table } from 'reactstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 
-// Define the MpesaTransaction interface
 interface MpesaTransaction {
   id: number;
   Amount: string;
@@ -20,87 +19,107 @@ interface MpesaTransaction {
   timestamp: string;
 }
 
-// MpesaTransactionsList component
 const MpesaTransactionsList: React.FC = () => {
   const [transactions, setTransactions] = useState<MpesaTransaction[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1); // Track current page
-  const itemsPerPage = 10; // Number of items per page
+  const [filteredTransactions, setFilteredTransactions] = useState<MpesaTransaction[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [phoneFilter, setPhoneFilter] = useState('');
+  const [receiptFilter, setReceiptFilter] = useState('');
+  const itemsPerPage = 10;
 
-  // Get user from Redux
   const user = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    if (!user || !user.company_id) {
-        return; // Do nothing if user is not loaded
-    }
+    if (!user || !user.company_id) return;
 
     const fetchTransactions = async () => {
-      const url = `/backend/pppoe-payments?company_id=${user.company_id}`; // API endpoint for fetching Mpesa transactions
-
       try {
-        const response = await fetch(url, {
+        const response = await fetch(`/backend/pppoe-payments?company_id=${user.company_id}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
 
         const data = await response.json();
-        console.log("Mpesa Transactions: ", data)
-        setTransactions(data); // Set transactions data
+        setTransactions(data);
+        setFilteredTransactions(data);
       } catch (error) {
         console.error('Failed to fetch Mpesa transactions:', error);
       }
     };
 
     fetchTransactions();
-  }, []);
+  }, [user]);
 
-  // Calculate the current slice of data for the current page
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = transactions.slice(indexOfFirstItem, indexOfLastItem);
-
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
-
-  // Function to handle page changes
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const handleSearch = () => {
+    const filtered = transactions.filter((t) =>
+      t.Phone.includes(phoneFilter) && t.MpesaReceiptNumber.includes(receiptFilter)
+    );
+    setFilteredTransactions(filtered);
+    setCurrentPage(1);
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentData = filteredTransactions.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+
   return (
-    <div className="overflow-x-auto pt-4">
-      <table className="min-w-full bg-white shadow-md rounded-lg">
-        <thead className="bg-gray-900">
+    <div className="pt-4">
+      {/* Filter Row */}
+      <Row className="mb-3">
+        <Col md={4}>
+          <Input
+            type="text"
+            placeholder="Filter by Phone"
+            value={phoneFilter}
+            onChange={(e) => setPhoneFilter(e.target.value)}
+          />
+        </Col>
+        <Col md={4}>
+          <Input
+            type="text"
+            placeholder="Filter by Mpesa Receipt"
+            value={receiptFilter}
+            onChange={(e) => setReceiptFilter(e.target.value)}
+          />
+        </Col>
+        <Col md={4}>
+          <Button color="primary" onClick={handleSearch}>
+            Search
+          </Button>
+        </Col>
+      </Row>
+
+      {/* Transactions Table */}
+      <Table responsive bordered hover>
+        <thead className="table-dark">
           <tr>
-            <th className="px-4 py-2 text-left text-gray-900">ID</th>
-            <th className="px-4 py-2 text-left text-gray-900">Amount</th>
-            <th className="px-4 py-2 text-left text-gray-900">Phone</th>
-            <th className="px-4 py-2 text-left text-gray-900">Mpesa Receipt</th>
-            <th className="px-4 py-2 text-left text-gray-900">Status</th>
-            <th className="px-4 py-2 text-left text-gray-900">Timestamp</th>
-            <th className="px-4 py-2 text-left text-gray-900">Manage</th>
+            <th>ID</th>
+            <th>Amount</th>
+            <th>Phone</th>
+            <th>Mpesa Receipt</th>
+            <th>Status</th>
+            <th>Timestamp</th>
+            <th>Manage</th>
           </tr>
         </thead>
         <tbody>
           {currentData.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-2 text-center">No Transactions Available</td>
+              <td colSpan={7} className="text-center">No Transactions Available</td>
             </tr>
           ) : (
             currentData.map((transaction) => (
-              <tr key={transaction.id} className="bg-white border-b">
-                <td className="px-4 py-2">{transaction.id}</td>
-                <td className="px-4 py-2">{transaction.Amount}</td>
-                <td className="px-4 py-2">{transaction.Phone}</td>
-                <td className="px-4 py-2">{transaction.MpesaReceiptNumber}</td>
-                <td className="px-4 py-2">{transaction.Status}</td>
-                <td className="px-4 py-2">{new Date(transaction.timestamp).toLocaleString()}</td>
-                <td className="px-4 py-2" style={{ color: "#2563eb" }}>
+              <tr key={transaction.id}>
+                <td>{transaction.id}</td>
+                <td>{transaction.Amount}</td>
+                <td>{transaction.Phone}</td>
+                <td>{transaction.MpesaReceiptNumber}</td>
+                <td>{transaction.Status}</td>
+                <td>{new Date(transaction.timestamp).toLocaleString()}</td>
+                <td style={{ color: "#2563eb" }}>
                   <i className="fa fa-pencil px-2"></i>
                   <i className="fa fa-trash-o"></i>
                 </td>
@@ -108,23 +127,17 @@ const MpesaTransactionsList: React.FC = () => {
             ))
           )}
         </tbody>
-      </table>
+      </Table>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => handlePageChange(currentPage - 1)}
-        >
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <Button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
           Previous
         </Button>
         <span>
           Page {currentPage} of {totalPages}
         </span>
-        <Button
-          disabled={currentPage === totalPages}
-          onClick={() => handlePageChange(currentPage + 1)}
-        >
+        <Button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>
           Next
         </Button>
       </div>
