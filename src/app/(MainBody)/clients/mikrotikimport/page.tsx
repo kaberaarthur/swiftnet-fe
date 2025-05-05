@@ -46,6 +46,7 @@ interface BackendClient {
   endDate?: string;
   location?: string;
   phone?: string;
+  full_name?: string;
   smsGroup?: string;
   brand?: string;
   isSelected?: boolean;
@@ -170,6 +171,7 @@ const MikrotikClients = () => {
                 endDate: '',
                 location: '',
                 phone: '',
+                full_name: '',
                 smsGroup: '',
                 isSelected: false
               })) 
@@ -364,12 +366,12 @@ const MikrotikClients = () => {
                     onChange={toggleSelectAll}
                   />
                 </th>
-                <th>Name</th>
-                <th>Password</th>
+                <th>Secret</th>
                 <th>Status</th>
                 <th>End Date</th>
                 <th>Location</th>
                 <th>Phone</th>
+                <th>Full Name</th>
                 <th>SMS Group</th>
                 <th>Brand</th>
               </tr>
@@ -385,7 +387,6 @@ const MikrotikClients = () => {
                     />
                   </td>
                   <td>{client.name}</td>
-                  <td>{client.password}</td>
                   <td>{client.disabled ? 'Disabled' : 'Active'}</td>
                   <td>
                     <Input
@@ -406,6 +407,13 @@ const MikrotikClients = () => {
                       type="text"
                       value={client.phone || ''}
                       onChange={(e) => updateClientField(indexOfFirstClient + index, 'phone', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      type="text"
+                      value={client.full_name || ''}
+                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'full_name', e.target.value)}
                     />
                   </td>
                   <td>
