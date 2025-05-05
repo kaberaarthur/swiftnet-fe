@@ -26,6 +26,7 @@ const TransactionCheck: React.FC = () => {
         if (response.status === 200) {
             // Successful response
             const data = await response.json();
+            console.log(data)
             setStatusResponse("Payment Was Received Successfully");
             setResponseColor(true);
         } else if (response.status === 404) {

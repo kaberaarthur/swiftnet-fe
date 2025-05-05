@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Input, Table } from 'reactstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
+import Cookies from "js-cookie";
+
 
 interface MpesaTransaction {
   id: number;
@@ -26,6 +28,7 @@ const MpesaTransactionsList: React.FC = () => {
   const [phoneFilter, setPhoneFilter] = useState('');
   const [receiptFilter, setReceiptFilter] = useState('');
   const itemsPerPage = 10;
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
   const user = useSelector((state: RootState) => state.user);
 
@@ -36,7 +39,7 @@ const MpesaTransactionsList: React.FC = () => {
       try {
         const response = await fetch(`/backend/pppoe-payments?company_id=${user.company_id}`, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
         });
 
         if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
