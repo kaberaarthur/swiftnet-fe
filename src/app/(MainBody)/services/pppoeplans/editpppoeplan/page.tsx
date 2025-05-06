@@ -11,6 +11,13 @@ import { RootState } from '../../../../../Redux/Store';
 
 // Save a Local Log
 import { postLocalLog } from '../../../logservice/logService';
+import Cookies from 'js-cookie';
+
+interface Brand {
+  id: number;
+  name: string;
+  company_id: number;
+}
 
 interface PlanData {
   plan_name: string;
@@ -28,6 +35,8 @@ const EditPPPoEPlan: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan_id = searchParams.get('plan_id');
+  const accessToken = Cookies.get('accessToken') || localStorage.getItem('accessToken');
+  
 
   console.log("Plan ID: ", plan_id);
 
@@ -38,6 +47,31 @@ const EditPPPoEPlan: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(""); // For dynamic alert messages
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [customAlert, setCustomAlert] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
+
+  // Fetch Brands
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch('/backend/brands', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const data = await response.json();
+      setBrands(data);
+    } catch (error) {
+      console.error('Failed to fetch brands:', error);
+      setCustomAlert({ type: 'danger', message: 'Failed to load brands.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+      fetchBrands();
+    }, []);
+  
 
   // Fetch Plan Details if plan_id exists
   useEffect(() => {
@@ -182,14 +216,20 @@ const EditPPPoEPlan: React.FC = () => {
               <tr>
                 <td>Brand</td>
                 <td>
-                  <Input
-                    type="text"
-                    name="brand" // Name matches the key in formData and PlanData
-                    bsSize="sm"
-                    value={formData.brand || ''} // Bind value to formData.brand
-                    onChange={handleInputChange} // Use the same handler
-                    placeholder="Enter brand name"
-                  />
+                    <Input
+                      type="select"
+                      name="brand"
+                      id="brand"
+                      value={formData.brand}
+                      onChange={handleInputChange}
+                    >
+                      <option value="">Select a brand</option>
+                      {brands.map((brand) => (
+                        <option key={brand.id} value={brand.name}>
+                          {brand.name}
+                        </option>
+                      ))}
+                    </Input>
                 </td>
               </tr>
               {/* --- End New Row --- */}

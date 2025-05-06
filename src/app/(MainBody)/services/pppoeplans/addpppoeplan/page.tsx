@@ -11,6 +11,9 @@ import { RootState } from '../../../../../Redux/Store';
 // Save a Local Log
 import { postLocalLog } from '../../../logservice/logService';
 
+import Cookies from "js-cookie";
+
+
 interface FormData {
   company_id: number | null;
   company_username: string;
@@ -22,6 +25,7 @@ interface FormData {
   shared_users: number;
   type: string;
   pool_name: string;
+  brand: string;
 }
 
 // Router Interface
@@ -37,6 +41,12 @@ interface Bandwidth {
   rate: number;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+  company_id: number;
+}
+
 const AddPPPoEPlan: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
 
@@ -46,6 +56,10 @@ const AddPPPoEPlan: React.FC = () => {
   // Alerts
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [customAlert, setCustomAlert] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+  
 
   // Form data state
   const [formData, setFormData] = useState<FormData>({
@@ -58,8 +72,27 @@ const AddPPPoEPlan: React.FC = () => {
     company_id: user.company_id || 0,
     company_username: user.company_username || "",
     type: "pppoe",
-    pool_name: ""
+    pool_name: "",
+    brand: ""
   });
+
+  // Fetch Brands
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch('/backend/brands', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const data = await response.json();
+      setBrands(data);
+    } catch (error) {
+      console.error('Failed to fetch brands:', error);
+      setCustomAlert({ type: 'danger', message: 'Failed to load brands.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // useEffect to update formData when user data is loaded
   useEffect(() => {
@@ -152,7 +185,8 @@ const AddPPPoEPlan: React.FC = () => {
         company_id: user.company_id || 0,
         company_username: user.company_username || "",
         type: "pppoe",
-        pool_name: ""
+        pool_name: "",
+        brand: "",
       });
     } catch (error) {
       console.error("Error adding PPPoE plan:", error);
@@ -164,6 +198,9 @@ const AddPPPoEPlan: React.FC = () => {
     }
  };
   
+ useEffect(() => {
+    fetchBrands();
+  }, []);
 
   return (
     <>
@@ -253,19 +290,23 @@ const AddPPPoEPlan: React.FC = () => {
               min="1"
             />
           </Col>
-          
-          <Col sm="6">
-            <Label>{'Pool Name'}</Label>
-            <Input
-              value={formData.pool_name}
-              name="pool_name"
-              type="text"
-              placeholder="Enter Pool Name"
-              onChange={handleInputChange}
-            />
-          </Col>
 
           <Col sm="6">
+            <Label for="brand">Brand</Label>
+            <Input
+              type="select"
+              name="brand"
+              id="brand"
+              value={formData.brand}
+              onChange={handleInputChange}
+            >
+              <option value="">Select a brand</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.name}>
+                  {brand.name}
+                </option>
+              ))}
+            </Input>
           </Col>
 
           <Col sm="6">
