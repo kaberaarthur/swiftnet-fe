@@ -137,7 +137,7 @@ const PPPoEPlansList: React.FC = () => {
             currentData.map((plan) => (
               <tr key={plan.id} className="bg-white border-b">
                 <td className="px-4 py-2">
-                  <Link href={`/pppoeplans/details/${plan.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
+                  <Link href={`/services/pppoeplans/editpppoeplan?plan_id=${plan.id}`} className="hover:underline" style={{ color: "#2563eb" }}>
                     {plan.id}
                   </Link>
                 </td>
@@ -151,7 +151,7 @@ const PPPoEPlansList: React.FC = () => {
                   <Link href={`/services/pppoeplans/editpppoeplan?plan_id=${plan.id}`}>
                     <i className="fa fa-pencil px-2" style={{ cursor: 'pointer' }}></i>
                   </Link>
-                  <i className="fa fa-trash-o" style={{ cursor: 'pointer' }} onClick={() => {}}></i>
+                  <i className="fa fa-trash-o" style={{ cursor: 'pointer', color: 'blue' }} onClick={() => {}}></i>
                 </td>
               </tr>
             ))

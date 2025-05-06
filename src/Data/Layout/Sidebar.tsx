@@ -64,7 +64,7 @@ export const MenuList: MenuItem[] = [
           { path: `/prepaid/refillaccount`, title: "Refill Account", type: "link" },
           { path: `/prepaid/rechargeaccount`, title: "Recharge Account", type: "link" },
         ],
-      },*/
+      },
       {
         title: "Burst",
         id: 34,
@@ -75,7 +75,7 @@ export const MenuList: MenuItem[] = [
           { path: `/burst/addburst`, title: "Add Burst", type: "link" },
           { path: `/burst/burstlist`, title: "Burst List", type: "link" },
         ],
-      },
+      },*/
       {
         title: "Services",
         id: 34,
@@ -87,7 +87,7 @@ export const MenuList: MenuItem[] = [
           { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
           { path: `/services/pppoeplans`, title: "PPPOE Plans", type: "link" },
           { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
-          { path: `/services/bandwidthplans`, title: "Bandwidth Plans", type: "link" },
+          /*{ path: `/services/bandwidthplans`, title: "Bandwidth Plans", type: "link" },*/
         ],
       },
       {

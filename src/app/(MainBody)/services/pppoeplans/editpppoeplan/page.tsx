@@ -195,15 +195,11 @@ const EditPPPoEPlan: React.FC = () => {
               {/* --- End New Row --- */}
               <tr>
                 <td>Plan Validity</td>
-                <td>{planData.plan_validity} days</td>
-              </tr>
-               <tr>
-                <td>Shared Users</td>
-                <td>{planData.shared_users}</td>
-              </tr>
-               <tr>
-                <td>Pool Name</td>
-                <td>{planData.pool_name}</td>
+                <td>
+                  {typeof planData.plan_validity === 'number'
+                    ? `${Math.floor(planData.plan_validity / 24)} days`
+                    : 'Invalid validity'}
+                </td>
               </tr>
                <tr>
                 <td>Router ID</td>
