@@ -50,11 +50,19 @@ interface PPPOEPlan {
   plan_price: number;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+  company_id: number;
+}
+
 const EditClient: React.FC = () => {
   const searchParams = useSearchParams();
   const client_id = searchParams.get("client_id");
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [alert, setAlert] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
 
   const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
@@ -109,67 +117,85 @@ const EditClient: React.FC = () => {
 
   const user = useSelector((state: RootState) => state.user);
 
-  // Fetch client data
-useEffect(() => {
-  if (client_id) {
-    const fetchClientData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/backend/pppoe-clients/${client_id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method as needed
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+  // Fetch Brands
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch('/backend/brands', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
         }
+      });
+      const data = await response.json();
+      setBrands(data);
+    } catch (error) {
+      console.error('Failed to fetch brands:', error);
+      setAlert({ type: 'danger', message: 'Failed to load brands.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const clientData = await response.json();
+  // Fetch client data
+  useEffect(() => {
+    if (client_id) {
+      const fetchClientData = async () => {
+        setLoading(true);
+        try {
+          const response = await fetch(`/backend/pppoe-clients/${client_id}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method as needed
+            }
+          });
 
-        clientData.end_date = new Date(clientData.end_date);
-        clientData.end_date.setHours(clientData.end_date.getHours() + 4);
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
 
-        console.log("DB Date (UTC+3):", clientData.end_date);
+          const clientData = await response.json();
 
-        // Convert end_date to "yyyy-MM-dd" format
-        const formattedEndDate = clientData.end_date
-          ? new Date(clientData.end_date).toISOString().split("T")[0]
-          : "";
+          clientData.end_date = new Date(clientData.end_date);
+          clientData.end_date.setHours(clientData.end_date.getHours() + 4);
 
-        setFormData({
-          phone_number: clientData.phone_number,
-          full_name: clientData.full_name,
-          location: clientData.location,
-          sms_group: clientData.sms_group,
-          end_date: formattedEndDate,
-          plan_id: clientData.plan_id,
-          plan_name: clientData.plan_name,
-          plan_fee: clientData.plan_fee,
-          installation_fee: clientData.installation_fee,
-          router_id: clientData.router_id,
-          company_id: clientData.company_id,
-          company_username: clientData.company_username,
-          secret: clientData.secret,
-          brand: clientData.brand,
-          comments: clientData.comments,
-        });
+          console.log("DB Date (UTC+3):", clientData.end_date);
 
-        console.log("Current Client Date: ", formattedEndDate);
-        setEndDate(formattedEndDate);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching client data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+          // Convert end_date to "yyyy-MM-dd" format
+          const formattedEndDate = clientData.end_date
+            ? new Date(clientData.end_date).toISOString().split("T")[0]
+            : "";
 
-    fetchClientData();
-  }
-}, [client_id]);
+          setFormData({
+            phone_number: clientData.phone_number,
+            full_name: clientData.full_name,
+            location: clientData.location,
+            sms_group: clientData.sms_group,
+            end_date: formattedEndDate,
+            plan_id: clientData.plan_id,
+            plan_name: clientData.plan_name,
+            plan_fee: clientData.plan_fee,
+            installation_fee: clientData.installation_fee,
+            router_id: clientData.router_id,
+            company_id: clientData.company_id,
+            company_username: clientData.company_username,
+            secret: clientData.secret,
+            brand: clientData.brand,
+            comments: clientData.comments,
+          });
+
+          console.log("Current Client Date: ", formattedEndDate);
+          setEndDate(formattedEndDate);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error fetching client data:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchClientData();
+    }
+  }, [client_id]);
 
 
   // Fetch routers
@@ -411,6 +437,10 @@ useEffect(() => {
     }
   };
 
+  useEffect(() => {
+      fetchBrands();
+    }, []);
+
   return (
     <Container fluid>
       <Breadcrumbs
@@ -488,13 +518,21 @@ useEffect(() => {
           />
         </Col>
         <Col sm="6">
-          <Label>Brand</Label>
+          <Label for="brand">Brand</Label>
           <Input
-            type="text"
+            type="select"
             name="brand"
+            id="brand"
             value={formData.brand}
             onChange={handleInputChange}
-          />
+          >
+            <option value="">Select a brand</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.name}>
+                {brand.name}
+              </option>
+            ))}
+          </Input>
         </Col>
 
         <Col sm="6">

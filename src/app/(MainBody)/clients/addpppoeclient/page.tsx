@@ -13,8 +13,6 @@ import { postLocalLog } from '../../logservice/logService';
 
 import Cookies from "js-cookie";
 
-
-
 interface FormData {
   account: string;
   full_name: string;
@@ -53,10 +51,18 @@ interface PPPOEPlan {
   rate_limit_string: string;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+  company_id: number;
+}
+
 const AddNewClient: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [routers, setRouters] = useState<Router[]>([]);
   const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [alert, setAlert] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
 
   // Alerts
   const [visible, setVisible] = useState(false);
@@ -65,6 +71,24 @@ const AddNewClient: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
 
   const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
+  // Fetch Brands
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch('/backend/brands', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const data = await response.json();
+      setBrands(data);
+    } catch (error) {
+      console.error('Failed to fetch brands:', error);
+      setAlert({ type: 'danger', message: 'Failed to load brands.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch routers based on the company_id
   useEffect(() => {
@@ -102,8 +126,8 @@ const AddNewClient: React.FC = () => {
     secret: "",
     payment_no: "",
     sms_group: "",
-    installation_fee: "",
-    router_id: 0, 
+    installation_fee: "0.00",
+    router_id: 0,
     company_id: 0,
     company_username: "",
     active: 1,
@@ -149,70 +173,89 @@ const AddNewClient: React.FC = () => {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    
+    setFormData((prevData) => {
+      // Special handling for plan_id to update related plan fields
+      if (name === 'plan_id' && value) {
+        const selectedPlan = pppoePlans.find(plan => plan.id === parseInt(value));
+        if (selectedPlan) {
+          return {
+            ...prevData,
+            plan_id: parseInt(value),
+            plan_name: selectedPlan.plan_name,
+            plan_fee: selectedPlan.plan_price,
+            rate_limit: selectedPlan.rate_limit_string
+          };
+        }
+      }
+      
+      // Normal handling for other fields
+      return {
+        ...prevData,
+        [name]: value,
+      };
+    });
   };
 
   const handleAddClient = async () => {
     setLoading(true);
     try {
-        console.log(formData);
+      console.log(formData);
 
-        // Send a POST request to the backend
-        const response = await fetch('/backend/pppoe-clients', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}` || ""
-            },
-            body: JSON.stringify(formData),
-        });
+      // Send a POST request to the backend
+      const response = await fetch('/backend/pppoe-clients', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}` || ""
+          },
+          body: JSON.stringify(formData),
+      });
 
-        // Parse the JSON response
-        const result = await response.json();
+      // Parse the JSON response
+      const result = await response.json();
 
-        if (response.ok) {
-            console.log('Client added successfully:', result);
-            
-            // Simulate successful submission and show alert
-            setVisible(true);
-        
-            // After success post a log
-            postLocalLog(`${user.name} Added a PPPoE client using secret ${formData.secret}`, user, formData.router_id);
-        
-            // Hide alert after 5 seconds
-            setTimeout(() => {
-              setLoading(false);
-              setVisible(false);
-              // Redirect to the list page
-              window.location.href = "/clients/pppoeclients";
-            }, 4000);
-        } else {
+      if (response.ok) {
+          console.log('Client added successfully:', result);
+          
+          // Simulate successful submission and show alert
+          setVisible(true);
+      
+          // After success post a log
+          postLocalLog(`${user.name} Added a PPPoE client using secret ${formData.secret}`, user, formData.router_id);
+      
+          // Hide alert after 5 seconds
+          setTimeout(() => {
             setLoading(false);
-            console.error('Failed to add client:', result.message || 'Unknown error');
-            if(result.message) {
-              setAlertMessage("Error adding client: " + result.message);
-            } else {
-              setAlertMessage("Error adding client: Unknown error");
-            }
-            
-        }
+            setVisible(false);
+            // Redirect to the list page
+            window.location.href = "/clients/pppoeclients";
+          }, 4000);
+      } else {
+          setLoading(false);
+          console.error('Failed to add client:', result.message || 'Unknown error');
+          if(result.message) {
+            setAlertMessage("Error adding client: " + result.message);
+          } else {
+            setAlertMessage("Error adding client: Unknown error");
+          }
+          
+      }
     } catch (error) {
-        setLoading(false);
-        console.error('Error adding client:', error);
-        setAlertMessage("Error adding client");
-
+      setLoading(false);
+      console.error('Error adding client:', error);
+      setAlertMessage("Error adding client");
     }
   };
 
+  useEffect(() => {
+    fetchBrands();
+  }, []);
 
   return (
     <>
       <Breadcrumbs mainTitle={'Add a Client'} parent={FormsControl} />
       <Container fluid>
-        
         <Row className="g-3">
           <Col sm="6">
             <Label>{'Full Name'}</Label>
@@ -355,13 +398,21 @@ const AddNewClient: React.FC = () => {
           </Col>
 
           <Col sm="6">
-            <Label>Brand</Label>
+            <Label for="brand">Brand</Label>
             <Input
-              type="text"
+              type="select"
               name="brand"
+              id="brand"
               value={formData.brand}
               onChange={handleInputChange}
-            />
+            >
+              <option value="">Select a brand</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.name}>
+                  {brand.name}
+                </option>
+              ))}
+            </Input>
           </Col>
 
           <Col sm="6">
