@@ -1,514 +1,182 @@
-'use client';
-import React, { useState, useEffect, ChangeEvent } from 'react';
+'use client'
+import Link from 'next/link';
+import React, { useEffect, useState, useRef } from 'react';
+import { Row, Button, Alert, Badge, Modal, ModalHeader, ModalBody, ModalFooter, Col } from 'reactstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
-import Cookies from 'js-cookie';
-import {
-  Container,
-  Row,
-  Col,
-  Input,
-  Label,
-  Table,
-  Spinner,
-  Alert,
-  Button,
-  FormGroup,
-} from 'reactstrap';
+import config from "../../config/config.json";
+import Cookies from "js-cookie";
 
-interface Router {
+// Define the TableRow interface
+interface TableRow {
   id: number;
   router_name: string;
-  company_id: number;
+  ip_address: string;
+  username: string;
+  router_secret: string;
+  interface: string;
+  description: string;
+  status: number;
 }
 
-interface Brand {
-  id: number;
-  name: string;
-  company_id: number;
-}
-
-interface PPPOEPlan {
-  id: number;
-  plan_name: string;
-  plan_validity: number;
-  plan_price: number;
-  rate_limit_string: string;
-}
-
-interface BackendClient {
-  index: number;
-  disabled: boolean;
-  name: string;
-  password: string;
-  profile: string;
-  service: string;
-  endDate?: string;
-  location?: string;
-  phone?: string;
-  full_name?: string;
-  smsGroup?: string;
-  brand?: string;
-  isSelected?: boolean;
-}
-
-const MikrotikClients = () => {
-  const [routers, setRouters] = useState<Router[]>([]);
-  const [selectedRouterId, setSelectedRouterId] = useState<string>('');
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
-  const [clients, setClients] = useState<BackendClient[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [importLoading, setImportLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectAll, setSelectAll] = useState(false);
-  const [bulkLocation, setBulkLocation] = useState('');
-  const [bulkSmsGroup, setBulkSmsGroup] = useState('');
-  const [bulkBrand, setBulkBrand] = useState('');
-  const itemsPerPage = 20;
-
+// RoutersList component
+const RoutersList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  const accessToken = Cookies.get('accessToken') || localStorage.getItem('accessToken');
+  const [routers, setRouters] = useState<TableRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [modal, setModal] = useState(false);
+  const [selectedRouterId, setSelectedRouterId] = useState<number | null>(null);
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch brands once
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
   useEffect(() => {
-    const fetchBrands = async () => {
-      setLoading(true);
+    const fetchRouters = async () => {
+      const url = `${config.baseUrl}/routers?company_id=${user.company_id}`;
+    
       try {
-        const response = await fetch('/backend/brands', {
-          headers: { Authorization: `Bearer ${accessToken}` },
+        const response = await fetch(url, {
+          method: 'GET', // Explicitly specifying GET method (optional since it's the default)
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          }
         });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch routers');
+        }
         const data = await response.json();
-        setBrands(data);
+        setRouters(data);
       } catch (error) {
-        console.error('Failed to fetch brands:', error);
-        setError(true);
-      } finally {
-        setLoading(false);
+        const errorMessage = (error as Error).message || 'An unknown error occurred';
+        console.error('Error fetching routers:', errorMessage);
+        setError(errorMessage);
       }
     };
-    fetchBrands();
-  }, [accessToken]);
-
-  // Fetch routers
-  useEffect(() => {
-    if (user.company_id) {
-      setLoading(true);
-      const fetchRouters = async () => {
-        try {
-          const response = await fetch(`/backend/routers?company_id=${user.company_id}`);
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const data = await response.json();
-          
-          // Ensure data is an array before setting state
-          if (Array.isArray(data)) {
-            setRouters(data);
-            if (data.length > 0) setSelectedRouterId(String(data[0].id));
-          } else {
-            console.error('Routers data is not an array:', data);
-            setRouters([]);
-            setError(true);
-          }
-        } catch (error) {
-          console.error('Error fetching routers:', error);
-          setRouters([]);
-          setError(true);
-        } finally {
-          setLoading(false);
-        }
-      };
+    
+    if (user && user.company_id) {
       fetchRouters();
     }
-  }, [user.company_id]);
+  }, [user]);
 
-  // Fetch PPPoE Plans on router change
-  useEffect(() => {
-    const fetchPlans = async () => {
-      if (selectedRouterId && user.company_id) {
-        setLoading(true);
-        try {
-          const response = await fetch(
-            `/backend/pppoe-plans?router_id=${selectedRouterId}&company_id=${user.company_id}&type=pppoe`
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const data = await response.json();
-          setPppoePlans(Array.isArray(data) ? data : []);
-        } catch (error) {
-          console.error('Error fetching PPPoE plans:', error);
-          setPppoePlans([]);
-          setError(true);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchPlans();
-  }, [selectedRouterId, user.company_id]);
-
-  // Fetch PPPoE Users (secrets) from MikroTik
-  useEffect(() => {
-    const fetchClients = async () => {
-      if (selectedRouterId) {
-        setLoading(true);
-        try {
-          const response = await fetch(`/backend/mikrotik/pppoe-users/${selectedRouterId}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          const data = await response.json();
-          
-          // Add the new fields and isSelected property to each client
-          const enhancedData = Array.isArray(data) 
-            ? data.map(client => ({
-                ...client,
-                endDate: '',
-                location: '',
-                phone: '',
-                full_name: '',
-                smsGroup: '',
-                isSelected: false
-              })) 
-            : [];
-            
-          setClients(enhancedData);
-        } catch (error) {
-          console.error('Error fetching PPPoE secrets:', error);
-          setClients([]);
-          setError(true);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchClients();
-  }, [selectedRouterId, accessToken]);
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSelectedRouterId(e.target.value);
-  };
-
-  const handleBulkLocationChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setBulkLocation(e.target.value);
-  };
-
-  const handleBulkSmsGroupChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setBulkSmsGroup(e.target.value);
-  };
-
-  const handleBulkBrandChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setBulkBrand(e.target.value);
-  };
-
-  // Toggle selection for a single client
-  const toggleSelect = (index: number) => {
-    setClients(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], isSelected: !updated[index].isSelected };
-      
-      // Check if all are selected to update selectAll state
-      const allSelected = updated.every(client => client.isSelected);
-      setSelectAll(allSelected);
-      
-      return updated;
-    });
-  };
-
-  // Toggle selection for all clients
-  const toggleSelectAll = () => {
-    const newSelectAll = !selectAll;
-    setSelectAll(newSelectAll);
+  // Synchronize scrolling between top scrollbar and table
+  const handleScroll = (source: 'top' | 'table') => {
+    const topScroll = topScrollRef.current;
+    const tableScroll = tableScrollRef.current;
     
-    setClients(prev => 
-      prev.map(client => ({
-        ...client,
-        isSelected: newSelectAll
-      }))
-    );
+    if (!topScroll || !tableScroll) return;
+
+    if (source === 'top') {
+      tableScroll.scrollLeft = topScroll.scrollLeft;
+    } else {
+      topScroll.scrollLeft = tableScroll.scrollLeft;
+    }
   };
 
-  // Apply bulk update to selected clients
-  const applyToSelected = () => {
-    setClients(prev => 
-      prev.map(client => {
-        if (client.isSelected) {
-          return {
-            ...client,
-            location: bulkLocation || client.location,
-            smsGroup: bulkSmsGroup || client.smsGroup,
-            brand: bulkBrand || client.brand,
-          };
-        }
-        return client;
-      })
-    );
-    
-    // Optional: Clear bulk fields after applying
-    setBulkLocation('');
-    setBulkSmsGroup('');
+  const toggleModal = () => setModal(!modal);
+
+  const handleDeleteClick = (routerId: number) => {
+    setSelectedRouterId(routerId);
+    toggleModal();
   };
 
-  // Update a specific field for a client
-  const updateClientField = (index: number, field: keyof BackendClient, value: string) => {
-    setClients(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
-  };
+  const handleDelete = async () => {
+    if (!selectedRouterId) return;
 
-  // Calculate pagination
-  const indexOfLastClient = currentPage * itemsPerPage;
-  const indexOfFirstClient = indexOfLastClient - itemsPerPage;
-  const currentClients = clients.slice(indexOfFirstClient, indexOfLastClient);
-  const totalPages = Math.ceil(clients.length / itemsPerPage);
+    try {
+      const response = await fetch(`${config.baseUrl}/routers/${selectedRouterId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}` 
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete router');
+      }
+
+      setRouters(routers.filter(router => router.id !== selectedRouterId));
+      setError(null);
+      toggleModal();
+      
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'An unknown error occurred';
+      console.error('Error deleting router:', errorMessage);
+      setError(errorMessage);
+      toggleModal();
+    }
+  };
 
   return (
-    <Container className="mt-4">
-      <h3>MikroTik Clients</h3>
+    <div className="pt-4 px-4">
+      <div className='py-2'>
+        <Row sm="6">
+          <Col sm="6">
+            <p className='text-xl'>
+              Showing <span className='font-bold'>{routers.length}</span> Router{routers.length !== 1 ? 's' : ''}
+            </p>
+          </Col>
+        </Row>
+      </div>
+      {error && <Alert color="danger">{error}</Alert>}
 
-      <Row className="mb-3">
-        <Col sm="6">
-          <Label for="routerSelect">{'Routers'}</Label>
-          <Input
-            type="select"
-            name="router_id"
-            id="routerSelect"
-            value={selectedRouterId}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Select Router</option>
-            {Array.isArray(routers) && routers.map((router) => (
-              <option key={router.id} value={router.id}>
-                {router.router_name}
-              </option>
-            ))}
-          </Input>
-        </Col>
-      </Row>
-
-      {/* Bulk update row */}
-      <Row className="mb-3">
-        <Col sm="3">
-          <FormGroup>
-            <Label for="bulkLocation">Location</Label>
-            <Input
-              type="text"
-              id="bulkLocation"
-              value={bulkLocation}
-              onChange={handleBulkLocationChange}
-              placeholder="Enter location"
-            />
-          </FormGroup>
-        </Col>
-        <Col sm="3">
-          <FormGroup>
-            <Label for="bulkSmsGroup">SMS Group</Label>
-            <Input
-              type="text"
-              id="bulkSmsGroup"
-              value={bulkSmsGroup}
-              onChange={handleBulkSmsGroupChange}
-              placeholder="Enter SMS group"
-            />
-          </FormGroup>
-        </Col>
-        <Col sm="3">
-            <FormGroup>
-                <Label for="bulkBrandGroup">Brand</Label>
-                <Input
-                type="select"
-                id="bulkBrandGroup"
-                value={bulkBrand}
-                onChange={handleBulkBrandChange}
-                >
-                <option value="">Select Brand</option>
-                {brands.map((brand) => (
-                    <option key={brand.id} value={brand.name}>
-                    {brand.name}
-                    </option>
-                ))}
-                </Input>
-            </FormGroup>
-            </Col>
-
-        <Col sm="3" className="d-flex align-items-end">
-          <Button color="primary" onClick={applyToSelected} className="mb-3">
-            Apply to Selected
-          </Button>
-        </Col>
-      </Row>
-
-      {loading && (
-        <div className="my-3">
-          <Spinner color="primary" size="sm" />
-          <span className="ms-2">Loading...</span>
-        </div>
-      )}
-
-      {currentClients.length > 0 && !loading && (
-        <>
-          <h5>PPP Secrets</h5>
-          <Table striped responsive bordered>
-            <thead>
-              <tr>
-                <th>
-                  <Input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                <th>Secret</th>
-                <th>Status</th>
-                <th>End Date</th>
-                <th>Location</th>
-                <th>Phone</th>
-                <th>Full Name</th>
-                <th>SMS Group</th>
-                <th>Brand</th>
+      {/* Table Container */}
+      <div>
+        <table className="min-w-full bg-white shadow-md rounded-lg">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left">ID</th>
+              <th className="px-4 py-2 text-left">Router Name</th>
+              <th className="px-4 py-2 text-left">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {routers.map((data) => (
+              <tr key={data.id} className="border-b">
+                <td className="px-4 py-2">
+                  <div className="d-flex justify-content-center primary">
+                    <Link href={`/clients/mikrotikimport/singleimport?router_id=${data.id}`} style={{ color: "#0d6efd" }}>
+                      {data.id}
+                    </Link>
+                  </div>
+                </td>
+                <td className="px-4 py-2">{data.router_name}</td>
+                <td className="px-4 py-2">
+                    <Link href={`/clients/mikrotikimport/singleimport?router_id=${data.id}`}>
+                      <Button 
+                        color="success"
+                      >
+                        Import Clients
+                      </Button>
+                    </Link>
+                  
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {currentClients.map((client, index) => (
-                <tr key={index}>
-                  <td>
-                    <Input
-                      type="checkbox"
-                      checked={client.isSelected || false}
-                      onChange={() => toggleSelect(indexOfFirstClient + index)}
-                    />
-                  </td>
-                  <td>{client.name}</td>
-                  <td>{client.disabled ? 'Disabled' : 'Active'}</td>
-                  <td>
-                    <Input
-                      type="date"
-                      value={client.endDate || ''}
-                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'endDate', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      type="text"
-                      value={client.location || ''}
-                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'location', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      type="text"
-                      value={client.phone || ''}
-                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'phone', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      type="text"
-                      value={client.full_name || ''}
-                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'full_name', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      type="text"
-                      value={client.smsGroup || ''}
-                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'smsGroup', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      type="text"
-                      value={client.brand || ''}
-                      onChange={(e) => updateClientField(indexOfFirstClient + index, 'brand', e.target.value)}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-          {/* Pagination Controls */}
-          <div className="d-flex justify-content-between align-items-center mt-3">
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <div>
-              <button
-                className="btn btn-sm btn-outline-primary me-2"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </button>
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-          
-          {/* Import Clients Button */}
-          <div className="mt-4 mb-3">
-            <Button 
-                color="success" 
-                disabled={loading}
-                onClick={async () => {
-                    setImportLoading(true);
-                    console.log('Client Data:', clients);
-                    try {
-                    const payload = {
-                        router_id: selectedRouterId,
-                        clients: clients
-                    };
-
-                    const response = await fetch('/backend/mikrotik/import-mikrotik-clients', {
-                        method: 'POST',
-                        headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        alert(`Successfully imported ${result.count} clients`);
-                    } else {
-                        alert(`Error: ${result.error}`);
-                    }
-                    } catch (error) {
-                    console.error('Error importing clients:', error);
-                    alert('Failed to import clients. See console for details.');
-                    } finally {
-                    setImportLoading(false);
-                    }
-                }}
-              >
-                {importLoading ? <><Spinner size="sm" /> Importing...</> : 'Import Clients'}
-              </Button>
-            </div>
-
-        </>
-      )}
-
-      {error && !loading && (
-        <Alert color="danger" className="mt-3">
-          Data Could Not Be Fetched
-        </Alert>
-      )}
-    </Container>
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={modal} toggle={toggleModal}>
+        <ModalHeader toggle={toggleModal}>Confirm Delete</ModalHeader>
+        <ModalBody>
+          Are you sure you want to delete this router? This action cannot be undone.
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" onClick={handleDelete}>
+            Delete
+          </Button>{' '}
+          <Button color="primary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </div>
   );
 };
 
-export default MikrotikClients;
+export default RoutersList;
