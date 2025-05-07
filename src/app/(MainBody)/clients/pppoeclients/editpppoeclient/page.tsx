@@ -347,6 +347,8 @@ const EditClient: React.FC = () => {
   // The updateClient function, moved into a useEffect that listens to shouldUpdateClient
   useEffect(() => {
     const updateClient = async () => {
+      setLoading(true);
+
       console.log("Editing User: ", formData);
       try {
         const response = await fetch(`/backend/edit-pppoe-client/${client_id}`, {
@@ -378,9 +380,7 @@ const EditClient: React.FC = () => {
         setAlertMessage("An error occurred while updating the client.");
       }
 
-        /*setTimeout(() => {
-          window.location.reload();
-        }, 1000); // 10000 milliseconds = 10 seconds*/
+      setLoading(false);
         
     };
 
