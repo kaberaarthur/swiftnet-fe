@@ -456,7 +456,7 @@ const MikrotikClients = () => {
                     try {
                     const payload = {
                         router_id: selectedRouterId,
-                        clients: clients
+                        clients: clients.filter(client => client.isSelected) // Sending only selected clients
                     };
 
                     const response = await fetch('/backend/mikrotik/import-mikrotik-clients', {
