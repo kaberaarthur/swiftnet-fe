@@ -34,6 +34,7 @@ interface TableRow {
   plan_fee: number;
   portal_password: string;
   brand?: string;
+  comments?: string;
   router_id?: number;
 }
 
@@ -412,6 +413,7 @@ const ClientsList: React.FC = () => {
                 <th>Active Status</th>
                 <th>End Date</th>
                 <th>Brand</th>
+                <th>Comments</th>
                 <th>Action</th>
                 <th>Delete</th>
               </tr>
@@ -437,6 +439,7 @@ const ClientsList: React.FC = () => {
                     <td>{data.active === 1 ? 'Active' : 'Inactive'}</td>
                     <td>{formatDate(data.end_date)}</td>
                     <td>{data.brand || 'N/A'}</td>
+                    <td>{data.comments || 'N/A'}</td>
                     <td>
                       <Link href={`/authentication/acustomer?id=${data.id}`}>
                         <Button color="primary" size="sm">Payment</Button>
