@@ -111,7 +111,7 @@ const RoutersList: React.FC = () => {
   };
 
   return (
-    <div className="pt-4">
+    <div className="pt-4 px-4">
       <div className='py-2'>
         <Row sm="6">
           <Col sm="6">
@@ -152,7 +152,6 @@ const RoutersList: React.FC = () => {
               <th className="px-4 py-2 text-left">IP Address</th>
               <th className="px-4 py-2 text-left">Username</th>
               <th className="px-4 py-2 text-left">Router Secret</th>
-              <th className="px-4 py-2 text-left">Interface</th>
               <th className="px-4 py-2 text-left">Description</th>
               <th className="px-4 py-2 text-left">Status</th>
               <th className="px-4 py-2 text-left">Delete</th>
@@ -172,7 +171,6 @@ const RoutersList: React.FC = () => {
                 <td className="px-4 py-2">{data.ip_address}</td>
                 <td className="px-4 py-2">{data.username}</td>
                 <td className="px-4 py-2">{data.router_secret}</td>
-                <td className="px-4 py-2">{data.interface}</td>
                 <td className="px-4 py-2">{data.description}</td>
                 <td className="px-4 py-2">
                   <Badge 

@@ -191,7 +191,7 @@ const EditRouter: React.FC = () => {
   return (
     <>
       <Breadcrumbs mainTitle={'Edit Router'} parent={FormsControl} />
-      <Container fluid>
+      <Container fluid className='pb-4'>
         <Row className="g-3">
           {notFound ? (
             <Col sm="12">

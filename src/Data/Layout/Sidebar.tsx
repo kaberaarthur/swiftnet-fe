@@ -111,7 +111,7 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           { path: `/network/routers`, title: "Routers", type: "link" },
-          { path: `/network/ippool`, title: "IP Pool", type: "link" },
+          // { path: `/network/ippool`, title: "IP Pool", type: "link" },
         ]
       },
       {
