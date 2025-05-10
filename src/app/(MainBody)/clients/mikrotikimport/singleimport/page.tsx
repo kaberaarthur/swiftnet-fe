@@ -50,6 +50,7 @@ interface BackendClient {
   full_name?: string;
   smsGroup?: string;
   brand?: string;
+  comment?: string;
   isSelected?: boolean;
 }
 
@@ -82,6 +83,34 @@ const MikrotikClients = () => {
 
   const user = useSelector((state: RootState) => state.user);
   const accessToken = Cookies.get('accessToken') || localStorage.getItem('accessToken');
+
+    const [routerDetails, setRouterDetails] = useState<Router | null>(null);
+    const [loadingRouter, setLoadingRouter] = useState(false);
+    const [routerError, setRouterError] = useState(false);
+
+  useEffect(() => {
+    const fetchRouter = async () => {
+      if (!router_id) return;
+  
+      setLoadingRouter(true);
+      try {
+        const response = await fetch(`/backend/routers/${router_id}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!response.ok) throw new Error('Failed to fetch router');
+  
+        const data = await response.json();
+        setRouterDetails(data);
+      } catch (error) {
+        console.error('Failed to fetch router:', error);
+        setRouterError(true);
+      } finally {
+        setLoadingRouter(false);
+      }
+    };
+  
+    fetchRouter();
+  }, [accessToken, router_id]);
 
   // Fetch brands once
   useEffect(() => {
@@ -250,7 +279,7 @@ const MikrotikClients = () => {
 
   return (
     <Container className="mt-4">
-      <h3>MikroTik Clients</h3>
+      <h3>Import Clients to {routerDetails?.router_name || '...'}</h3>
 
       {/* Bulk update row */}
       <Row className="mb-3">
