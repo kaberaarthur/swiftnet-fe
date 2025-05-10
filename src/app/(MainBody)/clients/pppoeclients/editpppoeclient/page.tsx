@@ -21,6 +21,7 @@ import Cookies from "js-cookie";
 import config from "../../../config/config.json";
 
 interface FormData {
+  active: number;
   phone_number: string;
   full_name: string;
   location?: string;
@@ -82,6 +83,7 @@ const EditClient: React.FC = () => {
   }
   
   const [formData, setFormData] = useState<FormData>({
+    active: 0,
     phone_number: "",
     full_name: "",
     location: "",
@@ -166,6 +168,7 @@ const EditClient: React.FC = () => {
             : "";
 
           setFormData({
+            active: clientData.active,
             phone_number: clientData.phone_number,
             full_name: clientData.full_name,
             location: clientData.location,
@@ -461,7 +464,6 @@ const EditClient: React.FC = () => {
             onChange={handleInputChange}
           />
         </Col>
-        {/*
         <Col sm="6">
           <Label>Active Status</Label>
           <Input
@@ -473,7 +475,7 @@ const EditClient: React.FC = () => {
             <option value={1}>Active</option>
             <option value={0}>Inactive</option>
           </Input>
-        </Col>*/}
+        </Col>
         <Col sm="6">
           <Label>End Date</Label>
           <Input
