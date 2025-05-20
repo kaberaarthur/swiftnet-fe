@@ -61,6 +61,7 @@ const ClientsList: React.FC = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const [removeModalOpen, setRemoveModalOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -229,6 +230,44 @@ const ClientsList: React.FC = () => {
     setSelectedClientId(clientId);
     setModalOpen(true);
   };
+
+  const handleRemoveClient = async () => {
+    if (!selectedClientId) {
+      setError('Invalid client ID');
+      return;
+    }
+  
+    try {
+      setLoading(true);
+      const response = await fetch(`/backend/pppoe-clients-only-system/${selectedClientId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to remove client session');
+      }
+  
+      const result = await response.json();
+      console.log('Client session removed successfully:', result);
+      setMessage('Client session removed successfully.');
+      setRemoveModalOpen(false);
+    } catch (error) {
+      console.error('Error removing client session:', error);
+      setError('Error occurred while removing client session.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const openRemoveModal = (clientId: number) => {
+    setSelectedClientId(clientId);
+    setRemoveModalOpen(true);
+  };
+  
 
   function formatDate(dateString: any) {
     return new Date(dateString).toLocaleString('en-US', {
@@ -402,6 +441,14 @@ const ClientsList: React.FC = () => {
           </span>
         </div>
 
+        <div className="mb-3">
+          <span className="font-medium text-danger text-sm">
+            The delete button (in Red) removes the user from both the system and the mikrotikimport
+            <br />
+            The Remove button (in Orange/Yellow) only removes the user from the system
+          </span>
+        </div>
+
         <div className="table-responsive">
           <table className="table table-striped table-hover">
             <thead className="table-dark">
@@ -413,9 +460,13 @@ const ClientsList: React.FC = () => {
                 <th>Active Status</th>
                 <th>End Date</th>
                 <th>Brand</th>
-                <th>Comments</th>
                 <th>Action</th>
-                <th>Delete</th>
+                <th>
+                  Remove
+                </th>
+                <th>
+                  Delete
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -439,11 +490,13 @@ const ClientsList: React.FC = () => {
                     <td>{data.active === 1 ? 'Active' : 'Inactive'}</td>
                     <td>{formatDate(data.end_date)}</td>
                     <td>{data.brand || 'N/A'}</td>
-                    <td>{data.comments || 'N/A'}</td>
                     <td>
                       <Link href={`/authentication/acustomer?id=${data.id}`}>
                         <Button color="primary" size="sm">Payment</Button>
                       </Link>
+                    </td>
+                    <td>
+                      <Button color="warning" size="sm" onClick={() => openRemoveModal(data.id)}>Remove</Button>
                     </td>
                     <td>
                       <Button color="danger" size="sm" onClick={() => openDeleteModal(data.id)}>Delete</Button>
@@ -480,15 +533,30 @@ const ClientsList: React.FC = () => {
         <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
           <ModalHeader toggle={() => setModalOpen(!modalOpen)}>Confirm Deletion</ModalHeader>
           <ModalBody>
-            Are you sure you want to delete this client? This action cannot be undone.
+            Are you sure you want to delete this client? This action cannot be undone. This will remove the client both from the Mikrotik Router and the System.
           </ModalBody>
           <ModalFooter>
             <Button color="danger" onClick={handleDeleteClient} disabled={loading}>
               {loading ? 'Deleting...' : 'Delete'}
             </Button>
-            <Button color="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button color="success" onClick={() => setModalOpen(false)}>Cancel</Button>
           </ModalFooter>
         </Modal>
+
+        {/* Remove Confirmation Modal */}
+        <Modal isOpen={removeModalOpen} toggle={() => setRemoveModalOpen(!removeModalOpen)}>
+          <ModalHeader toggle={() => setRemoveModalOpen(!removeModalOpen)}>Confirm Removal</ModalHeader>
+          <ModalBody>
+            Are you sure you want to remove this client? This will delete this client from the system but maintain them on the Mikrotik Router.
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={handleRemoveClient} disabled={loading}>
+              {loading ? 'Removing...' : 'Remove'}
+            </Button>
+            <Button color="success" onClick={() => setRemoveModalOpen(false)}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
+
       </CardBody>
     </Card>
   );
