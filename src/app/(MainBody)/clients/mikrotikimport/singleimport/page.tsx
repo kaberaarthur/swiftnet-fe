@@ -54,9 +54,38 @@ interface BackendClient {
   isSelected?: boolean;
 }
 
+interface SystemClient {
+  id: number;
+  active: number;
+  full_name: string;
+  email: string;
+  phone_number: string;
+  secret: string;
+  password: string;
+  start_date: string;
+  end_date: string;
+  plan_name: string;
+  plan_fee: number;
+  portal_password: string;
+  brand?: string;
+  comments?: string;
+  router_id?: number;
+}
+
 const MikrotikClients = () => {
   const searchParams = useSearchParams();
   const router_id = searchParams.get("router_id");
+  const [clientsLoaded, setClientsLoaded] = useState<boolean>(false);
+
+  const [systemClientData, setSystemClientData] = useState<SystemClient[]>([]);
+
+  const removeExistingSystemClients = () => {
+    const systemSecrets = new Set(systemClientData.map((client) => client.secret));
+  
+    const systemFilteredClients = clients.filter((client) => !systemSecrets.has(client.name));
+  
+    setClients(systemFilteredClients);
+  };  
 
   useEffect(() => {
     if (!router_id) {
@@ -87,6 +116,44 @@ const MikrotikClients = () => {
     const [routerDetails, setRouterDetails] = useState<Router | null>(null);
     const [loadingRouter, setLoadingRouter] = useState(false);
     const [routerError, setRouterError] = useState(false);
+
+    // Fetch PPPOE clients
+    useEffect(() => {
+      if (user?.company_id && routerDetails?.id) {
+        const fetchPppoeClients = async () => {
+          setLoading(true);              // ⏳ Indicate loading
+          setClientsLoaded(false);       // 🔄 Reset client loaded flag
+
+          try {
+            const response = await fetch(
+              `/backend/pppoe-clients?company_id=${user.company_id}&type=pppoe&router_id=${routerDetails.id}`,
+              {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}` || '',
+                },
+              }
+            );
+
+            if (!response.ok) {
+              throw new Error(`Error: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            setSystemClientData(data);
+            setClientsLoaded(true);     // ✅ Mark as successfully loaded
+          } catch (error) {
+            console.error('Failed to fetch PPPOE clients:', error);
+            setClientsLoaded(false);    // ❌ Ensure it's false on error
+          } finally {
+            setLoading(false);          // ✅ Done loading
+          }
+        };
+
+        fetchPppoeClients();
+      }
+    }, [user?.company_id, routerDetails?.id, accessToken]);
 
   useEffect(() => {
     const fetchRouter = async () => {
@@ -163,6 +230,7 @@ const MikrotikClients = () => {
     const fetchClients = async () => {
       if (selectedRouterId) {
         setLoading(true);
+        setClientsLoaded(false); // Reset before fetching
         try {
           const response = await fetch(`/backend/mikrotik/pppoe-users/${selectedRouterId}`, {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -171,9 +239,8 @@ const MikrotikClients = () => {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
           const data = await response.json();
-          
-          // Add the new fields and isSelected property to each client
-          const enhancedData = Array.isArray(data) 
+
+          const enhancedData = Array.isArray(data)
             ? data.map(client => ({
                 ...client,
                 endDate: '',
@@ -182,14 +249,16 @@ const MikrotikClients = () => {
                 full_name: '',
                 smsGroup: '',
                 isSelected: false
-              })) 
+              }))
             : [];
-            
+
           setClients(enhancedData);
+          setClientsLoaded(true); // ✅ Set as loaded once clients are set
         } catch (error) {
           console.error('Error fetching PPPoE secrets:', error);
           setClients([]);
           setError(true);
+          setClientsLoaded(false); // Make sure it's false on error
         } finally {
           setLoading(false);
         }
@@ -277,6 +346,14 @@ const MikrotikClients = () => {
   const currentClients = clients.slice(indexOfFirstClient, indexOfLastClient);
   const totalPages = Math.ceil(clients.length / itemsPerPage);
 
+
+  useEffect(() => {
+    if (clientsLoaded) {
+      // removeExistingSystemClients();
+      console.log("Filtered Clients");
+    }
+  }, [clientsLoaded, clients, systemClientData]);
+  
   return (
     <Container className="mt-4">
       <h3>Import Clients to {routerDetails?.router_name || '...'}</h3>
@@ -326,11 +403,14 @@ const MikrotikClients = () => {
             </FormGroup>
             </Col>
 
-        <Col sm="3" className="d-flex align-items-end">
-          <Button color="primary" onClick={applyToSelected} className="mb-3">
-            Apply to Selected
-          </Button>
-        </Col>
+            <Col sm="3" className="d-flex align-items-end">
+              <Button color="primary" onClick={applyToSelected} className="mb-3 me-2">
+                Apply to Selected
+              </Button>
+              <Button color="success" onClick={removeExistingSystemClients} className="mb-3">
+                Filter Existing
+              </Button>
+            </Col>
       </Row>
 
       {loading && (
