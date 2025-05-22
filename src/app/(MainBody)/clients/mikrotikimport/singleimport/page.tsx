@@ -17,6 +17,8 @@ import {
   FormGroup,
 } from 'reactstrap';
 
+import ImportWarningModal from './ImportWarningModal/page';
+
 interface Router {
   id: number;
   router_name: string;
@@ -73,6 +75,14 @@ interface SystemClient {
 }
 
 const MikrotikClients = () => {
+  const [warningOpen, setWarningOpen] = useState(false);
+
+  useEffect(() => {
+    setWarningOpen(true);
+    console.log("Open Warning");
+  }, []);
+
+
   const searchParams = useSearchParams();
   const router_id = searchParams.get("router_id");
   const [clientsLoaded, setClientsLoaded] = useState<boolean>(false);
@@ -574,8 +584,12 @@ const MikrotikClients = () => {
           Data Could Not Be Fetched
         </Alert>
       )}
+
+      <ImportWarningModal isOpen={warningOpen} toggle={() => setWarningOpen(false)} />
     </Container>
   );
+
+  
 };
 
 export default MikrotikClients;
