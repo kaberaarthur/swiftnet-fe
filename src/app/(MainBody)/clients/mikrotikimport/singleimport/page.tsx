@@ -17,7 +17,7 @@ import {
   FormGroup,
 } from 'reactstrap';
 
-import ImportWarningModal from './ImportWarningModal/page';
+import ImportWarningModal from './ImportWarningModal/ImportWarningModal';
 
 interface Router {
   id: number;
