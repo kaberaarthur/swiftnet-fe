@@ -7,6 +7,11 @@ import { RootState } from '../../../../../Redux/Store'; // Adjust path if necess
 import Link from 'next/link';
 import Cookies from 'js-cookie'; // Import Cookies
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleArrowUp } from "@fortawesome/free-solid-svg-icons";
+
+import WarningModal from './WarningModal/WarningModal';
+
 
 // Interface for the data fetched directly from /backend/routers
 interface Router {
@@ -45,6 +50,20 @@ interface Brand {
 }
 
 const ImportPPPoEPlans: React.FC = () => {
+    // State for the WarningModal
+    const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
+
+    // Initial check for the warning modal on component mount
+    useEffect(() => {
+        // Only open the modal if the user hasn't opted to hide it
+        const hideModal = localStorage.getItem('hideWarningModal');
+        if (hideModal !== 'true') {
+            setIsWarningModalOpen(true);
+        }
+    }, []); // Empty dependency array means this runs once on mount
+
+    const toggleWarningModal = () => setIsWarningModalOpen(!isWarningModalOpen);
+
     // Retrieve accessToken safely from Cookies or localStorage
     const [accessToken] = useState<string | null>(() => {
         return Cookies.get('accessToken') || localStorage.getItem('accessToken') || null;
@@ -313,9 +332,13 @@ const ImportPPPoEPlans: React.FC = () => {
         return pppoePlans && pppoePlans.some(plan => plan.is_selected);
     };
 
-    const handleImportPlans = async () => {
-        const selectedPlans = pppoePlans.filter(plan => plan.is_selected);
+    const [selectedPlans, setSelectedPlans] = useState<ImportPPPOEPlan[]>([]);
 
+    useEffect(() => {
+        setSelectedPlans(pppoePlans.filter(plan => plan.is_selected));
+    }, [pppoePlans]);
+
+    const handleImportPlans = async () => {
         setErrorMessage('');
 
         if (selectedPlans.length === 0) {
@@ -496,7 +519,7 @@ const ImportPPPoEPlans: React.FC = () => {
                 <>
                     <div className="table-responsive">
                         <table className="table table-hover table-bordered table-striped">
-                            <thead className="table-light">
+                            <thead>
                                 <tr>
                                     {/* FIXED: Added proper checkbox binding for the "select all" checkbox */}
                                     <th style={{ width: '5%' }}>
@@ -625,7 +648,7 @@ const ImportPPPoEPlans: React.FC = () => {
                     )}
 
                     {/* Import Action Area */}
-                    <div className="mt-4 pt-3 border-top">
+                    <div className="mt-4 pt-3 border-top pb-4">
                         <p className="text-sm text-danger mb-2">* Price, Validity, and Brand are required fields for selected plans before importing.</p>
                         <Button
                             color="success"
@@ -641,7 +664,8 @@ const ImportPPPoEPlans: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <i className="bi bi-cloud-upload me-2"></i> Import Selected Plans
+                                    <FontAwesomeIcon icon={faCircleArrowUp} size="1x" color="#fff" />
+                                    {` Import ${selectedPlans.length} Selected Plans`} {/* <-- Changed here! */}
                                 </>
                             )}
                         </Button>
@@ -681,6 +705,10 @@ const ImportPPPoEPlans: React.FC = () => {
                 </div>
             )}
 
+            <WarningModal
+                isOpen={isWarningModalOpen}
+                toggle={toggleWarningModal}
+            />
         </div>
     );
 };
