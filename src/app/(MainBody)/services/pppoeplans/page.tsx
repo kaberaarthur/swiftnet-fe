@@ -212,18 +212,24 @@ const PPPoEPlansList: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModalOpen} toggle={() => setDeleteModalOpen(!deleteModalOpen)}>
-        <ModalBody>
-          <p>
-            Are you sure you want to delete plan{' '}
-            <strong>{planToDelete?.plan_name}</strong>?
+      <Modal isOpen={deleteModalOpen} toggle={() => setDeleteModalOpen(!deleteModalOpen)} centered>
+        <ModalBody className="text-center p-4">
+          <div className="mb-3">
+            <i className="bi bi-exclamation-triangle-fill text-warning display-4"></i> {/* Optional: Add an icon for visual emphasis */}
+          </div>
+          <h4 className="mb-2">Are you sure?</h4>
+          <p className="lead mb-4">
+            You are about to delete plan <strong>{planToDelete?.plan_name}</strong>. This action cannot be undone.
           </p>
-          <div className="d-flex justify-content-end mt-4 gap-2">
+          <p className="text-muted small">
+            This will only delete the plan on the system and not on the Mikrotik Router.
+          </p>
+          <div className="d-flex justify-content-center gap-3 mt-4">
             <Button color="secondary" onClick={() => setDeleteModalOpen(false)}>
               Cancel
             </Button>
             <Button color="danger" onClick={handleDeletePlan}>
-              Delete
+              Delete Plan
             </Button>
           </div>
         </ModalBody>
