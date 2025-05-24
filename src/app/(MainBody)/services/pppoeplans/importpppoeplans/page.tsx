@@ -42,6 +42,17 @@ interface ImportPPPOEPlan extends RouterPPPOEPlan {
     is_selected: boolean;
 }
 
+interface PPPOEPlan {
+    id: number;
+    plan_name: string;
+    plan_validity: number;
+    plan_price: number;
+    rate_limit_string: string;
+    pool_name: string;
+    router_id: string;
+    brand: string;
+  }
+
 // Interface for Brand data
 interface Brand {
     id: number;
@@ -88,6 +99,44 @@ const ImportPPPoEPlans: React.FC = () => {
     const [bulkBrand, setBulkBrand] = useState<string>(''); // This will store the selected brand *name* for bulk update
 
     const user = useSelector((state: RootState) => state.user);
+
+    const [pppoePlansExisting, setPppoePlansExisting] = useState<PPPOEPlan[]>([]);
+
+    function filterPlans() {
+        // console.log("Original pppoePlans:", pppoePlans);
+        // console.log("Original pppoePlansExisting:", pppoePlansExisting);
+      
+        // Create a Set of existing plan names for efficient lookup
+        const existingPlanNames = new Set(pppoePlansExisting.map(plan => plan.plan_name));
+      
+        // Filter pppoePlans, keeping only those whose 'name' is NOT in existingPlanNames
+        const filteredPppoePlans = pppoePlans.filter(plan => !existingPlanNames.has(plan.name));
+      
+        // Update pppoePlans with the filtered result
+        setPppoePlans(filteredPppoePlans);
+      
+        console.log("Filtered pppoePlans (removed existing):", pppoePlans);
+      }
+
+    useEffect(() => {
+        if (selectedRouter) {
+          setLoading(true);
+          const fetchPPPoEPlans = async () => {
+            try {
+              const plansResponse = await fetch(
+                `/backend/pppoe-plans?router_id=${selectedRouter}&company_id=${user.company_id}&type=pppoe`
+              );
+              const plansData: PPPOEPlan[] = await plansResponse.json();
+              setPppoePlansExisting(plansData);
+            } catch (error) {
+              console.error('Error fetching PPPoE plans:', error);
+            } finally {
+              setLoading(false);
+            }
+          };
+          fetchPPPoEPlans();
+        }
+      }, [selectedRouter, user.company_id]);
 
     // Function to fetch brands
     const fetchBrands = async () => {
@@ -231,6 +280,8 @@ const ImportPPPoEPlans: React.FC = () => {
 
                     setPppoePlans(transformedPlans);
                     setCurrentPage(1);
+
+                    console.log("Plans from the Router: ", pppoePlans);
 
                 } catch (error: any) {
                     console.error('Error fetching or processing PPPoE plans:', error);
@@ -413,14 +464,14 @@ const ImportPPPoEPlans: React.FC = () => {
             {/* Top Controls */}
             <div className="py-2">
                 <Row className="align-items-end">
-                     <Col md="6" className="mb-3">
+                     <Col md="4" className="mb-3">
                          <Link href="/services/pppoeplans" passHref>
                              <Button color="secondary" className="px-4 py-2" disabled={isLoading}>
                                  <i className="bi bi-arrow-left mr-2"></i> Back to Plans List
                              </Button>
                          </Link>
                      </Col>
-                     <Col md="6" className="mb-3">
+                     <Col md="4" className="mb-3">
                          <Label htmlFor="routerSelect">{'Select Router to Import From'}</Label>
                          <Input
                             id="routerSelect"
@@ -440,6 +491,16 @@ const ImportPPPoEPlans: React.FC = () => {
                              ))}
                          </Input>
                      </Col>
+                     <Col md="4" className="mb-3">
+                        <Button
+                            color="success"
+                            className="px-4 py-2"
+                            disabled={isLoading}
+                            onClick={filterPlans}
+                        >
+                            Filter Existing Plans
+                        </Button>
+                    </Col>
                  </Row>
              </div>
 
