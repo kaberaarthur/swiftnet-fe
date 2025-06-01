@@ -26,6 +26,16 @@ export const MenuList: MenuItem[] = [
         ],
       },
       {
+        title: "Hotspot",
+        id: 34,
+        icon: "Heart",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/hotspot/captive-portal`, title: "Captive Portal", type: "link" },
+        ],
+      },
+      {
         title: "Brands",
         id: 34,
         icon: "Bag",
