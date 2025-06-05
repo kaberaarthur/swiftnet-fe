@@ -19,6 +19,7 @@ import Cookies from "js-cookie";
 
 
 import config from "../../../config/config.json";
+import moment from "moment-timezone";
 
 interface FormData {
   active: number;
@@ -109,12 +110,14 @@ const EditClient: React.FC = () => {
 
   // Handle input change
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const currentTime = new Date();
-    currentTime.setHours(currentTime.getHours() + 4);
-    const updatedTime = currentTime.toLocaleTimeString("en-GB", { hour12: false });
+    const inputValue = e.target.value; // e.g., "2025-06-06T14:30"
+    
+    // Parse and convert to desired format in a specific timezone (optional)
+    const formattedDateTime = moment.tz(inputValue, "YYYY-MM-DDTHH:mm", "Africa/Nairobi") // Change to your desired timezone
+      .format("YYYY-MM-DD HH:mm:ss");
 
-    console.log("The Selected Date: ", e.target.value + " " + updatedTime)
-    setEndDate(e.target.value); // Update state directly
+    console.log("Formatted DateTime:", formattedDateTime);
+    setEndDate(formattedDateTime);
   };
 
   const user = useSelector((state: RootState) => state.user);
@@ -158,14 +161,15 @@ const EditClient: React.FC = () => {
           const clientData = await response.json();
 
           clientData.end_date = new Date(clientData.end_date);
-          clientData.end_date.setHours(clientData.end_date.getHours() + 4);
 
           console.log("DB Date (UTC+3):", clientData.end_date);
 
           // Convert end_date to "yyyy-MM-dd" format
           const formattedEndDate = clientData.end_date
-            ? new Date(clientData.end_date).toISOString().split("T")[0]
+            ? moment.tz(clientData.end_date, "Africa/Nairobi").format("YYYY-MM-DD HH:mm:ss")
             : "";
+
+          console.log("Formatted Date: ", clientData.end_date);
 
           setFormData({
             active: clientData.active,
@@ -328,7 +332,7 @@ const EditClient: React.FC = () => {
     return formattedDate;
   };
   
-
+  // This code currently does nothing
   const validateEndDate = (selectedDateStr: string, currentEndDateStr: string) => {
       const selectedDate = new Date(selectedDateStr);
       const currentEndDate = new Date(currentEndDateStr);
@@ -341,7 +345,8 @@ const EditClient: React.FC = () => {
       return { 
         valid: true, 
         message: "Correct Days Selected", 
-        adjustedDate: selectedDate.toISOString().split("T")[0] 
+        // adjustedDate: selectedDate.toISOString().split("T")[0] 
+        adjustedDate: selectedDateStr 
       };
   };
 
@@ -397,7 +402,7 @@ const EditClient: React.FC = () => {
   // Your handleUpdateClient function to validate and update formData
   const handleUpdateClient = async () => {
     setLoading(true);
-    const validation = validateEndDate(formatDateWithTime(endDate), formatDateWithTime(formData.end_date));
+    const validation = validateEndDate(endDate, formData.end_date);
 
     if (validation.valid) {
       console.log(validation.message ?? "");
@@ -407,7 +412,7 @@ const EditClient: React.FC = () => {
       if (validation.adjustedDate) {
         // Update formData.end_date with adjustedDate
         setFormData((prevData: FormData) => {
-          const updatedEndDate = formatDateWithTime(validation.adjustedDate);
+          const updatedEndDate = validation.adjustedDate;
           console.log("Updated end date with time: ", updatedEndDate);  // Log updated value
 
           return {
@@ -479,10 +484,10 @@ const EditClient: React.FC = () => {
         <Col sm="6">
           <Label>End Date</Label>
           <Input
-            type="date"
+            type="datetime-local"
             name="end_date"
             value={endDate}
-            onChange={handleEndDateChange} // Calls function on change
+            onChange={handleEndDateChange}
           />
         </Col>
         <Col sm="6">

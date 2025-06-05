@@ -50,6 +50,7 @@
     "intl": "^1.2.5",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.474.0",
+    "moment-timezone": "^0.6.0",
     "next": "14.1.0",
     "react": "^18.2.0",
     "react-accessible-treeview": "^2.8.3",
