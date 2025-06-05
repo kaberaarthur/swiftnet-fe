@@ -326,6 +326,21 @@ const ClientsList: React.FC = () => {
     return Array.from(brandSet);
   };
 
+  // Function to Sort data by end date
+  const [isAscending, setIsAscending] = useState(true);
+
+  const toggleSortByDate = () => {
+    const sorted = [...filteredData].sort((a, b) => {
+      const dateA = new Date(a.end_date).getTime();
+      const dateB = new Date(b.end_date).getTime();
+
+      return isAscending ? dateA - dateB : dateB - dateA;
+    });
+
+    setFilteredData(sorted);
+    setIsAscending(!isAscending); // toggle the sort direction
+  };
+
   return (
     <Card className="shadow">
       <CardBody>
@@ -458,7 +473,14 @@ const ClientsList: React.FC = () => {
                 <th>Phone Number</th>
                 <th>Secret</th>
                 <th>Active Status</th>
-                <th>End Date</th>
+                <th>
+                  <div>
+                    End Date
+                    <Button onClick={toggleSortByDate} className='text-xs'>
+                      {isAscending ? "Sort" : "Sort"}
+                    </Button>
+                  </div>
+                </th>
                 <th>Brand</th>
                 <th>Action</th>
                 <th>
