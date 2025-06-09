@@ -13,7 +13,8 @@ import {
   FormGroup,
   Label,
   Card,
-  CardBody
+  CardBody,
+  Alert
 } from 'reactstrap';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
@@ -61,6 +62,9 @@ const ClientsList: React.FC = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const [smsModalOpen, setSMSModalOpen] = useState(false);
+  const [smsMessage, setSmsMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
   const [removeModalOpen, setRemoveModalOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -71,6 +75,18 @@ const ClientsList: React.FC = () => {
   const itemsPerPage = 10;
   const user = useSelector((state: RootState) => state.user);
   const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
+  const handleSendSms = () => {
+    console.log("Sending SMS:", smsMessage);
+
+    // Show alert and close modal
+    setShowAlert(true);
+    setModalOpen(false);
+    setSmsMessage("");
+
+    // Hide alert after a few seconds (optional)
+    setTimeout(() => setShowAlert(false), 3000);
+  };
   
   // Fetch PPPOE clients
   useEffect(() => {
@@ -229,6 +245,11 @@ const ClientsList: React.FC = () => {
   const openDeleteModal = (clientId: number) => {
     setSelectedClientId(clientId);
     setModalOpen(true);
+  };
+
+  const openSMSModal = (clientId: number) => {
+    setSelectedClientId(clientId);
+    setSMSModalOpen(true);
   };
 
   const handleRemoveClient = async () => {
@@ -484,6 +505,9 @@ const ClientsList: React.FC = () => {
                 <th>Brand</th>
                 <th>Action</th>
                 <th>
+                  SMS
+                </th>
+                <th>
                   Remove
                 </th>
                 <th>
@@ -518,6 +542,9 @@ const ClientsList: React.FC = () => {
                       </Link>
                     </td>
                     <td>
+                      <Button color="success" size="sm" onClick={() => openSMSModal(data.id)}>SMS</Button>
+                    </td>
+                    <td>
                       <Button color="warning" size="sm" onClick={() => openRemoveModal(data.id)}>Remove</Button>
                     </td>
                     <td>
@@ -550,6 +577,35 @@ const ClientsList: React.FC = () => {
             Next
           </Button>
         </div>
+
+        {/* Modal for sending SMS */}
+        <Modal isOpen={smsModalOpen} toggle={() => setSMSModalOpen(!smsModalOpen)}>
+          <ModalHeader toggle={() => setSMSModalOpen(!smsModalOpen)}>Send SMS</ModalHeader>
+          {/* Optional alert below modal */}
+          {showAlert && (
+            <div className="px-3 pt-2">
+              <Alert color="success" className="mb-0">
+                SMS sent successfully!
+              </Alert>
+            </div>
+          )}
+          <ModalBody>
+            <Input
+              type="textarea"
+              placeholder="Type your message here..."
+              value={smsMessage}
+              onChange={(e) => setSmsMessage(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="success" onClick={handleSendSms} disabled={!smsMessage.trim()}>
+              Send
+            </Button>
+            <Button color="secondary" onClick={() => setSMSModalOpen(false)}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
 
         {/* Delete Confirmation Modal */}
         <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>

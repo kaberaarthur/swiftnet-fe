@@ -12,6 +12,9 @@ import Cookies from "js-cookie";
 
 import config from "../../../(MainBody)/config/config.json";
 
+import PaymentPromptModal from './PaymentPromptModal';
+
+
 // Define types based on the response data
 interface MpesaTransaction {
   id: number;
@@ -84,6 +87,7 @@ const Customer = () => {
   const [planChangeModal, setPlanChangeModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reqLoading, setReqLoading] = useState(false);
+  const [reqError, setReqError] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("0700000000");
   const [customerBrand, setCustomerBrand] = useState("Swift");
   const [routerId, setRouterId] = useState<number | undefined>(undefined);
@@ -324,6 +328,7 @@ const Customer = () => {
             if (res.status === "found" && res.data?.MpesaReceiptNumber) {
                 setMpesaResponse("Transaction found: " + res.data.MpesaReceiptNumber);
                 setMpesaError("");
+                setReqError(false);
                 console.log("Transaction found: " + res.data.MpesaReceiptNumber)
                 if (res.end_date) {
                     setNewExpiryDate("Your New Expiry Date: " + formatFriendlyDate(res.end_date));
@@ -332,17 +337,23 @@ const Customer = () => {
                 }
                 
                 setReqLoading(false);
+                setReqError(false);
                 setIsPaySuccess(true);
             } else {
                 setMpesaResponse("We could not verify your payment.");
                 setMpesaError("We could not verify your payment.");
                 setReqLoading(false);
+                setReqError(true);
                 console.log("We could not verify your payment.");
             }
         } else {
+            setReqLoading(false);
+            setReqError(true);
             console.log('Transaction not found or error: ', res.message);
         }
     } catch (error) {
+        setReqLoading(false);
+        setReqError(true);
         console.error('Error calling API:', error);
     }
   };
@@ -352,6 +363,7 @@ const Customer = () => {
     console.log("Client ID: ", id);
     console.log("Phone No. : ", phoneNumber);
     
+    // Add a time loader based on this value
     setReqLoading(true);
     try {
       const response = await fetch(`/microservice/api/payment`, {
@@ -519,20 +531,37 @@ const Customer = () => {
                   className="border border-gray-300 p-2 rounded"
                 />
                 <p id="modal-title" className="font-semibold text-danger pb-2">{mpesaError}</p>
-                <Button
-                  className="w-full mt-4 flex items-center justify-center"
-                  style={{ backgroundColor: "#1447E6" }}
-                  onClick={initiatePayment}
-                  disabled={reqLoading} // Disable button while loading
-                >
-                  {reqLoading ? (
-                    <>
-                      <Loader className="w-5 h-5 animate-spin mr-2" /> Processing...
-                    </>
-                  ) : (
-                    `Pay KSh ${clientDetails.plan_fee} with Mpesa`
-                  )}
-                </Button>
+                <PaymentPromptModal reqLoading={reqLoading} />
+                <Row>
+                  <Col sm="6">
+                      <Button
+                      className="w-full mt-4 flex items-center justify-center"
+                      style={{ backgroundColor: "#1447E6" }}
+                      onClick={initiatePayment}
+                      disabled={reqLoading} // Disable button while loading
+                    >
+                      {reqLoading ? (
+                        <>
+                          <Loader className="w-5 h-5 animate-spin mr-2" /> Processing...
+                        </>
+                      ) : (
+                        `Pay KSh ${clientDetails.plan_fee} with Mpesa`
+                      )}
+                    </Button>
+                  </Col>
+                  <Col sm="6">
+                    {reqError && (
+                      <Button
+                        className="w-full mt-4 flex items-center justify-center"
+                        style={{ backgroundColor: "#1447E6" }}
+                        onClick={initiatePayment}
+                        disabled={reqLoading} // Disable button while loading
+                      >
+                        Resend Mpesa Prompt
+                      </Button>
+                    )}
+                  </Col>
+                </Row>
               </div>
             </Card>
           </Col>
