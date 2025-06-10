@@ -193,22 +193,20 @@ const Customer = () => {
   const handleUpdatePlan = () => {
     setLoading(true);
     const theSelectedPlan = plans.find(plan => plan.id === currentPlan);
-    console.log('Updating to plan:', theSelectedPlan);
-    setSelectedPlan(theSelectedPlan); // Now it can accept `undefined`
+    console.log('Updating to plan (handleUpdatePlan):', theSelectedPlan);
+    setSelectedPlan(theSelectedPlan); // This still updates the state for later use
     setPlanChangeModal(true);
     setChangePlanError("");
 
-    // Send Request to send OTP
-    if (selectedPlan && selectedPlan.id) {
+    // Use theSelectedPlan instead of selectedPlan
+    if (theSelectedPlan && theSelectedPlan.id) {
       const requestBody = {
         client_id: id,
         phone_number: phoneNumber
       };
-  
+
       console.log('Request Body:', requestBody);
-  
-      // Example API call or update logic
-      // You can replace this with your actual API request
+
       fetch(`/backend/send-otp-sms`, {
         method: 'POST',
         headers: {
@@ -224,8 +222,10 @@ const Customer = () => {
     } else {
       console.error('Selected plan is not available');
     }
+
     setLoading(false);
   };
+
 
   const [changePlanError, setChangePlanError] = useState("");
   const [changePlanSuccess, setChangePlanSuccess] = useState("");
