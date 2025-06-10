@@ -340,7 +340,7 @@ const Customer = () => {
                 setReqError(false);
                 setIsPaySuccess(true);
             } else {
-                setMpesaResponse("We could not verify your payment.");
+                setMpesaResponse("We could not verify your payment!");
                 setMpesaError("We could not verify your payment.");
                 setReqLoading(false);
                 setReqError(true);
