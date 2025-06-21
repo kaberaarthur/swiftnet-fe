@@ -20,6 +20,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../../Redux/Store';
 import * as XLSX from 'xlsx';
 import Cookies from "js-cookie";
+import moment from "moment";
+
 
 interface TableRow {
   id: number;
@@ -75,6 +77,61 @@ const ClientsList: React.FC = () => {
   const itemsPerPage = 10;
   const user = useSelector((state: RootState) => state.user);
   const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
+  // Filtering Users for Bulk sms
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+
+  // Sending Bulk sms
+  const [bulkSmsModalOpen, setBulkSmsModalOpen] = useState(false);
+  const [bulkSmsMessage, setBulkSmsMessage] = useState('');
+  const [bulkSmsSuccess, setBulkSmsSuccess] = useState(false);
+
+  const handleDateSMSFilter = () => {
+      if (!fromDate || !toDate) return;
+
+      // Filter from filteredData instead of original data
+      const filtered = filteredData.filter((row) => {
+        const endDate = new Date(row.end_date).getTime();
+        const from = new Date(fromDate).getTime();
+        const to = new Date(toDate).getTime();
+        return endDate >= from && endDate <= to;
+      });
+
+      setFilteredData(filtered);
+  };
+
+  const handleOpenBulkSMSModal = () => {
+    setBulkSmsModalOpen(true);
+  };
+
+  const formatEndDate = (dateStr: string): string => {
+    return moment(dateStr).format("D MMMM hhA"); 
+    // e.g., "21 June 03AM"
+  };
+
+  const handleSendBulkSMS = () => {
+    const baseUrl = window.location.origin;
+
+    const generatedMessages = filteredData.map((user) => {
+      const cleanPhone = user.phone_number?.trim().replace(/\s+/g, "");
+
+      const message = bulkSmsMessage
+        .replace(/{{name}}/g, user.full_name)
+        .replace(/{{enddate}}/g, formatEndDate(user.end_date))
+        .replace(/{{brand}}/g, user.brand || "")
+        .replace(/{{company_username}}/g, user.secret)
+        .replace(/{{payment_link}}/g, `${baseUrl}/authentication/acustomer?id=${user.id}`);
+
+      return {
+        id: user.id,
+        phone: cleanPhone,
+        sms: message,
+      };
+    });
+
+    console.log("Generated SMS payload:", generatedMessages);
+  };
 
   const handleSendSms = () => {
     console.log("Sending SMS:", smsMessage);
@@ -469,6 +526,31 @@ const ClientsList: React.FC = () => {
           </Col>
         </Row>
 
+        <Row className="mb-4 items-center">
+          <p className='text-danger text-sm py-2'>Filter users based on end date and send them a message</p>
+          <Col sm="3">
+            <label className="block text-sm font-medium mb-1">From Date</label>
+            <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+          </Col>
+
+          <Col sm="3">
+            <label className="block text-sm font-medium mb-1">To Date</label>
+            <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+          </Col>
+
+          <Col sm="3" className="flex items-end">
+            <Button color="primary" className="w-full" onClick={handleDateSMSFilter}>
+              Filter
+            </Button>
+          </Col>
+
+          <Col sm="3" className="flex items-end">
+            <Button color="success" className="w-full" onClick={handleOpenBulkSMSModal} disabled={filteredData.length === 0}>
+              Send SMS
+            </Button>
+          </Col>
+        </Row>
+
         {/* Client count display */}
         <div className="mb-3">
           <span className="font-medium">
@@ -577,6 +659,62 @@ const ClientsList: React.FC = () => {
             Next
           </Button>
         </div>
+
+        {/* Modal for sending Bulk SMS */}
+        <Modal isOpen={bulkSmsModalOpen} toggle={() => setBulkSmsModalOpen(!bulkSmsModalOpen)}>
+          <ModalHeader toggle={() => setBulkSmsModalOpen(!bulkSmsModalOpen)}>Send Bulk SMS</ModalHeader>
+
+          {/* Optional success alert */}
+          {bulkSmsSuccess && (
+            <div className="px-3 pt-2">
+              <Alert color="success" className="mb-0">
+                Bulk SMS sent successfully!
+              </Alert>
+            </div>
+          )}
+
+          <ModalBody>
+            <Input
+              type="textarea"
+              placeholder="Enter your message to all selected recipients..."
+              value={bulkSmsMessage}
+              onChange={(e) => setBulkSmsMessage(e.target.value)}
+            />
+          </ModalBody>
+
+          <ModalFooter>
+            <div className="w-full px-1 pb-2 flex flex-wrap gap-2 justify-start">
+              {[
+                { label: "name", tag: "{{name}}" },
+                { label: "enddate", tag: "{{enddate}}" },
+                { label: "brand", tag: "{{brand}}" },
+                { label: "company", tag: "{{company_username}}" },
+                { label: "payment link", tag: "{{payment_link}}" },
+              ].map(({ label, tag }) => (
+                <Button
+                  key={label}
+                  size="xs"
+                  className='border-success text-success bg-transparent'
+                  onClick={() => setBulkSmsMessage(prev => `${prev}${tag} `)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+
+            <Button
+              color="success"
+              onClick={handleSendBulkSMS}
+              disabled={!bulkSmsMessage.trim() || filteredData.length === 0}
+            >
+              Send to {filteredData.length} user(s)
+            </Button>
+            <Button color="secondary" onClick={() => setBulkSmsModalOpen(false)}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+
 
         {/* Modal for sending SMS */}
         <Modal isOpen={smsModalOpen} toggle={() => setSMSModalOpen(!smsModalOpen)}>
