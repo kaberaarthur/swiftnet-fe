@@ -625,9 +625,6 @@ const ClientsList: React.FC = () => {
                 <th>Brand</th>
                 <th>Action</th>
                 <th>
-                  SMS
-                </th>
-                <th>
                   Remove
                 </th>
                 <th>
@@ -660,9 +657,6 @@ const ClientsList: React.FC = () => {
                       <Link href={`/authentication/acustomer?id=${data.id}`}>
                         <Button color="primary" size="sm">Payment</Button>
                       </Link>
-                    </td>
-                    <td>
-                      <Button color="success" size="sm" onClick={() => openSMSModal(data.id)}>SMS</Button>
                     </td>
                     <td>
                       <Button color="warning" size="sm" onClick={() => openRemoveModal(data.id)}>Remove</Button>
