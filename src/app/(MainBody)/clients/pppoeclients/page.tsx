@@ -39,6 +39,7 @@ interface TableRow {
   brand?: string;
   comments?: string;
   router_id?: number;
+  company_id?: number;
 }
 
 interface Router {
@@ -110,7 +111,12 @@ const ClientsList: React.FC = () => {
     // e.g., "21 June 03AM"
   };
 
-  const handleSendBulkSMS = () => {
+  // Bulk SMS related constants
+  const [bulkSmsAlertVisible, setBulkSmsAlertVisible] = useState(false);
+  const [bulkSmsAlertMessage, setBulkSmsAlertMessage] = useState('');
+  const [bulkSmsAlertColor, setBulkSmsAlertColor] = useState('success');
+
+  const handleSendBulkSMS = async () => {
     const baseUrl = window.location.origin;
 
     const generatedMessages = filteredData.map((user) => {
@@ -127,10 +133,42 @@ const ClientsList: React.FC = () => {
         id: user.id,
         phone: cleanPhone,
         sms: message,
+        company_id: user.company_id
       };
     });
 
     console.log("Generated SMS payload:", generatedMessages);
+
+    // Conduct the bulk SMS Sending Now
+    try {
+      const response = await fetch(`/backend/bulk-sms/send`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}` || ""
+        },
+        body: JSON.stringify(generatedMessages)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setBulkSmsAlertMessage(`${result.message} — ${result.summary.success}/${result.summary.total} successful`);
+        setBulkSmsAlertColor('success');
+      } else {
+        setBulkSmsAlertMessage(result.message || 'An error occurred.');
+        setBulkSmsAlertColor('danger');
+      }
+
+      setBulkSmsAlertVisible(true);
+      setTimeout(() => setBulkSmsAlertVisible(false), 5000);
+
+    } catch (error) {
+      setBulkSmsAlertMessage('Failed to send SMS. Network or server error.');
+      setBulkSmsAlertColor('danger');
+      setBulkSmsAlertVisible(true);
+      setTimeout(() => setBulkSmsAlertVisible(false), 5000);
+    }
   };
 
   const handleSendSms = () => {
@@ -674,6 +712,12 @@ const ClientsList: React.FC = () => {
           )}
 
           <ModalBody>
+            {bulkSmsAlertVisible && (
+              <Alert color={bulkSmsAlertColor}>
+                {bulkSmsAlertMessage}
+              </Alert>
+            )}
+
             <Input
               type="textarea"
               placeholder="Enter your message to all selected recipients..."
@@ -683,7 +727,7 @@ const ClientsList: React.FC = () => {
           </ModalBody>
 
           <ModalFooter>
-            <div className="w-full px-1 pb-2 flex flex-wrap gap-2 justify-start">
+            <div className="w-full px-1 pb-2 flex flex-wrap gap-2">
               {[
                 { label: "name", tag: "{{name}}" },
                 { label: "enddate", tag: "{{enddate}}" },
