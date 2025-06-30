@@ -469,7 +469,7 @@ const Customer = () => {
     return (
       <div className="fixed inset-0 flex justify-center items-center bg-white z-50 p-48">
         <FontAwesomeIcon icon={faSpinner} spin size="2x" color="#1447E6" />
-        <h1>Loading..</h1>
+        <h1>Loading...</h1>
       </div>
     );
   }
