@@ -16,6 +16,8 @@ import PaymentPromptModal from './PaymentPromptModal';
 
 import axios from 'axios';
 
+import DarkContainer from "./DarkContainer";
+
 
 // Define types based on the response data
 interface MpesaTransaction {
@@ -465,14 +467,16 @@ const Customer = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="fixed inset-0 flex justify-center items-center bg-white z-50 p-48">
         <FontAwesomeIcon icon={faSpinner} spin size="2x" color="#1447E6" />
+        <h1>Loading..</h1>
       </div>
     );
   }
 
+
   return (
-    <div className="p-6" style={{ backgroundColor: '#1E2939' }}>
+    <div className="lg:m6 p-6" style={{ backgroundColor: '#1E2939' }}>
       <Modal isOpen={!isAuthenticated} toggle={() => {}} aria-labelledby="modal-title">
         <ModalBody>
           <div className="flex flex-col items-center justify-center text-center space-y-4">
@@ -636,7 +640,7 @@ const Customer = () => {
             <Card body className="mt-6 p-6">
                 <h5 className="mb-2">Pay with Paybill</h5>
 
-                <p className="mb-4">Pay using Paybill No. <span className="font-semibold text-xl text-primary">4150219</span> then copy the transaction code below and click <span className="font-semibold text-primary">Confirm Transaction Code</span> to automatically process your subscription. Kindly wait for 5 seconds after you click the button, your internet will be reconnected in just 5 minutes after the transaction is confirmed.</p>
+                <p className="mb-4">Pay using Paybill No. <span className="font-semibold text-xl text-primary">4150219</span> and account number <span className="font-semibold text-xl text-primary">{id}</span> then copy the transaction code below and click <span className="font-semibold text-primary">Confirm Transaction Code</span> to automatically process your subscription. Kindly wait for 5 seconds after you click the button, your internet will be reconnected in just 5 minutes after the transaction is confirmed.</p>
 
                 <Input
                   type="text"
