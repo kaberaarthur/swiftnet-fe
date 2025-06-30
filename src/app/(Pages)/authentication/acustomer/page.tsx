@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Card, Modal, ModalBody, Button, Input, Row, Col } from "reactstrap";
+import { Card, Modal, ModalBody, Button, Input, Row, Col, Alert, Spinner  } from "reactstrap";
 import { formatDate } from "./functions";
 import { Loader } from "lucide-react";
 
@@ -13,6 +13,8 @@ import Cookies from "js-cookie";
 import config from "../../../(MainBody)/config/config.json";
 
 import PaymentPromptModal from './PaymentPromptModal';
+
+import axios from 'axios';
 
 
 // Define types based on the response data
@@ -103,6 +105,71 @@ const Customer = () => {
 
   const [plans, setPlans] = useState<PPPoEPlan[]>([]);
 
+  // Transaction Code
+  const [transactionCode, setTransactionCode] = useState('');
+  const [transactionCodeLoading, setTransactionCodeLoading] = useState(false);
+  const [transactionCodeAlert, setTransactionCodeAlert] = useState({ visible: false, color: '', message: '' });
+
+  const checkTransactionStatus = async () => {
+    if (!transactionCode.trim()) {
+      setTransactionCodeAlert({
+        visible: true,
+        color: 'danger',
+        message: 'Please enter a transaction code.',
+      });
+      return;
+    }
+
+    setTransactionCodeLoading(true);
+    setTransactionCodeAlert({ visible: false, color: '', message: '' });
+
+    try {
+      const response = await axios.post('/backend/transaction-status/', {
+        transaction_code: transactionCode,
+        customer_id: id,
+        company_id: clientDetails?.company_id,
+      });
+
+      console.log("Response Message", response.data.message);
+      
+      setTransactionCodeAlert({
+        visible: true,
+        color: response.data?.success ? 'success' : 'danger',
+        message: response.data?.message || 'No message returned.',
+      });
+
+      // Update Client Details after Successful Fetch
+      fetchClientDetails();
+
+      // Auto-hide after 10 seconds
+      setTimeout(() => {
+        setTransactionCodeAlert(prev => ({ ...prev, visible: false }));
+      }, 10000); // 10000 milliseconds = 10 second
+      
+    } catch (error: any) {
+      console.log("❌ Error:", error);
+
+      const message =
+        error?.response?.data?.message || "An unexpected error occurred";
+
+      console.log("Response Message:", message);
+
+      setTransactionCodeAlert({
+        visible: true,
+        color: 'danger',
+        message: error?.response?.data?.message || 'An error occurred while checking the transaction.',
+      });
+
+      // Auto-hide after 10 seconds
+      setTimeout(() => {
+        setTransactionCodeAlert(prev => ({ ...prev, visible: false }));
+      }, 10000); // 10000 milliseconds = 10 second
+
+    } finally {
+      setTransactionCodeLoading(false);
+    }
+  };
+
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Check if the value is empty or not a valid number
@@ -140,27 +207,27 @@ const Customer = () => {
     fetchTransactions();
   }, [id]);
 
+  const fetchClientDetails = async () => {
+    try {
+      const response = await fetch(`/backend/pppoe-clients/${id}`);
+      const data: ClientDetails = await response.json();
+      setClientDetails(data);
+      console.log(data);
+      setLoading(false);
+
+      setPhoneNumber(data.phone_number);
+      setCurrEndDate(data.end_date);
+      setRouterId(data.router_id);
+      setCurrentPlan(data.plan_id);
+      setCustomerBrand(data.brand);
+    } catch (error) {
+      console.error("Error fetching client details:", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (id) {
-      const fetchClientDetails = async () => {
-        try {
-          const response = await fetch(`/backend/pppoe-clients/${id}`);
-          const data: ClientDetails = await response.json();
-          setClientDetails(data);
-          console.log(data);
-          setLoading(false);
-
-          setPhoneNumber(data.phone_number);
-          setCurrEndDate(data.end_date);
-          setRouterId(data.router_id);
-          setCurrentPlan(data.plan_id);
-          setCustomerBrand(data.brand);
-        } catch (error) {
-          console.error("Error fetching client details:", error);
-          setLoading(false);
-        }
-      };
-
       fetchClientDetails();
     }
   }, [id]);
@@ -405,7 +472,7 @@ const Customer = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6" style={{ backgroundColor: '#1E2939' }}>
       <Modal isOpen={!isAuthenticated} toggle={() => {}} aria-labelledby="modal-title">
         <ModalBody>
           <div className="flex flex-col items-center justify-center text-center space-y-4">
@@ -564,6 +631,31 @@ const Customer = () => {
                 </Row>
               </div>
             </Card>
+
+            {/* Use Transaction Code */}
+            <Card body className="mt-6 p-6">
+                <h5 className="mb-2">Pay with Paybill</h5>
+
+                <p className="mb-4">Pay using Paybill No. <span className="font-semibold text-xl text-primary">4150219</span> then copy the transaction code below and click <span className="font-semibold text-primary">Confirm Transaction Code</span> to automatically process your subscription. Kindly wait for 5 seconds after you click the button, your internet will be reconnected in just 5 minutes after the transaction is confirmed.</p>
+
+                <Input
+                  type="text"
+                  value={transactionCode}
+                  onChange={(e) => setTransactionCode(e.target.value)}
+                  placeholder="Enter Transaction Code"
+                  className="mb-3"
+                />
+
+                <Button color="success" onClick={checkTransactionStatus} disabled={transactionCodeLoading}>
+                  {transactionCodeLoading ? <Spinner size="sm" /> : 'Confirm Transaction Code'}
+                </Button>
+
+                {transactionCodeAlert.visible && (
+                  <Alert color={transactionCodeAlert.color} className="mt-3">
+                    {transactionCodeAlert.message}
+                  </Alert>
+                )}
+              </Card>
           </Col>
           <Col>
             <Card body className="lg:flex lg:space-x-6 p-6">
