@@ -127,7 +127,7 @@ const ClientsList: React.FC = () => {
         .replace(/{{enddate}}/g, formatEndDate(user.end_date))
         .replace(/{{brand}}/g, user.brand || "")
         .replace(/{{company_username}}/g, user.secret)
-        .replace(/{{payment_link}}/g, `${baseUrl}/authentication/acustomer?id=${user.id}`);
+        .replace(/{{account_number}}/g, `${user.id}`);
 
       return {
         id: user.id,
@@ -727,7 +727,7 @@ const ClientsList: React.FC = () => {
                 { label: "enddate", tag: "{{enddate}}" },
                 { label: "brand", tag: "{{brand}}" },
                 { label: "company", tag: "{{company_username}}" },
-                { label: "payment link", tag: "{{payment_link}}" },
+                { label: "account number", tag: "{{account_number}}" },
               ].map(({ label, tag }) => (
                 <Button
                   key={label}
