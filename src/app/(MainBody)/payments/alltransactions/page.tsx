@@ -81,7 +81,7 @@ const AllTransactions: React.FC = () => {
       });
 
       const response = await fetch(
-        `http://localhost:8000/all-mpesa-transactions?${queryParams.toString()}`,
+        `/backend/all-mpesa-transactions?${queryParams.toString()}`,
         {
           headers: {
             'Content-Type': 'application/json',
