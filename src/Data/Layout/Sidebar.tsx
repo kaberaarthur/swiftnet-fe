@@ -133,7 +133,7 @@ export const MenuList: MenuItem[] = [
         children: [
           { path: `/systemlogs/hotspotlogs`, title: "Hotspot Logs", type: "link" },
           { path: `/systemlogs/pppoelogs`, title: "PPPOE Logs", type: "link" },
-          { path: `/systemlogs/activitylogs`, title: "Activity Logs", type: "link" },
+          /*{ path: `/systemlogs/activitylogs`, title: "Activity Logs", type: "link" },*/
           { path: `/systemlogs/smslogs`, title: "SMS Logs", type: "link" },
         ]
       },
