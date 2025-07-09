@@ -22,6 +22,9 @@ import * as XLSX from 'xlsx';
 import Cookies from "js-cookie";
 import moment from "moment";
 
+// Individual Functions for Delete and Remove Clients Bulk
+import { deletePppoeClient, removePppoeClientFromSystem } from './utils/apiClients';
+
 
 interface TableRow {
   id: number;
@@ -87,6 +90,63 @@ const ClientsList: React.FC = () => {
   const [bulkSmsModalOpen, setBulkSmsModalOpen] = useState(false);
   const [bulkSmsMessage, setBulkSmsMessage] = useState('');
   const [bulkSmsSuccess, setBulkSmsSuccess] = useState(false);
+
+  // Bulk Delete/Remove
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [bulkActionModalOpen, setBulkActionModalOpen] = useState(false);
+  const [bulkActionType, setBulkActionType] = useState<'delete' | 'remove' | null>(null);
+
+  // To handle Delete or Remove Bulk Clients
+  const handleBulkAction = async (actionType: 'delete' | 'remove') => {
+    if (selectedRows.length === 0) {
+      setError('No clients selected');
+      return;
+    }
+    
+    if (!accessToken) {
+      setError('Authentication token is missing');
+      return;
+    }
+
+    setLoading(true);
+    const selectedUsers = filteredData
+      .filter((client) => selectedRows.includes(client.id))
+      .map((client) => ({
+        id: client.id,
+        full_name: client.full_name,
+      }));
+    console.log(`Selected Users for Bulk ${actionType}:`, selectedUsers);
+
+    const processedClientIds: number[] = [];
+
+    try {
+      for (const clientId of selectedRows) {
+        if (actionType === 'delete') {
+          await deletePppoeClient(clientId, accessToken);
+        } else if (actionType === 'remove') {
+          await removePppoeClientFromSystem(clientId, accessToken);
+        }
+        processedClientIds.push(clientId);
+      }
+
+      // Batch state updates
+      setTableData((prevData) => prevData.filter((client) => !processedClientIds.includes(client.id)));
+      setFilteredData((prevData) => prevData.filter((client) => !processedClientIds.includes(client.id)));
+      setSelectedRows([]);
+      setMessage(`Successfully ${actionType}d ${processedClientIds.length} client(s).`);
+    } catch (error) {
+      console.error(`Error during bulk ${actionType}:`, error);
+      setError(`Error occurred while ${actionType}ing clients. ${processedClientIds.length} client(s) processed successfully.`);
+      // Update state for successfully processed clients
+      setTableData((prevData) => prevData.filter((client) => !processedClientIds.includes(client.id)));
+      setFilteredData((prevData) => prevData.filter((client) => !processedClientIds.includes(client.id)));
+      setSelectedRows((prev) => prev.filter((id) => !processedClientIds.includes(id)));
+    } finally {
+      setLoading(false);
+      setBulkActionModalOpen(false);
+      setBulkActionType(null);
+    }
+  };
 
   const handleDateSMSFilter = () => {
       if (!fromDate || !toDate) return;
@@ -591,10 +651,20 @@ const ClientsList: React.FC = () => {
 
         {/* Client count display */}
         <div className="mb-3">
-          <span className="font-medium">
-            Displaying <strong>{filteredData.length}</strong> clients
-            {showDuplicates && <span className="ms-1">(showing duplicates only)</span>}
-          </span>
+          <Row>
+            <span className="font-medium">
+              Displaying <strong>{filteredData.length}</strong> clients
+              {showDuplicates && <span className="ms-1">(showing duplicates only)</span>}
+            </span>
+
+          </Row>
+          <Button
+            color="primary"
+            disabled={selectedRows.length === 0}
+            onClick={() => setBulkActionModalOpen(true)}
+          >
+            Bulk Action ({selectedRows.length} selected)
+          </Button>
         </div>
 
         <div className="mb-3">
@@ -609,6 +679,19 @@ const ClientsList: React.FC = () => {
           <table className="table table-striped table-hover">
             <thead className="table-dark">
               <tr>
+                <th>
+                  <Input
+                    type="checkbox"
+                    checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedRows(filteredData.map((row) => row.id));
+                      } else {
+                        setSelectedRows([]);
+                      }
+                    }}
+                  />
+                </th>
                 <th>ID</th>
                 <th>Full Name</th>
                 <th>Phone Number</th>
@@ -642,6 +725,19 @@ const ClientsList: React.FC = () => {
               ) : (
                 filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((data) => (
                   <tr key={data.id}>
+                    <td>
+                      <Input
+                        type="checkbox"
+                        checked={selectedRows.includes(data.id)}
+                        onChange={() => {
+                          setSelectedRows((prev) =>
+                            prev.includes(data.id)
+                              ? prev.filter((id) => id !== data.id)
+                              : [...prev, data.id]
+                          );
+                        }}
+                      />
+                    </td>
                     <td>
                       <Link href={`/clients/pppoeclients/editpppoeclient?client_id=${data.id}`} className="text-primary">
                         {data.id}
@@ -691,6 +787,37 @@ const ClientsList: React.FC = () => {
             Next
           </Button>
         </div>
+
+        {/* Modal For Bulk Delete/Remove */}
+        <Modal isOpen={bulkActionModalOpen} toggle={() => setBulkActionModalOpen(false)}>
+          <ModalHeader toggle={() => setBulkActionModalOpen(false)}>
+            Bulk Actions
+          </ModalHeader>
+          <ModalBody>
+            <p className='pb-2'>Select an action for {selectedRows.length} client(s):</p>
+            <p className='pb-2'>This action is permanent, once you click Remove or Delete, the action will be effected immediately and cannot be reversed. 
+              "Bulk Delete" removes the SELECTED clients from the system and the corresponding Router.
+              "Bulk Remove" removes the SELECTED clients only from the system and not from the Router.
+            </p>
+            <div className="d-flex gap-2">
+              <Button
+                color="danger"
+                onClick={() => handleBulkAction('delete')}
+                disabled={selectedRows.length === 0}
+              >
+                Bulk Delete
+              </Button>
+              <Button
+                color="warning"
+                onClick={() => handleBulkAction('remove')}
+                disabled={selectedRows.length === 0}
+              >
+                Bulk Remove
+              </Button>
+            </div>
+          </ModalBody>
+        </Modal>
+        {/* Modal For Bulk Delete/Remove */}
 
         {/* Modal for sending Bulk SMS */}
         <Modal isOpen={bulkSmsModalOpen} toggle={() => setBulkSmsModalOpen(!bulkSmsModalOpen)}>
