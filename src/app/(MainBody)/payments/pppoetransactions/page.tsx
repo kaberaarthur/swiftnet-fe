@@ -60,7 +60,7 @@ const MpesaTransactionsList: React.FC = () => {
 
         const filtered = data.filter((t: MpesaTransaction) => {
           const amount = parseFloat(t.Amount);
-          return !isNaN(amount) && amount > 5;
+          return !isNaN(amount) && amount > 0;
         });
 
         const sorted = filtered.sort(

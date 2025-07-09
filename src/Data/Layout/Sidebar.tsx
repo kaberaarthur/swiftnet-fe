@@ -14,7 +14,7 @@ export const MenuList: MenuItem[] = [
           { path: `/dashboard/ecommerce`, title: "Dashboard", type: "link" },
         ],
       },
-      {
+      /*{
         title: "Imports",
         id: 34,
         icon: "Download",
@@ -24,7 +24,7 @@ export const MenuList: MenuItem[] = [
           { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
           { path: `/clients/mikrotikimport`, title: "Import PPPOE Clients", type: "link" },
         ],
-      },
+      },*/
       {
         title: "Hotspot",
         id: 34,
@@ -111,6 +111,7 @@ export const MenuList: MenuItem[] = [
           { path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },
           /*{ path: `/payments/mpesatransactionstatus`, title: "Transaction Status", type: "link" },*/
           { path: `/payments/pppoetransactions`, title: "PPPOE Transactions", type: "link" },
+          { path: `/payments/alltransactions`, title: "All Transactions", type: "link" },
         ],
       },
       {
