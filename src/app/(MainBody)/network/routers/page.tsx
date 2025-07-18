@@ -12,6 +12,7 @@ interface TableRow {
   id: number;
   router_name: string;
   ip_address: string;
+  port?: number | null;
   username: string;
   router_secret: string;
   interface: string;
@@ -37,18 +38,20 @@ const RoutersList: React.FC = () => {
     
       try {
         const response = await fetch(url, {
-          method: 'GET', // Explicitly specifying GET method (optional since it's the default)
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
           }
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch routers');
         }
+
         const data = await response.json();
         setRouters(data);
+        setError(null); // ✅ Clear error on success
       } catch (error) {
         const errorMessage = (error as Error).message || 'An unknown error occurred';
         console.error('Error fetching routers:', errorMessage);
@@ -61,11 +64,19 @@ const RoutersList: React.FC = () => {
     }
   }, [user]);
 
-  // Synchronize scrolling between top scrollbar and table
+  // Auto-dismiss error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timeout = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [error]);
+
+  // Scroll sync
   const handleScroll = (source: 'top' | 'table') => {
     const topScroll = topScrollRef.current;
     const tableScroll = tableScrollRef.current;
-    
+
     if (!topScroll || !tableScroll) return;
 
     if (source === 'top') {
@@ -90,7 +101,7 @@ const RoutersList: React.FC = () => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}` 
+          'Authorization': `Bearer ${accessToken}`
         },
       });
 
@@ -99,9 +110,9 @@ const RoutersList: React.FC = () => {
       }
 
       setRouters(routers.filter(router => router.id !== selectedRouterId));
-      setError(null);
+      setError(null); // ✅ Clear error on success
       toggleModal();
-      
+
     } catch (error) {
       const errorMessage = (error as Error).message || 'An unknown error occurred';
       console.error('Error deleting router:', errorMessage);
@@ -126,19 +137,20 @@ const RoutersList: React.FC = () => {
           </Col>
         </Row>
       </div>
+
       {error && <Alert color="danger">{error}</Alert>}
-      
+
       {/* Top Scrollbar */}
       <div 
         ref={topScrollRef}
         className="overflow-x-auto max-w-full mb-4"
         onScroll={() => handleScroll('top')}
-        style={{ marginBottom: '-17px' }} // Offset for scrollbar thickness
+        style={{ marginBottom: '-17px' }}
       >
-        <div style={{ width: '2000px', height: '1px' }}></div> {/* Dummy content for scroll width */}
+        <div style={{ width: '2000px', height: '1px' }}></div>
       </div>
 
-      {/* Table Container */}
+      {/* Table */}
       <div 
         ref={tableScrollRef}
         className="overflow-x-auto max-w-full"
@@ -150,6 +162,7 @@ const RoutersList: React.FC = () => {
               <th className="px-4 py-2 text-left">ID</th>
               <th className="px-4 py-2 text-left">Router Name</th>
               <th className="px-4 py-2 text-left">IP Address</th>
+              <th className="px-4 py-2 text-left">Port</th>
               <th className="px-4 py-2 text-left">Username</th>
               <th className="px-4 py-2 text-left">Router Secret</th>
               <th className="px-4 py-2 text-left">Description</th>
@@ -161,14 +174,13 @@ const RoutersList: React.FC = () => {
             {routers.map((data) => (
               <tr key={data.id} className="border-b">
                 <td className="px-4 py-2">
-                  <div className="d-flex justify-content-center primary">
-                    <Link href={`/network/routers/editrouter?router_id=${data.id}`} style={{ color: "#0d6efd" }}>
-                      {data.id}
-                    </Link>
-                  </div>
+                  <Link href={`/network/routers/editrouter?router_id=${data.id}`} style={{ color: "#0d6efd" }}>
+                    {data.id}
+                  </Link>
                 </td>
                 <td className="px-4 py-2">{data.router_name}</td>
                 <td className="px-4 py-2">{data.ip_address}</td>
+                <td className="px-4 py-2">{data.port ?? 22}</td> {/* Show 22 if null/undefined */}
                 <td className="px-4 py-2">{data.username}</td>
                 <td className="px-4 py-2">{data.router_secret}</td>
                 <td className="px-4 py-2">{data.description}</td>
@@ -201,12 +213,8 @@ const RoutersList: React.FC = () => {
           Are you sure you want to delete this router? This action cannot be undone.
         </ModalBody>
         <ModalFooter>
-          <Button color="danger" onClick={handleDelete}>
-            Delete
-          </Button>{' '}
-          <Button color="primary" onClick={toggleModal}>
-            Cancel
-          </Button>
+          <Button color="danger" onClick={handleDelete}>Delete</Button>{' '}
+          <Button color="primary" onClick={toggleModal}>Cancel</Button>
         </ModalFooter>
       </Modal>
     </div>

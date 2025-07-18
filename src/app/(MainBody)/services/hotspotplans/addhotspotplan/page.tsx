@@ -5,6 +5,7 @@ import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../../Redux/Store';
 import { postLocalLog } from '../../../logservice/logService';
+import Cookies from 'js-cookie';
 
 interface FormData {
   plan_name: string;
@@ -39,6 +40,8 @@ const AddHotspotPlan: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [alertColor, setAlertColor] = useState<'success' | 'danger'>('success');
   const [visible, setVisible] = useState(false);
+
+  const accessToken = Cookies.get('accessToken') || localStorage.getItem('accessToken');
 
   const [formData, setFormData] = useState<FormData>({
     plan_name: "",
@@ -132,7 +135,10 @@ const AddHotspotPlan: React.FC = () => {
     try {
       const res = await fetch('/backend/hotspot-plans', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
         body: JSON.stringify(formData)
       });
 
