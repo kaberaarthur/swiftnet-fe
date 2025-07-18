@@ -33,6 +33,8 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           { path: `/hotspot/captive-portal`, title: "Captive Portal", type: "link" },
+          { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
+          { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
         ],
       },
       {
@@ -54,10 +56,10 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           { path: `/clients/addpppoeclient`, title: "Add PPPoE client", type: "link" },
-          { path: `/clients/addstaticclient`, title: "Add Static client", type: "link" },
+          /*{ path: `/clients/addstaticclient`, title: "Add Static client", type: "link" },*/
           { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
           { path: `/clients/pppoeclients`, title: "PPPoE Clients", type: "link" },
-          { path: `/clients/staticclients`, title: "Static Clients", type: "link" },
+          /*{ path: `/clients/staticclients`, title: "Static Clients", type: "link" },*/
           /*{ path: `/clients/importexistingclients`, title: "Import Clients", type: "link" },*/
           /*{ path: `/clients/clientslead`, title: "Clients Lead", type: "link" },*/
         ],
@@ -93,7 +95,7 @@ export const MenuList: MenuItem[] = [
         type: "sub",
         active: false,
         children: [
-          { path: `/services/staticplans`, title: "Static Plans", type: "link" },
+          /*{ path: `/services/staticplans`, title: "Static Plans", type: "link" },*/
           { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
           { path: `/services/pppoeplans`, title: "PPPOE Plans", type: "link" },
           { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },

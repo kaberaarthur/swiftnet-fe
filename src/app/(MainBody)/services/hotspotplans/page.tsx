@@ -60,6 +60,29 @@ const HotspotPlansList: React.FC = () => {
   const [simpleModal, setSimpleModal] = useState(false);
   const toggle = () => setSimpleModal(!simpleModal);
 
+
+  // Just a fancy function to convert hours into a more readable format
+  // e.g. 168 hours -> "1 Week 0 Days 0 Hours"
+  function formatValidity(hours: number | string): string {
+    const totalHours = typeof hours === 'string' ? parseFloat(hours) : hours;
+    if (isNaN(totalHours)) return "Invalid";
+
+    const weeks = Math.floor(totalHours / (24 * 7));
+    const days = Math.floor((totalHours % (24 * 7)) / 24);
+    const remainingHours = Math.floor(totalHours % 24);
+
+    const parts: string[] = [];
+
+    if (weeks > 0) parts.push(`${weeks} Week${weeks !== 1 ? 's' : ''}`);
+    if (days > 0) parts.push(`${days} Day${days !== 1 ? 's' : ''}`);
+    if (remainingHours > 0 || parts.length === 0) {
+      parts.push(`${remainingHours} Hour${remainingHours !== 1 ? 's' : ''}`);
+    }
+
+    return parts.join(' ');
+  }
+
+
   useEffect(() => {
     if (!user?.company_id) return;
 
@@ -210,7 +233,8 @@ const HotspotPlansList: React.FC = () => {
             <th className="px-4 py-2 text-left text-gray-900">Plan Price</th>
             <th className="px-4 py-2 text-left text-gray-900">Shared Users</th>
             <th className="px-4 py-2 text-left text-gray-900">Plan Validity (Hours)</th>
-            <th className="px-4 py-2 text-left text-gray-900">Manage</th>
+            <th className="px-4 py-2 text-left text-gray-900">Edit</th>
+            <th className="px-4 py-2 text-left text-gray-900">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -226,9 +250,19 @@ const HotspotPlansList: React.FC = () => {
                 <td className="px-4 py-2">{plan.bandwidth}</td>
                 <td className="px-4 py-2">{plan.plan_price}</td>
                 <td className="px-4 py-2">{plan.shared_users}</td>
-                <td className="px-4 py-2">{plan.plan_validity}</td>
-                <td className="px-4 py-2 text-blue-600">
-                  <i className="fa fa-trash-o cursor-pointer" onClick={() => handlePreDelete(plan.id)}></i>
+                <td className="px-4 py-2">
+                  {formatValidity(plan.plan_validity)}
+                </td>
+                <td className="px-4 py-2 text-center">
+                  <Link href={`/services/hotspotplans/edithotspotplan?plan_id=${plan.id}`}>
+                    <i className="fa fa-pencil cursor-pointer text-info text-xl hover:text-blue-700"></i>
+                  </Link>
+                </td>
+                <td className="px-4 py-2 text-blue-600 text-center">
+                  <i
+                    className="fa fa-trash-o cursor-finger text-danger"
+                    onClick={() => handlePreDelete(plan.id)}
+                  ></i>
                 </td>
               </tr>
             ))
