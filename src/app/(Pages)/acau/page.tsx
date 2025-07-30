@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 const ACAU = () => {
     const searchParams = useSearchParams();
-    const id = searchParams.get("id");
+    const id = searchParams!``.get("id");
     
     useEffect(() => {
         if (id) {

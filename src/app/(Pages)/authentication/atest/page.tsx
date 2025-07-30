@@ -56,7 +56,7 @@ interface ClientDetails {
 
 const Customer = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id"); // Get the param from the URL
+  const id = searchParams!.get("id"); // Get the param from the URL
 
   console.log("##### userID ==> ", id)
 

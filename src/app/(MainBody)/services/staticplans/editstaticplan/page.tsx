@@ -26,7 +26,7 @@ const EditPPPoEPlan: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const plan_id = searchParams.get('plan_id');
+  const plan_id = searchParams!.get('plan_id');
 
   // State variables
   const [planData, setPlanData] = useState<PlanData | null>(null);

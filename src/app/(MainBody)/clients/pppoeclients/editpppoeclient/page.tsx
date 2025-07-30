@@ -60,7 +60,7 @@ interface Brand {
 
 const EditClient: React.FC = () => {
   const searchParams = useSearchParams();
-  const client_id = searchParams.get("client_id");
+  const client_id = searchParams!.get("client_id");
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState<Brand[]>([]);

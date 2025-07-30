@@ -26,7 +26,7 @@ const EditBandwidthPlan: React.FC = () => {
 
   // Route Params
   const searchParams = useSearchParams();
-  const plan_id = searchParams.get('plan_id');
+  const plan_id = searchParams!.get('plan_id');
 
   const [bandwidthId, setBandwidthId] = useState<number | null>(null);
   const [formData, setFormData] = useState<FormData>({

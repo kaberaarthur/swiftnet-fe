@@ -36,7 +36,7 @@ const EditRouter: React.FC = () => {
 
   // Route Params
   const searchParams = useSearchParams();
-  const router_id = searchParams.get('router_id');
+  const router_id = searchParams!.get('router_id');
 
   // Alert States
   const [visible, setVisible] = useState<boolean>(false);

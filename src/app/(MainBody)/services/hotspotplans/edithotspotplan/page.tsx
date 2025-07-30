@@ -25,7 +25,7 @@ const EditHotspotPlan: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
 
   const searchParams = useSearchParams();
-  const planId = searchParams.get('plan_id');
+  const planId = searchParams!.get('plan_id');
 
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);

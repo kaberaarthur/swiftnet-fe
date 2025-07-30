@@ -58,7 +58,7 @@ interface ClientDetails {
 
 const Customer = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const id = searchParams!.get("id");
 
   const [clientDetails, setClientDetails] = useState<ClientDetails | null>(null);
   const [password, setPassword] = useState("");
