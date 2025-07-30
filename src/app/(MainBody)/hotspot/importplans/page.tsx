@@ -46,6 +46,10 @@ export default function ImportHotspotPlans() {
   const accessToken = Cookies.get('accessToken') || localStorage.getItem('accessToken');
   const user = useSelector((state: RootState) => state.user);
 
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertColor, setAlertColor] = useState('success');
+  const [showAlert, setShowAlert] = useState(false);
+
   const fetchRouters = async () => {
     if (!user?.company_id) return;
     setRoutersLoading(true);
@@ -106,12 +110,57 @@ export default function ImportHotspotPlans() {
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
-  const handleImport = () => {
+  const handleImport = async () => {
     const validData = profiles.filter(
       (p) => p.selected && p.bandwidth && p.plan_price && p.plan_validity
-    );
-    console.log('Importing Plans:', validData);
-    toggleModal();
+    ).map(p => ({
+      name: p.name,
+      bandwidth: p.bandwidth,
+      plan_price: p.plan_price,
+      plan_validity: p.plan_validity,
+      shared_users: p['shared-users']
+    }));
+
+    if (validData.length === 0) {
+      setAlertMessage('Please select at least one plan and fill in all required fields.');
+      setAlertColor('danger');
+      setShowAlert(true);
+      return;
+    }
+
+    try {
+      const response = await axios.post('/backend/import-hotspot-plans', 
+        {
+          plans: validData,
+          router_id: selectedRouter
+        },
+        {
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setAlertMessage('Plans imported successfully!');
+        setAlertColor('success');
+      } else {
+        setAlertMessage('Failed to import plans. Please try again.');
+        setAlertColor('danger');
+      }
+    } catch (error) {
+      setAlertMessage('An error occurred while importing plans. Please try again.');
+      setAlertColor('danger');
+    }
+
+    setShowAlert(true);
+    
+    // Close the modal after 5 seconds
+    setTimeout(() => {
+      setShowAlert(false);
+      toggleModal();
+    }, 5000);
   };
 
   const hasSelectedPlans = profiles.some(p => p.selected);
@@ -225,13 +274,23 @@ export default function ImportHotspotPlans() {
           </div>
 
           <Modal isOpen={modalOpen} toggle={toggleModal}>
-            <ModalHeader toggle={toggleModal}>Confirm Import</ModalHeader>
+            <ModalHeader toggle={toggleModal}>Confirm Import Hotspot Plans</ModalHeader>
             <ModalBody>
-              This action will update existing plans if you have selected them. Are you sure you want to proceed?
+              {showAlert ? (
+                <Alert color={alertColor}>
+                  {alertMessage}
+                </Alert>
+              ) : (
+                <p>This action will update existing plans if you have selected them. Are you sure you want to proceed?</p>
+              )}
             </ModalBody>
             <ModalFooter>
-              <Button color="secondary" onClick={toggleModal}>Cancel</Button>{' '}
-              <Button color="danger" onClick={handleImport}>Import Plans</Button>
+              {!showAlert && (
+                <>
+                  <Button color="secondary" onClick={toggleModal}>Cancel</Button>{' '}
+                  <Button color="danger" onClick={handleImport}>Import Plans</Button>
+                </>
+              )}
             </ModalFooter>
           </Modal>
         </>
