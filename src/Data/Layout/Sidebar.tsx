@@ -45,6 +45,7 @@ export const MenuList: MenuItem[] = [
           { path: `/hotspot/captive-portal`, title: "Captive Portal", type: "link" },
           { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
           { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
+          { path: `/hotspot/importplans`, title: "Import Plans", type: "link" },
         ],
       },
       {
