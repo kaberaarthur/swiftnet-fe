@@ -84,7 +84,7 @@ const MikrotikClients = () => {
 
 
   const searchParams = useSearchParams();
-  const router_id = searchParams.get("router_id");
+  const router_id = searchParams.get("router_id") || '';
   const [clientsLoaded, setClientsLoaded] = useState<boolean>(false);
 
   const [systemClientData, setSystemClientData] = useState<SystemClient[]>([]);
