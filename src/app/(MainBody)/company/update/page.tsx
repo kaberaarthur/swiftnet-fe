@@ -18,7 +18,7 @@ interface Company {
 
 const EditCompanyPage: React.FC = () => {
   const searchParams = useSearchParams();
-  const company_id = searchParams.get('company_id');
+  const company_id = searchParams!.get('company_id');
 
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

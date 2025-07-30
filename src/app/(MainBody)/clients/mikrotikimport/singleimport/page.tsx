@@ -84,7 +84,8 @@ const MikrotikClients = () => {
 
 
   const searchParams = useSearchParams();
-  const router_id = searchParams.get("router_id") || '';
+  const router_id = searchParams!.get("router_id");
+
   const [clientsLoaded, setClientsLoaded] = useState<boolean>(false);
 
   const [systemClientData, setSystemClientData] = useState<SystemClient[]>([]);
@@ -98,11 +99,10 @@ const MikrotikClients = () => {
   };  
 
   useEffect(() => {
-    if (!router_id) {
-      // Redirect, show error, or throw
-      alert("Missing required router_id in URL");
-      // router.push('/error-page'); // or similar action
-    }
+      if (!router_id) {
+        console.log("Router ID is required but missing from URL parameters");
+        return;
+      }
   }, [router_id]);
 
   const [routers, setRouters] = useState<Router[]>([]);
