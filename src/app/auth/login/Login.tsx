@@ -92,7 +92,7 @@ const Login = () => {
       // Clear the success message after 2 seconds and redirect
       setTimeout(() => {
         setSuccess(null);
-        router.push('/dashboard/default'); // Redirect to dashboard or appropriate page
+        router.push('/dashboard/ecommerce'); // Redirect to dashboard or appropriate page
       }, 2000);
       
     } catch (err) {

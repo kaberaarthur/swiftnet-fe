@@ -15,6 +15,16 @@ export const MenuList: MenuItem[] = [
         ],
       },
       {
+        title: "Company",
+        id: 34,
+        icon: "Category",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/company/allcompanies`, title: "Companies", type: "link" }
+        ],
+      },
+      {
         title: "Imports",
         id: 34,
         icon: "Download",
