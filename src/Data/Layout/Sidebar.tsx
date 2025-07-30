@@ -14,7 +14,7 @@ export const MenuList: MenuItem[] = [
           { path: `/dashboard/ecommerce`, title: "Dashboard", type: "link" },
         ],
       },
-      /*{
+      {
         title: "Imports",
         id: 34,
         icon: "Download",
@@ -24,7 +24,7 @@ export const MenuList: MenuItem[] = [
           { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
           { path: `/clients/mikrotikimport`, title: "Import PPPOE Clients", type: "link" },
         ],
-      },*/
+      },
       {
         title: "Hotspot",
         id: 34,
