@@ -322,7 +322,7 @@ const AddNewClient: React.FC = () => {
               value={formData.password}
               name="password"
               type="text"
-              placeholder='*******'
+              placeholder='Enter Secret Password'
               onChange={handleInputChange}
               required
             />
@@ -345,7 +345,7 @@ const AddNewClient: React.FC = () => {
                 value={formData.portal_password}
                 name="portal_password"
                 type="text"
-                placeholder='*******'
+                placeholder='Repeat Secret Password'
                 onChange={handleInputChange}
                 required
                 />
@@ -368,7 +368,7 @@ const AddNewClient: React.FC = () => {
                 value={formData.secret}
                 name="secret"
                 type="text"
-                placeholder='0710******'
+                placeholder='Enter Secret Username'
                 onChange={handleInputChange}
                 required
                 />
