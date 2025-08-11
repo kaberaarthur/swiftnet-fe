@@ -317,7 +317,7 @@ const AddNewClient: React.FC = () => {
           </Col>
 
           <Col sm="6">
-            <Label>{'Mikrotik Password'}</Label>
+            <Label>{'Secret Password'}</Label>
             <Input
               value={formData.password}
               name="password"
@@ -340,7 +340,7 @@ const AddNewClient: React.FC = () => {
             />
           </Col>
           <Col sm="6">
-              <Label>{'Portal Password'}</Label>
+              <Label>{'Repeat Password'}</Label>
               <Input
                 value={formData.portal_password}
                 name="portal_password"
@@ -363,7 +363,7 @@ const AddNewClient: React.FC = () => {
             />
           </Col>
           <Col sm="6">
-              <Label>{'Secret'}</Label>
+              <Label>{'Secret Username'}</Label>
               <Input
                 value={formData.secret}
                 name="secret"
