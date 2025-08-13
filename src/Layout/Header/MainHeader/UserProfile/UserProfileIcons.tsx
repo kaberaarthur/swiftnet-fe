@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import Cookies from "js-cookie";
 import { Href, Logout } from "@/Constant";
-import { LogOut } from "react-feather";
+import { LogOut, Box } from "react-feather";
 
 // Redux Store
 import { useSelector, useDispatch } from 'react-redux';
@@ -39,7 +39,19 @@ const UserProfileIcons = () => {
         </li>
       ))*/}
        <li onClick={handleClick} className="d-flex"><Link href={Href}scroll={false} ><LogOut /><span className="ms-2">{Logout} </span></Link></li>
-    </ul>
+       <li 
+        onClick={() => {
+          console.log("Change Password!");
+          router.push("/user/changepassword");
+        }}
+        className="d-flex"
+       >
+          <Link href="/user/changepassword" scroll={false}>
+            <Box />
+            <span className="ms-2">{"Password"}</span>
+          </Link>
+        </li>
+      </ul>
   );
 };
 

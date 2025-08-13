@@ -150,6 +150,7 @@ export const MenuList: MenuItem[] = [
           { path: `/systemlogs/pppoelogs`, title: "PPPOE Logs", type: "link" },
           /*{ path: `/systemlogs/activitylogs`, title: "Activity Logs", type: "link" },*/
           { path: `/systemlogs/smslogs`, title: "SMS Logs", type: "link" },
+          { path: `/services/pppoeplans/importpppoeplans/logs`, title: "Import PPP Plans Logs", type: "link" },
         ]
       },
       /*{
