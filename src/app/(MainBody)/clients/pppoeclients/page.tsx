@@ -320,6 +320,7 @@ const ClientsList: React.FC = () => {
   useEffect(() => {
     const lowerFilter = filter.toLowerCase();
     let filtered = tableData.filter((item) =>
+      (item.id ? item.id.toString().toLowerCase().includes(lowerFilter) : false) ||  // Add this line
       (item.router_id ? item.router_id.toString().toLowerCase().includes(lowerFilter) : false) ||  
       (item.phone_number ? item.phone_number.toLowerCase().includes(lowerFilter) : false) ||
       (item.secret ? item.secret.toLowerCase().includes(lowerFilter) : false) ||
@@ -525,7 +526,7 @@ const ClientsList: React.FC = () => {
           <Input
             id="searchFilter"
             type="text"
-            placeholder="Filter by Router ID, Phone, Secret, Brand, or Customer's Name..."
+            placeholder="Filter by Customer ID, Router ID, Phone, Secret, Brand, or Customer's Name..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="mb-2"
