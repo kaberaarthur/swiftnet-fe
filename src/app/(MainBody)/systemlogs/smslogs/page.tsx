@@ -18,11 +18,15 @@ import {
   InputGroup,
   InputGroupText,
 } from 'reactstrap';
+import * as XLSX from "xlsx";
+import { saveAs } from 'file-saver';
+
 
 interface SMSLog {
   id: number;
-  number: string;
-  status: string;
+  user_id: number;
+  total_messages: number;
+  log_data: string; // JSON string
   created_at: string;
 }
 
@@ -115,12 +119,10 @@ const SMSLogs: React.FC = () => {
     let startPage = Math.max(1, currentPage - half);
     let endPage = Math.min(totalPages, startPage + maxVisible - 1);
     
-    // Adjust if we're near the end
     if (endPage - startPage < maxVisible - 1) {
       startPage = Math.max(1, endPage - maxVisible + 1);
     }
 
-    // First page
     if (startPage > 1) {
       items.push(
         <PaginationItem key={1}>
@@ -139,7 +141,6 @@ const SMSLogs: React.FC = () => {
       }
     }
 
-    // Visible page range
     for (let page = startPage; page <= endPage; page++) {
       items.push(
         <PaginationItem key={page} active={currentPage === page}>
@@ -150,7 +151,6 @@ const SMSLogs: React.FC = () => {
       );
     }
 
-    // Last page
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         items.push(
@@ -174,6 +174,41 @@ const SMSLogs: React.FC = () => {
 
   const displayLogs = isSearching ? searchResults : logs;
 
+  // Excel download for a single row
+  const downloadLogData = (log: SMSLog) => {
+    try {
+      // Handle both stringified JSON and already-parsed objects
+      let jsonData: any;
+
+      if (typeof log.log_data === "string") {
+        jsonData = JSON.parse(log.log_data);
+      } else {
+        jsonData = log.log_data;
+      }
+
+      // Ensure it's always an array
+      const dataArray = Array.isArray(jsonData) ? jsonData : [jsonData];
+
+      // Convert to worksheet
+      const worksheet = XLSX.utils.json_to_sheet(dataArray);
+
+      // Create a workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "LogData");
+
+      // Write buffer
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const fileName = `log_${log.id}_${log.user_id}.xlsx`;
+
+      // Save file
+      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+      saveAs(blob, fileName);
+    } catch (err) {
+      console.error("Failed to download log data:", err, log.log_data);
+      alert("Invalid log data format");
+    }
+  };
+
   return (
     <Container fluid className="py-4">
       {/* Breadcrumbs */}
@@ -188,48 +223,6 @@ const SMSLogs: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Search Row */}
-      <Row className="mb-4">
-        <Col md={8} lg={6}>
-          <form onSubmit={handleSearch}>
-            <InputGroup>
-              <InputGroupText>📱</InputGroupText>
-              <Input
-                type="text"
-                placeholder="Search by phone number..."
-                value={searchNumber}
-                onChange={(e) => setSearchNumber(e.target.value)}
-                onKeyPress={handleKeyPress}
-              />
-              <Button 
-                color="primary" 
-                type="submit"
-                disabled={loading || !searchNumber.trim()}
-              >
-                {loading ? <Spinner size="sm" /> : 'Search'}
-              </Button>
-              {isSearching && (
-                <Button 
-                  color="secondary" 
-                  outline 
-                  onClick={clearSearch}
-                  disabled={loading}
-                >
-                  Clear
-                </Button>
-              )}
-            </InputGroup>
-          </form>
-        </Col>
-        {isSearching && (
-          <Col md={4} lg={6} className="d-flex align-items-center">
-            <Badge color="info" className="ms-2">
-              Search Results: {searchResults.length} found
-            </Badge>
-          </Col>
-        )}
-      </Row>
-
       {/* Table */}
       <Row>
         <Col>
@@ -238,15 +231,16 @@ const SMSLogs: React.FC = () => {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Number</th>
-                  <th>Status</th>
+                  <th>User ID</th>
+                  <th>Successful Messages</th>
                   <th>Created At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-4">
+                    <td colSpan={5} className="text-center py-4">
                       <Spinner color="primary" /> Loading...
                     </td>
                   </tr>
@@ -254,21 +248,23 @@ const SMSLogs: React.FC = () => {
                   displayLogs.map((log) => (
                     <tr key={log.id}>
                       <td>{log.id}</td>
-                      <td>{log.number}</td>
-                      <td>
-                        <Badge
-                          color={log.status.toLowerCase() === 'success' ? 'success' : 'danger'}
-                          pill
-                        >
-                          {log.status}
-                        </Badge>
-                      </td>
+                      <td>{log.user_id}</td>
+                      <td>{log.total_messages}</td>
                       <td>{new Date(log.created_at).toLocaleString()}</td>
+                      <td>
+                        <Button
+                          size="sm"
+                          color="success"
+                          onClick={() => downloadLogData(log)}
+                        >
+                          Download Log Data
+                        </Button>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="text-center py-4">
+                    <td colSpan={5} className="text-center py-4">
                       {isSearching ? 'No matching results found.' : 'No logs found.'}
                     </td>
                   </tr>
@@ -279,7 +275,7 @@ const SMSLogs: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Pagination - Only show when not searching and has multiple pages */}
+      {/* Pagination */}
       {!isSearching && totalPages > 1 && (
         <Row className="justify-content-center mt-4">
           <Col xs="auto">
