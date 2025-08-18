@@ -240,7 +240,7 @@ const ImportPPPoEPlans: React.FC = () => {
                 try {
                     const selectedRouterObj = routers.find(r => r.id === selectedRouter);
                     // --- MODIFIED URL REMAINS ---
-                    const plansResponse = await fetch(`/backend/router-pppoe-plans?id=${selectedRouter}`, {
+                    const plansResponse = await fetch(`/backend/router-pppoe-profiles?id=${selectedRouter}`, {
                          headers: { 'Authorization': `Bearer ${accessToken}` } // Example: Add if needed
                     });
 
@@ -611,7 +611,7 @@ const ImportPPPoEPlans: React.FC = () => {
                                                 disabled={isLoading}
                                             />
                                         </td>
-                                        <td>{plan.id}</td>
+                                        <td>{indexOfFirstItem + currentData.indexOf(plan) + 1}</td>
                                         <td>{plan.name}</td>
                                         <td>{plan.rate_limit}</td>
                                         <td>
