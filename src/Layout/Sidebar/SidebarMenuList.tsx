@@ -50,10 +50,11 @@ const SidebarMenuList = () => {
                 return false;
               }
 
-              // Existing filter for item at index 9
+              // Filter for "Payments" based on user type
+              /*
               if (itemIndex === 7 && user.user_type !== "admin" && user.user_type !== "superadmin") {
                 return false;
-              }
+              }*/
               return true;
             }),
           };

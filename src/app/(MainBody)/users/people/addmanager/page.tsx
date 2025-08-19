@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, Form, FormGroup, Input, Label, Row, Alert } from "reactstrap";
 import { useSelector } from 'react-redux';
 import Cookies from "js-cookie";
 import { RootState } from '../../../../../Redux/Store'; // Adjust path as needed
 
 import config from "../../../../../app/(MainBody)/config/config.json";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const AddManager = () => {
     const user = useSelector((state: RootState) => state.user);
@@ -13,6 +14,7 @@ const AddManager = () => {
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [customAlert, setCustomAlert] = useState({ message: "", type: "" });
+    const [showPassword, setShowPassword] = useState(false);
 
     const showAlert = (message: string, type: string) => {
         setCustomAlert({ message, type });
@@ -64,8 +66,9 @@ const AddManager = () => {
         };
 
         // Log the request body before sending
-        console.log("Request Body:", requestBody);
+        console.log("Request Body Create User: ", requestBody);
 
+        
         try {
             const response = await fetch(`${config.baseUrl}/api/create-user`, {
                 method: "POST",
@@ -100,6 +103,7 @@ const AddManager = () => {
         } finally {
             setLoading(false);
         }
+        
     };
 
     return (
@@ -163,15 +167,26 @@ const AddManager = () => {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="password">Password</Label>
-                            <Input
-                                type="password"
-                                name="password"
-                                id="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                placeholder="Enter password"
-                                required
-                            />
+                            <div className="input-group">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    id="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Enter password"
+                                    required
+                                />
+                                <div className="input-group-append">
+                                    <Button
+                                        color="secondary"
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </Button>
+                                </div>
+                            </div>
                         </FormGroup>
                     </Col>
                 </Row>
