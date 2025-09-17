@@ -42,7 +42,7 @@ const SidebarMenuList = () => {
             ...menu,
             Items: menu.Items.filter((item, itemIndex) => {
               // Hide item at index 6 (assuming it's "Routers") if not admin
-              if (itemIndex === 6 && user.user_type !== "admin") {
+              if (itemIndex === 6 && user.user_type !== "admin" && user.user_type !== "superadmin") {
                 return false;
               }
               // Existing filter for item at index 9
