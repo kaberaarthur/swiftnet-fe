@@ -11,6 +11,10 @@ const nextConfig = {
       },
     ];
   },
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: 'bottom-left', // or 'top-right'
+  },
   async rewrites() {
     return [
       {

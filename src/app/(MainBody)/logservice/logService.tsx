@@ -34,7 +34,7 @@ export const postLocalLog = async (description: string, user: any, router_id: an
     });
 
     if (!response.ok) {
-      throw new Error('Failed to send log data to /backend/local_logs');
+      console.error('Failed to send log data to /backend/local_logs');
     }
 
     const result = await response.json();

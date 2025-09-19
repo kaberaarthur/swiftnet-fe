@@ -11,13 +11,10 @@ import {
   Label,
   Button,
   Alert,
-  Spinner,
 } from "reactstrap";
 import Breadcrumbs from "@/CommonComponent/Breadcrumbs/Breadcrumbs";
 import { postLocalLog } from "../../../logservice/logService";
 import Cookies from "js-cookie";
-
-
 import config from "../../../config/config.json";
 import moment from "moment-timezone";
 
@@ -62,27 +59,11 @@ const EditClient: React.FC = () => {
   const searchParams = useSearchParams();
   const client_id = searchParams!.get("client_id");
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.user);
+  
+  // State management
   const [loading, setLoading] = useState(true);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [alert, setAlert] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
-
-  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
-
-  function formatDate(utcDate: string): string {
-    const date = new Date(utcDate);
-  
-    return date.toLocaleString('en-US', {
-      weekday: 'long', // Full weekday name
-      year: 'numeric', // Full year
-      month: 'long', // Full month name
-      day: 'numeric', // Day of the month
-      hour: '2-digit', // Hour in 2-digit format
-      minute: '2-digit', // Minute in 2-digit format
-      second: '2-digit', // Second in 2-digit format
-      hour12: true, // 12-hour clock format (AM/PM)
-    });
-  }
-  
+  const [originalData, setOriginalData] = useState<FormData | null>(null);
   const [formData, setFormData] = useState<FormData>({
     active: 0,
     phone_number: "",
@@ -101,209 +82,150 @@ const EditClient: React.FC = () => {
     brand: "",
     comments: "",
   });
+  
   const [routers, setRouters] = useState<Router[]>([]);
   const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [alert, setAlert] = useState<{ type: 'success' | 'danger'; message: string } | null>(null);
 
-  const [endDate, setEndDate] = useState("");
+  const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
-  // Handle input change
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value; // e.g., "2025-06-06T14:30"
+  // Utility function to get only changed fields
+  const getChangedFields = (): Partial<FormData> => {
+    if (!originalData) return {};
     
-    // Parse and convert to desired format in a specific timezone (optional)
-    const formattedDateTime = moment.tz(inputValue, "YYYY-MM-DDTHH:mm", "Africa/Nairobi") // Change to your desired timezone
-      .format("YYYY-MM-DD HH:mm:ss");
-
-    console.log("Formatted DateTime:", formattedDateTime);
-    setEndDate(formattedDateTime);
+    const changes: Partial<FormData> = {};
+    
+    (Object.keys(formData) as Array<keyof FormData>).forEach(key => {
+      if (formData[key] !== originalData[key]) {
+        (changes as any)[key] = formData[key];
+      }
+    });
+    
+    return changes;
   };
 
-  const user = useSelector((state: RootState) => state.user);
+  // Check if form has changes
+  const hasChanges = (): boolean => {
+    return Object.keys(getChangedFields()).length > 0;
+  };
 
-  // Fetch Brands
+  // Format date consistently
+  const formatDateForInput = (dateStr: string): string => {
+    if (!dateStr) return "";
+    return moment.tz(dateStr, "Africa/Nairobi").format("YYYY-MM-DDTHH:mm");
+  };
+
+  const formatDateForServer = (dateStr: string): string => {
+    if (!dateStr) return "";
+    return moment.tz(dateStr, "YYYY-MM-DDTHH:mm", "Africa/Nairobi").format("YYYY-MM-DD HH:mm:ss");
+  };
+
+  // Fetch functions
   const fetchBrands = async () => {
     try {
       const response = await fetch('/backend/brands', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
+        headers: { 'Authorization': `Bearer ${accessToken}` }
       });
       const data = await response.json();
       setBrands(data);
     } catch (error) {
       console.error('Failed to fetch brands:', error);
       setAlert({ type: 'danger', message: 'Failed to load brands.' });
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Fetch client data
-  useEffect(() => {
-    if (client_id) {
-      const fetchClientData = async () => {
-        setLoading(true);
-        try {
-          const response = await fetch(`/backend/pppoe-clients/${client_id}`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method as needed
-            }
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const clientData = await response.json();
-
-          clientData.end_date = new Date(clientData.end_date);
-
-          console.log("DB Date (UTC+3):", clientData.end_date);
-
-          // Convert end_date to "yyyy-MM-dd" format
-          const formattedEndDate = clientData.end_date
-            ? moment.tz(clientData.end_date, "Africa/Nairobi").format("YYYY-MM-DD HH:mm:ss")
-            : "";
-
-          console.log("Formatted Date: ", clientData.end_date);
-
-          setFormData({
-            active: clientData.active,
-            phone_number: clientData.phone_number,
-            full_name: clientData.full_name,
-            location: clientData.location,
-            sms_group: clientData.sms_group,
-            end_date: formattedEndDate,
-            plan_id: clientData.plan_id,
-            plan_name: clientData.plan_name,
-            plan_fee: clientData.plan_fee,
-            installation_fee: clientData.installation_fee,
-            router_id: clientData.router_id,
-            company_id: clientData.company_id,
-            company_username: clientData.company_username,
-            secret: clientData.secret,
-            brand: clientData.brand,
-            comments: clientData.comments,
-          });
-
-          console.log("Current Client Date: ", formattedEndDate);
-          setEndDate(formattedEndDate);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching client data:", error);
-        } finally {
-          setLoading(false);
+  const fetchRouters = async () => {
+    try {
+      const response = await fetch(`/backend/routers?company_id=${user.company_id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
         }
+      });
+      const data = await response.json();
+      setRouters(data);
+    } catch (error) {
+      console.error("Error fetching routers:", error);
+      setAlert({ type: 'danger', message: 'Failed to load routers.' });
+    }
+  };
+
+  const fetchPlans = async (routerId: number) => {
+    try {
+      const response = await fetch(
+        `/backend/pppoe-plans?router_id=${routerId}&type=pppoe`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`
+          }
+        }
+      );
+      const plans = await response.json();
+      setPppoePlans(plans);
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+      setAlert({ type: 'danger', message: 'Failed to load plans.' });
+    }
+  };
+
+  const fetchClientData = async () => {
+    if (!client_id) return;
+    
+    try {
+      const response = await fetch(`/backend/pppoe-clients/${client_id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const clientData = await response.json();
+      
+      const processedData: FormData = {
+        ...clientData,
+        end_date: moment.tz(clientData.end_date, "Africa/Nairobi").format("YYYY-MM-DD HH:mm:ss")
       };
 
-      fetchClientData();
+      setFormData(processedData);
+      setOriginalData(processedData); // Store original for comparison
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+      setAlert({ type: 'danger', message: 'Failed to load client data.' });
     }
-  }, [client_id]);
+  };
 
-
-  // Fetch routers
+  // Effect hooks
   useEffect(() => {
-    if (user.company_id) {
-      const fetchRouters = async () => {
-        setLoading(true);
+    const initializeData = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchClientData(),
+        fetchBrands(),
+        user.company_id && fetchRouters()
+      ]);
+      setLoading(false);
+    };
 
-        try {
-          const response = await fetch(`/backend/routers?company_id=${user.company_id}`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method if needed
-            }
-          });
+    initializeData();
+  }, [client_id, user.company_id]);
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          setRouters(data);
-        } catch (error) {
-          console.error("Error fetching routers:", error);
-        }
-        setLoading(false);
-      };
-
-      fetchRouters();
-    }
-  }, [user.company_id]);
-
-
-  // Fetch plans based on router_id
   useEffect(() => {
     if (formData.router_id) {
-      const fetchPlans = async () => {
-        setLoading(true);
-        try {
-          const response = await fetch(
-            `/backend/pppoe-plans?router_id=${formData.router_id}&type=pppoe`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}` // Adjust if token is stored differently
-              }
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const plans = await response.json();
-          setPppoePlans(plans);
-        } catch (error) {
-          console.error("Error fetching plans:", error);
-        }
-        setLoading(false);
-      };
-
-      fetchPlans();
+      fetchPlans(formData.router_id);
     }
   }, [formData.router_id]);
 
-
-  const handleFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const numericValue = parseFloat(value); // Convert input to a number
-  
-    if (!isNaN(numericValue) && numericValue >= 0) {
-      setFormData((prevData) => ({
-        ...prevData,
-        plan_fee: numericValue, // Ensure type matches FormData
-      }));
-    }
-  };  
-
-  const handleInstallationFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const numericValue = parseFloat(value); // Convert input to a number
-  
-    if (!isNaN(numericValue) && numericValue >= 0) {
-      setFormData((prevData) => ({
-        ...prevData,
-        installation_fee: numericValue, // Ensure type matches FormData
-      }));
-    }
-  };  
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  // Event handlers
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-  
-    setFormData((prev) => {
-      // If the user is changing the plan, update plan_name and plan_fee
+
+    setFormData(prev => {
       if (name === "plan_id") {
-        const selectedPlan = pppoePlans.find((plan) => plan.id === Number(value));
+        const selectedPlan = pppoePlans.find(plan => plan.id === Number(value));
         return {
           ...prev,
           plan_id: selectedPlan ? selectedPlan.id : 0,
@@ -311,154 +233,122 @@ const EditClient: React.FC = () => {
           plan_fee: selectedPlan ? selectedPlan.plan_price : 0,
         };
       }
-  
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
-  }; 
 
-  const formatDateWithTime = (dateStr: string, hoursToAdd: number = 3): string => {
-    const date = new Date(dateStr); // Convert YYYY-MM-DD to Date object
-  
-    // Add hours
-    date.setHours(date.getHours() + hoursToAdd);
-  
-    // Format to YYYY-MM-DD HH:mm:ss
-    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ` +
-      `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-  
-    return formattedDate;
-  };
-  
-  // This code currently does nothing
-  const validateEndDate = (selectedDateStr: string, currentEndDateStr: string) => {
-      const selectedDate = new Date(selectedDateStr);
-      const currentEndDate = new Date(currentEndDateStr);
-    
-      // Logging the dates
-      console.log("Selected Date:", selectedDate.toISOString());
-      console.log("Current End Date:", currentEndDate.toISOString());
-    
-      // No max limit, so just return the selected date as valid
-      return { 
-        valid: true, 
-        message: "Correct Days Selected", 
-        // adjustedDate: selectedDate.toISOString().split("T")[0] 
-        adjustedDate: selectedDateStr 
-      };
-  };
-
-  const [shouldUpdateClient, setShouldUpdateClient] = useState(false);  // Flag to trigger the fetch
-
-  // The updateClient function, moved into a useEffect that listens to shouldUpdateClient
-  useEffect(() => {
-    const updateClient = async () => {
-      setLoading(true);
-
-      console.log("Editing User: ", formData);
-      try {
-        const response = await fetch(`/backend/edit-pppoe-client/${client_id}`, {
-          method: "PATCH",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization":  `Bearer ${accessToken}`
-          },
-          body: JSON.stringify(formData),
-        });
-
-        if (response.ok) {
-          setSuccessMessage("Client updated successfully!");
-          postLocalLog(`${user.name} edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number} & End Date ${formData.end_date} hosted on Router: ${formData.router_id}`, user, formData.router_id);
-          setTimeout(() => {
-            setSuccessMessage(null);
-            window.location.reload(); // This will reload the page after 5 seconds
-          }, 5000);
-        } else {
-          const errorData = await response.json();
-          console.error("Failed to update client:", errorData);
-          setAlertMessage("Failed to update client.");
-          /*setTimeout(() => {
-            window.location.reload();
-          }, 1000);*/
-        }
-      } catch (error) {
-        console.error("Error updating client:", error);
-        setAlertMessage("An error occurred while updating the client.");
+      if (name === "end_date") {
+        return {
+          ...prev,
+          end_date: formatDateForServer(value)
+        };
       }
 
-      setLoading(false);
-        
+      return { ...prev, [name]: value };
+    });
+  };
+
+  const handleNumericChange = (field: 'plan_fee' | 'installation_fee') => 
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const numericValue = parseFloat(e.target.value);
+      if (!isNaN(numericValue) && numericValue >= 0) {
+        setFormData(prev => ({ ...prev, [field]: numericValue }));
+      }
     };
 
-    // Run updateClient only when shouldUpdateClient is true
-    if (shouldUpdateClient) {
-      updateClient();
-      setShouldUpdateClient(false);  // Reset the flag after the request
-    }
-  }, [shouldUpdateClient, formData]);  // Depend on shouldUpdateClient and formData
-
-  // Your handleUpdateClient function to validate and update formData
   const handleUpdateClient = async () => {
-    setLoading(true);
-    const validation = validateEndDate(endDate, formData.end_date);
-
-    if (validation.valid) {
-      console.log(validation.message ?? "");
-
-      setAlertMessage("");
-
-      if (validation.adjustedDate) {
-        // Update formData.end_date with adjustedDate
-        setFormData((prevData: FormData) => {
-          const updatedEndDate = validation.adjustedDate;
-          console.log("Updated end date with time: ", updatedEndDate);  // Log updated value
-
-          return {
-            ...prevData, // Preserve existing properties
-            end_date: updatedEndDate, // Update only the end_date field
-          };
-        });
-
-        // Set the flag to trigger the updateClient function after formData is updated
-        setShouldUpdateClient(true);
-      }
-      setLoading(false);
-
-      setTimeout(() => {
-        // window.location.reload();
-        console.log("Successful Reload");
-      }, 2000);
-      
-
-    } else {
-      setAlertMessage(validation.message ?? "");
-      console.log("Invalid Date: ", validation.adjustedDate ?? "");
-      setLoading(false);
-
-      /*setTimeout(() => {
-        window.location.reload();
-      }, 100);*/
-      
+    let changes = getChangedFields();
+    
+    if (!hasChanges()) {
+      setAlert({ type: 'danger', message: 'No changes detected.' });
       return;
+    }
+
+    // Always include router_id in the request, even if it hasn't changed
+    changes = { ...changes, router_id: formData.router_id, secret: formData.secret };
+
+    // Check if end_date is being updated and is in the future
+    if (changes.end_date) {
+      const endDateMoment = moment.tz(changes.end_date, "YYYY-MM-DD HH:mm:ss", "Africa/Nairobi");
+      const currentTimestamp = moment.tz("Africa/Nairobi");
+      
+      // If end_date is in the future and active is not already 1, add active: 1 to changes
+      if (endDateMoment.isAfter(currentTimestamp) && formData.active !== 1) {
+        changes = { ...changes, active: 1 };
+        console.log("End date is in the future. Automatically setting active to 1.");
+      }
+    }
+
+    setLoading(true);
+    
+    try {
+      console.log("Sending only changed fields:", changes);
+      
+      const response = await fetch(`/backend/edit-pppoe-client/${client_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(changes),
+      });
+
+      if (response.ok) {
+        setAlert({ type: 'success', message: 'Client updated successfully!' });
+        postLocalLog(
+          `${user.name} edited PPPoE client with ID ${client_id} & Phone Number ${formData.phone_number}`,
+          user,
+          formData.router_id
+        );
+        
+        // Update original data to reflect current state (including auto-set active)
+        const updatedFormData = { ...formData };
+        if (changes.active === 1) {
+          updatedFormData.active = 1;
+        }
+        setOriginalData(updatedFormData);
+        setFormData(updatedFormData);
+        
+        setTimeout(() => {
+          setAlert(null);
+        }, 5000);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to update client:", errorData);
+        setAlert({ type: 'danger', message: 'Failed to update client.' });
+      }
+    } catch (error) {
+      console.error("Error updating client:", error);
+      setAlert({ type: 'danger', message: 'An error occurred while updating the client.' });
+    }
+
+    setLoading(false);
+  };
+
+  const resetForm = () => {
+    if (originalData) {
+      setFormData({ ...originalData });
     }
   };
 
-  useEffect(() => {
-      fetchBrands();
-    }, []);
+  if (loading && !originalData) {
+    return (
+      <Container fluid className="mb-4">
+        <div className="text-center p-4">Loading...</div>
+      </Container>
+    );
+  }
 
   return (
-    <Container fluid>
+    <Container fluid className="mb-4">
       <Breadcrumbs
-        mainTitle={`Edit PPPoE Client - ${
-          `${formData.full_name} || ${formData.phone_number}` || "Loading..."
-        }`}
+        mainTitle={`Edit PPPoE Client - ${formData.full_name || "Loading..."} || ${formData.phone_number}`}
         parent=""
       />
-      {alertMessage && <Alert color="danger">{alertMessage}</Alert>}
-      {successMessage && <Alert color="success">{successMessage}</Alert>}
+      
+      {alert && (
+        <Alert color={alert.type} dismissible onToggle={() => setAlert(null)}>
+          {alert.message}
+        </Alert>
+      )}
+
       <Row>
         <Col sm="6">
           <Label>SMS Group</Label>
@@ -469,6 +359,7 @@ const EditClient: React.FC = () => {
             onChange={handleInputChange}
           />
         </Col>
+        
         <Col sm="6">
           <Label>Active Status</Label>
           <Input
@@ -481,22 +372,24 @@ const EditClient: React.FC = () => {
             <option value={0}>Inactive</option>
           </Input>
         </Col>
+        
         <Col sm="6">
           <Label>End Date</Label>
           <Input
             type="datetime-local"
             name="end_date"
-            value={endDate}
-            onChange={handleEndDateChange}
+            value={formatDateForInput(formData.end_date)}
+            onChange={handleInputChange}
           />
         </Col>
+        
         <Col sm="6">
           <Label>Plan</Label>
           <Input
             type="select"
             name="plan_id"
             value={formData.plan_id}
-            onChange={(e) => handleInputChange(e)}
+            onChange={handleInputChange}
           >
             <option value="">Select Plan</option>
             {pppoePlans.map((plan) => (
@@ -506,30 +399,36 @@ const EditClient: React.FC = () => {
             ))}
           </Input>
         </Col>
+        
         <Col sm="6">
           <Label>Plan Fee</Label>
           <Input
-            type="text"
-            name="sms_group"
+            type="number"
+            name="plan_fee"
             value={formData.plan_fee}
-            onChange={handleFeeChange}
+            onChange={handleNumericChange('plan_fee')}
+            min="0"
+            step="0.01"
           />
         </Col>
+        
         <Col sm="6">
           <Label>Installation Fee</Label>
           <Input
-            type="text"
-            name="sms_group"
+            type="number"
+            name="installation_fee"
             value={formData.installation_fee}
-            onChange={handleInstallationFeeChange}
+            onChange={handleNumericChange('installation_fee')}
+            min="0"
+            step="0.01"
           />
         </Col>
+        
         <Col sm="6">
-          <Label for="brand">Brand</Label>
+          <Label>Brand</Label>
           <Input
             type="select"
             name="brand"
-            id="brand"
             value={formData.brand}
             onChange={handleInputChange}
           >
@@ -582,16 +481,22 @@ const EditClient: React.FC = () => {
           />
         </Col>
 
-        <Col sm="6" className="mt-3">
-          <Button color="primary" onClick={handleUpdateClient} disabled={loading}>
-            {loading ? (
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin h-5 w-5 border-t-2 border-white border-solid rounded-full"></div>
-                <span>Loading...</span>
-              </div>
-            ) : (
-              `Update Client`
-            )}
+        <Col sm="12" className="mt-3 d-flex gap-2">
+          <Button 
+            color="primary" 
+            onClick={handleUpdateClient} 
+            disabled={loading || !hasChanges()}
+          >
+            {loading ? "Updating..." : "Update Client"}
+            {/*hasChanges() && <span className="badge badge-light ml-2">{Object.keys(getChangedFields()).length}</span>*/}
+          </Button>
+          
+          <Button 
+            color="secondary" 
+            onClick={resetForm}
+            disabled={loading || !hasChanges()}
+          >
+            Reset Changes
           </Button>
         </Col>
       </Row>
