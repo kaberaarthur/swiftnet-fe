@@ -38,20 +38,24 @@ const UserProfileIcons = () => {
           </Link>
         </li>
       ))*/}
-       <li onClick={handleClick} className="d-flex"><Link href={Href}scroll={false} ><LogOut /><span className="ms-2">{Logout} </span></Link></li>
-       <li 
+      <li onClick={handleClick} className="d-flex">
+        <Link href={Href} scroll={false} >
+          <LogOut />
+          <span className="ms-2">{Logout} </span></Link>
+      </li>
+      <li
         onClick={() => {
           console.log("Change Password!");
           router.push("/user/changepassword");
         }}
         className="d-flex"
-       >
-          <Link href="/user/changepassword" scroll={false}>
-            <Box />
-            <span className="ms-2">{"Password"}</span>
-          </Link>
-        </li>
-      </ul>
+      >
+        <Link href="/user/changepassword" scroll={false}>
+          <Box />
+          <span className="ms-2">{"Password"}</span>
+        </Link>
+      </li>
+    </ul>
   );
 };
 

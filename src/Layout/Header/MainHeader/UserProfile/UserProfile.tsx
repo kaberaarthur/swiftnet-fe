@@ -50,7 +50,7 @@ const UserProfile = () => {
     return (
         <li className="profile-dropdown custom-dropdown">
             <div className="d-flex align-items-center" onClick={() => setShow(!show)}>
-                <Image width={45} height={49} src={`${ImagePath}/profile.png`} alt="avatar" />
+                <Image width={45} height={49} src={`${ImagePath}/avatar.jpg`} alt="avatar" />
                 <div className="flex-grow-1">
                     <h5>{user.name || 'Admin'}</h5>
                     <span>{user.user_type ? capitalizeFirstLetter(user.user_type) : 'Admin'}</span>

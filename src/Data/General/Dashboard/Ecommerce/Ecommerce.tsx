@@ -5,14 +5,14 @@ export const totalSalesData = [
     title: "Income Today",
     badgeColor: "danger",
     svgIcon: "arrow-up-right",
-    amount: "Kes. 12,463",
+    amount: "Kes. 12,467",
     btnColor: "primary",
     icon: "Product-discount",
     details: "20% since Last Month",
     chart: totalSaleChartData,
   },
   {
-    title: "Income this Month",
+    title: "Monthly Income",
     badgeColor: "success",
     svgIcon: "arrow-down-right",
     amount: "Kes. 51,325",
@@ -22,7 +22,7 @@ export const totalSalesData = [
     chart: orderChartData,
   },
   {
-    title: "Active Users",
+    title: "Hotspot Users",
     badgeColor: "warning",
     svgIcon: "icon-signal",
     amount: "41",
@@ -32,7 +32,7 @@ export const totalSalesData = [
     chart: orderChartData,
   },
   {
-    title: "Total Users",
+    title: "PPPoE Users",
     badgeColor: "danger",
     svgIcon: "arrow-up-right",
     amount: "587",
@@ -185,42 +185,59 @@ export const categoryOverviewDetailsData = [
   },
 ];
 
+// Helper: random percentage between min and max
+const randomPercentage = (min: number, max: number) => {
+  return `${(Math.random() * (max - min) + min).toFixed(1)}%`;
+};
+
+// Helper: random GB usage between min and max (out of total)
+const randomDiskUsage = (min: number, max: number, total: number) => {
+  const used = Math.floor(Math.random() * (max - min + 1)) + min;
+  return `${used} GB / ${total} GB`;
+};
+
 export const serverMemoryStatisticsDetailsData = [
   {
     name: "RAM Usage",
-    amount: "42.7%",
+    amount: randomPercentage(20, 60),
     color: "primary",
   },
   {
     name: "Memory Usage",
-    amount: "86%",
+    amount: randomPercentage(20, 60),
     color: "secondary",
   },
   {
     name: "Disk Utilization",
-    amount: "107 GB / 124 GB",
+    amount: randomDiskUsage(4, 16, 20), // 👈 random between 4–16 out of 20GB
     color: "tertiary",
   },
 ];
 
+
+// Helper: random integer between min and max
+const randomInt = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 export const clientsConnectionOverviewDetailsData = [
   {
     name: "Online Clients",
-    amount: "76",
+    amount: `${randomInt(10, 20)}`,
     color: "primary",
   },
   {
     name: "Offline Clients",
-    amount: "25",
+    amount: `${randomInt(10, 20)}`,
     color: "secondary",
   },
   {
     name: "Online Hotspot",
-    amount: "26",
+    amount: `${randomInt(10, 20)}`,
     color: "tertiary",
   },
-  
 ];
+
 
 export const manageOrderData = [
   {

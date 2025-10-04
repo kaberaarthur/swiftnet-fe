@@ -20,8 +20,8 @@ const ContainerEcommerce = () => {
         <Row>
           <TotalSale />
           {/*<ManageOrder />*/}
-          <MainTraffic/>
-          <WeeklyTraffic/>
+          {/*<MainTraffic/>*/}
+          {/*<WeeklyTraffic/>*/}
           {/*<ProductOffer />
           <SaleProgress />
           <BestSellers />
