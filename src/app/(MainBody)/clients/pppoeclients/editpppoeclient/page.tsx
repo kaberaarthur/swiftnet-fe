@@ -83,6 +83,7 @@ const EditClient: React.FC = () => {
     comments: "",
   });
   
+  const [companyActive, setCompanyActive] = useState(false);
   const [routers, setRouters] = useState<Router[]>([]);
   const [pppoePlans, setPppoePlans] = useState<PPPOEPlan[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -198,6 +199,22 @@ const EditClient: React.FC = () => {
     }
   };
 
+  const checkCompanyActive = async () => {
+    try {
+      const response = await fetch(`/backend/companies/subscription`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
+      const data = await response.json();
+      setCompanyActive(data.active);
+    } catch (error) {
+      console.error("Error checking company active status:", error);
+      setAlert({ type: 'danger', message: 'Failed to check company active status.' });
+    }
+  };
+
   // Effect hooks
   useEffect(() => {
     const initializeData = async () => {
@@ -205,6 +222,7 @@ const EditClient: React.FC = () => {
       await Promise.all([
         fetchClientData(),
         fetchBrands(),
+        checkCompanyActive(),
         user.company_id && fetchRouters()
       ]);
       setLoading(false);
@@ -482,22 +500,35 @@ const EditClient: React.FC = () => {
         </Col>
 
         <Col sm="12" className="mt-3 d-flex gap-2">
-          <Button 
-            color="primary" 
-            onClick={handleUpdateClient} 
-            disabled={loading || !hasChanges()}
-          >
-            {loading ? "Updating..." : "Update Client"}
-            {/*hasChanges() && <span className="badge badge-light ml-2">{Object.keys(getChangedFields()).length}</span>*/}
-          </Button>
-          
-          <Button 
-            color="secondary" 
-            onClick={resetForm}
-            disabled={loading || !hasChanges()}
-          >
-            Reset Changes
-          </Button>
+          {companyActive ? (
+            <>
+              <Button 
+                color="primary" 
+                onClick={handleUpdateClient} 
+                disabled={loading || !hasChanges()}
+              >
+                {loading ? "Updating..." : "Update Client"}
+              </Button>
+
+              <Button 
+                color="secondary" 
+                onClick={resetForm}
+                disabled={loading || !hasChanges()}
+              >
+                Reset Changes
+              </Button>
+            </>
+          ) : (
+            <div className="w-100">
+              <div 
+                className="alert alert-warning text-center mt-2" 
+                role="alert"
+                style={{ fontWeight: 500 }}
+              >
+                🚫 You cannot update clients since your subscription has expired.
+              </div>
+            </div>
+          )}
         </Col>
       </Row>
     </Container>
