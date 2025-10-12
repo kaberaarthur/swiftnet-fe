@@ -437,31 +437,44 @@ const AddNewClient: React.FC = () => {
           </Col>
 
           <Col sm="12" className="mt-3 d-flex gap-2 mb-8">
-            {companyActive ? (
               <>
                 <Button
-              onClick={handleAddClient}
-              disabled={loading || formData.router_id === 0 || formData.plan_id === 0}
-              className="mb-4"
-            >
-              {loading ? (
-                'Loading...'
-              ) : (
-                'Add New Client'
-              )}
-            </Button>
+                  onClick={handleAddClient}
+                  disabled={loading || formData.router_id === 0 || formData.plan_id === 0}
+                  className="mb-4"
+                >
+                  {loading ? (
+                    'Loading...'
+                  ) : (
+                    'Add New Client'
+                  )}
+                </Button>
+              </>
+            {/*companyActive ? (
+              <>
+                <Button
+                  onClick={handleAddClient}
+                  disabled={loading || formData.router_id === 0 || formData.plan_id === 0}
+                  className="mb-4"
+                >
+                  {loading ? (
+                    'Loading...'
+                  ) : (
+                    'Add New Client'
+                  )}
+                </Button>
               </>
             ) : (
               <div className="w-100">
-                <div 
-                  className="alert alert-warning text-center mt-2" 
+                <div
+                  className="alert alert-warning text-center mt-2"
                   role="alert"
                   style={{ fontWeight: 500 }}
                 >
                   🚫 You cannot add a client since your subscription has expired.
                 </div>
               </div>
-            )}
+            )*/}
           </Col>
 
         </Row>

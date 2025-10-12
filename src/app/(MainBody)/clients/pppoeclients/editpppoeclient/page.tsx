@@ -500,7 +500,24 @@ const EditClient: React.FC = () => {
         </Col>
 
         <Col sm="12" className="mt-3 d-flex gap-2">
-          {companyActive ? (
+            <>
+              <Button 
+                color="primary" 
+                onClick={handleUpdateClient} 
+                disabled={loading || !hasChanges()}
+              >
+                {loading ? "Updating..." : "Update Client"}
+              </Button>
+
+              <Button 
+                color="secondary" 
+                onClick={resetForm}
+                disabled={loading || !hasChanges()}
+              >
+                Reset Changes
+              </Button>
+            </>
+          {/*companyActive ? (
             <>
               <Button 
                 color="primary" 
@@ -528,7 +545,7 @@ const EditClient: React.FC = () => {
                 🚫 You cannot update clients since your subscription has expired.
               </div>
             </div>
-          )}
+          )*/}
         </Col>
       </Row>
     </Container>
