@@ -21,7 +21,8 @@ export const MenuList: MenuItem[] = [
         type: "sub",
         active: false,
         children: [
-          { path: `/company/allcompanies`, title: "Companies", type: "link" }
+          { path: `/company/allcompanies`, title: "Companies", type: "link" },
+          { path: `/company/addcompany`, title: "Add Company", type: "link" },
         ],
       },
       {
