@@ -91,6 +91,11 @@ const EditClient: React.FC = () => {
 
   const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
+  // Set the minimum selectable end date to the First day of current year
+  const currentYearStart = new Date(new Date().getFullYear(), 0, 1)
+    .toISOString()
+    .slice(0, 16); // format: "YYYY-MM-DDTHH:mm"
+
   // Utility function to get only changed fields
   const getChangedFields = (): Partial<FormData> => {
     if (!originalData) return {};
@@ -396,8 +401,9 @@ const EditClient: React.FC = () => {
           <Input
             type="datetime-local"
             name="end_date"
-            value={formatDateForInput(formData.end_date)}
+            value={formData.end_date}
             onChange={handleInputChange}
+            min={currentYearStart} // 🚫 no earlier than January 1st of this year
           />
         </Col>
         

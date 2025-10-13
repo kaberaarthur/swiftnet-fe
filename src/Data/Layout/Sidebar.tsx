@@ -23,6 +23,7 @@ export const MenuList: MenuItem[] = [
         children: [
           { path: `/company/allcompanies`, title: "Companies", type: "link" },
           { path: `/company/addcompany`, title: "Add Company", type: "link" },
+          { path: `/company/bulksmsbalance`, title: "Bulk SMS", type: "link" },
         ],
       },
       {
