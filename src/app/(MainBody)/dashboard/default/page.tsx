@@ -1,7 +1,16 @@
 'use client'
 import React, { FunctionComponent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const DefaultDashboard = () => {
+  // Automatically Redirect to /dashboard/ecommerce
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/dashboard/ecommerce");
+  }, [router]);
+
+
   const [MyAwesomeMap, setClient] = useState<FunctionComponent>();
   useEffect(() => {
     (async () => {
@@ -11,7 +20,8 @@ const DefaultDashboard = () => {
       }
     })();
   }, []);
-  return MyAwesomeMap ? <MyAwesomeMap /> : "";
+  // return MyAwesomeMap ? <MyAwesomeMap /> : "";
+  return null;
 };
 
 export default DefaultDashboard;
