@@ -9,6 +9,8 @@ import {
 } from "@/Data/General/Dashboard/DashboardChartData";
 import Cookies from "js-cookie";
 
+import config from "../../../../app/(MainBody)/config/config.json";
+
 const NewOrders = () => {
   const [totals, setTotals] = useState({
     hotspot_total: 0,
@@ -27,7 +29,7 @@ const NewOrders = () => {
     const fetchTotals = async () => {
       try {
         const res = await fetch(
-          `https://swiftnetmain.twigasoft.xyz/dashboard/total-users`,
+          `${config.baseUrl}/dashboard/total-users`,
           {
             method: "GET",
             headers: {
@@ -49,7 +51,7 @@ const NewOrders = () => {
     const fetchPayments = async () => {
       try {
         const res = await fetch(
-          `https://swiftnetmain.twigasoft.xyz/dashboard/pppoe-payments-total`,
+          `${config.baseUrl}/dashboard/pppoe-payments-total`,
           {
             method: "GET",
             headers: {

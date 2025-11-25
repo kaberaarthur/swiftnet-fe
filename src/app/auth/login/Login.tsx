@@ -63,6 +63,7 @@ const Login = () => {
 
       // Store the token in localStorage
       localStorage.setItem('accessToken', response.data.token);
+      console.log("Login Response Data: ", response.data);
       
       // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));

@@ -35,6 +35,7 @@ export const MenuList: MenuItem[] = [
         children: [
           { path: `/services/pppoeplans/importpppoeplans`, title: "Import PPPOE Plans", type: "link" },
           { path: `/clients/mikrotikimport`, title: "Import PPPOE Clients", type: "link" },
+          { path: `/clients/pppoecleanup`, title: "Client Cleanup", type: "link" },
         ],
       },
       {
@@ -72,6 +73,7 @@ export const MenuList: MenuItem[] = [
           /*{ path: `/clients/addstaticclient`, title: "Add Static client", type: "link" },*/
           { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
           { path: `/clients/pppoeclients`, title: "PPPoE Clients", type: "link" },
+          { path: `/clients/pppoecleanup`, title: "Client Cleanup", type: "link" },
           /*{ path: `/clients/staticclients`, title: "Static Clients", type: "link" },*/
           /*{ path: `/clients/importexistingclients`, title: "Import Clients", type: "link" },*/
           /*{ path: `/clients/clientslead`, title: "Clients Lead", type: "link" },*/

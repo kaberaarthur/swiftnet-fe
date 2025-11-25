@@ -242,6 +242,26 @@ const EditClient: React.FC = () => {
     }
   }, [formData.router_id]);
 
+  // Trial Data
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          // Parse the JSON string back into a JavaScript object
+          const userObject = JSON.parse(storedUser);
+          console.log('User from localStorage:', userObject);
+        } catch (error) {
+          console.error('Error parsing user data from localStorage:', error);
+          // Optional: log the raw string if parsing fails
+          // console.log('Raw user string:', storedUser);
+        }
+      } else {
+        console.log('No user found in localStorage.');
+      }
+    }
+  }, []);
+
   // Event handlers
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

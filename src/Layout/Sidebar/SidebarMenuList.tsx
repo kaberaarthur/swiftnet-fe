@@ -42,13 +42,13 @@ const SidebarMenuList = () => {
             ...menu,
             Items: menu.Items.filter((item, itemIndex) => {
               // Hide item at index 6 (assuming it's "Routers") if not admin
-              if (itemIndex === 6 && user.user_type !== "admin" && user.user_type !== "superadmin") {
+              /*if (itemIndex === 6 && user.user_type !== "admin" && user.user_type !== "superadmin") {
                 return false;
               }
               // Existing filter for item at index 9
               if (itemIndex === 9 && user.user_type !== "admin" && user.user_type !== "superadmin") {
                 return false;
-              }
+              }*/
 
               // Filter for "Payments" based on user type
               /*
@@ -76,11 +76,11 @@ const SidebarMenuList = () => {
         return user.user_type === "admin" || user.user_type === "superadmin";
       }
       // Existing filter for "Network"
-      if (item.title === "Network" && user.user_type !== "admin") {
+      if (item.title === "Network" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
         return false;
       }
       // Existing filter for "Network"
-      if (item.title === "System Logs" && user.user_type !== "admin") {
+      if (item.title === "System Logs" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
         return false;
       }
       return true;
