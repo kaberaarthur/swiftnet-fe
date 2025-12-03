@@ -22,7 +22,6 @@ import config from '../../config/config.json';
 interface HotspotPlan {
   id: number;
   plan_name: string;
-  plan_type: string;
   limit_type: string;
   data_limit: number;
   bandwidth: number;
@@ -34,6 +33,9 @@ interface HotspotPlan {
   company_id: number;
   router_id: number;
   date_created: string;
+  validity_readable?: string;
+  expired?: boolean;
+  plan_type: "basic" | "premium" | "offer";
 }
 
 interface Router {
@@ -60,9 +62,7 @@ const HotspotPlansList: React.FC = () => {
   const [simpleModal, setSimpleModal] = useState(false);
   const toggle = () => setSimpleModal(!simpleModal);
 
-
-  // Just a fancy function to convert hours into a more readable format
-  // e.g. 168 hours -> "1 Week 0 Days 0 Hours"
+  // Convert hours → readable format
   function formatValidity(hours: number | string): string {
     const totalHours = typeof hours === 'string' ? parseFloat(hours) : hours;
     if (isNaN(totalHours)) return "Invalid";
@@ -82,7 +82,7 @@ const HotspotPlansList: React.FC = () => {
     return parts.join(' ');
   }
 
-
+  // Fetch routers
   useEffect(() => {
     if (!user?.company_id) return;
 
@@ -101,16 +101,26 @@ const HotspotPlansList: React.FC = () => {
     fetchRouters();
   }, [user?.company_id]);
 
+  // Fetch hotspot plans (UPDATED to v2)
   useEffect(() => {
     if (!user?.company_id) return;
 
     const fetchHotspotPlans = async () => {
-      const url = `/backend/hotspot-plans?company_id=${user.company_id}`;
+      const url = `/backend/hotspot-plans-v2?company_id=${user.company_id}`;
+
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch hotspot plans');
-        const data: HotspotPlan[] = await response.json();
-        setHotspotPlans(data);
+        const data = await response.json();
+
+        // Data contains: offers[], premium[], basic[]
+        const merged: HotspotPlan[] = [
+          ...data.offers.map((p: any) => ({ ...p, plan_type: "offer" })),
+          ...data.premium.map((p: any) => ({ ...p, plan_type: "premium" })),
+          ...data.basic.map((p: any) => ({ ...p, plan_type: "basic" })),
+        ];
+
+        setHotspotPlans(merged);
       } catch (error) {
         console.error('Failed to fetch Hotspot Plans:', error);
       }
@@ -119,6 +129,7 @@ const HotspotPlansList: React.FC = () => {
     fetchHotspotPlans();
   }, [user?.company_id]);
 
+  // Filtering
   const filteredPlans = selectedRouterId
     ? hotspotPlans.filter(plan => plan.router_id === selectedRouterId)
     : hotspotPlans;
@@ -128,9 +139,7 @@ const HotspotPlansList: React.FC = () => {
   const currentData = filteredPlans.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
+  const handlePageChange = (newPage: number) => setCurrentPage(newPage);
 
   const handlePreDelete = (id: number) => {
     setPlanId(id);
@@ -141,19 +150,16 @@ const HotspotPlansList: React.FC = () => {
     try {
       const response = await fetch(`/backend/hotspot-plans/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!response.ok) throw new Error('Failed to delete bandwidth');
+      if (!response.ok) throw new Error('Failed to delete plan');
 
-      await response.json();
       postLocalLog("Deleted a hotspot plan", user, user.name);
-      setHotspotPlans(prevPlans => prevPlans.filter(plan => plan.id !== id));
+      setHotspotPlans(prev => prev.filter(plan => plan.id !== id));
       toggle();
     } catch (error) {
-      console.error('Error deleting bandwidth:', error);
+      console.error('Error deleting plan:', error);
     }
   };
 
@@ -174,10 +180,8 @@ const HotspotPlansList: React.FC = () => {
                 alt="confirm-delete"
               />
             </div>
-            <p className="text-sm-center">
-              Once an item has been deleted it cannot be restored.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <p>Once an item has been deleted it cannot be restored.</p>
+            <div className="flex justify-center mt-4">
               <Button
                 style={{ backgroundColor: '#dc2626', color: 'white', marginRight: '10px' }}
                 onClick={() => handleDelete(planId!)}
@@ -195,48 +199,45 @@ const HotspotPlansList: React.FC = () => {
         </ModalBody>
       </Modal>
 
-      {/* Header Row: Button + Router Select */}
-      <div className='py-2'>
-        <Row className="align-items-center mb-3">
-          <Col sm="6">
-            <Link href={'/services/hotspotplans/addhotspotplan'}>
-              <Button color='info' className="px-6 py-2">Add Hotspot Plan</Button>
-            </Link>
-          </Col>
-          <Col sm="6">
-            <select
-              className="form-select"
-              value={selectedRouterId ?? ''}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedRouterId(val ? Number(val) : null);
-              }}
-            >
-              <option value="">All Routers</option>
-              {routerList.map(router => (
-                <option key={router.id} value={router.id}>
-                  {router.router_name}
-                </option>
-              ))}
-            </select>
-          </Col>
-        </Row>
-      </div>
+      {/* Header & Filter */}
+      <Row className="align-items-center mb-3">
+        <Col sm="6">
+          <Link href={'/services/hotspotplans/addhotspotplan'}>
+            <Button color='info' className="px-6 py-2">Add Hotspot Plan</Button>
+          </Link>
+        </Col>
+        <Col sm="6">
+          <select
+            className="form-select"
+            value={selectedRouterId ?? ''}
+            onChange={(e) => setSelectedRouterId(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">All Routers</option>
+            {routerList.map(router => (
+              <option key={router.id} value={router.id}>
+                {router.router_name}
+              </option>
+            ))}
+          </select>
+        </Col>
+      </Row>
 
       {/* Table */}
       <table className="min-w-full bg-white shadow-md rounded-lg">
-        <thead className="bg-gray-900">
+        <thead className="bg-gray-900 text-white">
           <tr>
-            <th className="px-4 py-2 text-left text-gray-900">ID</th>
-            <th className="px-4 py-2 text-left text-gray-900">Plan Name</th>
-            <th className="px-4 py-2 text-left text-gray-900">Bandwidth</th>
-            <th className="px-4 py-2 text-left text-gray-900">Plan Price</th>
-            <th className="px-4 py-2 text-left text-gray-900">Shared Users</th>
-            <th className="px-4 py-2 text-left text-gray-900">Plan Validity (Hours)</th>
-            <th className="px-4 py-2 text-left text-gray-900">Edit</th>
-            <th className="px-4 py-2 text-left text-gray-900">Delete</th>
+            <th className="px-4 py-2 text-left">ID</th>
+            <th className="px-4 py-2 text-left">Plan Name</th>
+            <th className="px-4 py-2 text-left">Type</th>
+            <th className="px-4 py-2 text-left">Bandwidth</th>
+            <th className="px-4 py-2 text-left">Plan Price</th>
+            <th className="px-4 py-2 text-left">Shared Users</th>
+            <th className="px-4 py-2 text-left">Validity</th>
+            <th className="px-4 py-2 text-left">Edit</th>
+            <th className="px-4 py-2 text-left">Delete</th>
           </tr>
         </thead>
+
         <tbody>
           {currentData.length === 0 ? (
             <tr>
@@ -244,23 +245,31 @@ const HotspotPlansList: React.FC = () => {
             </tr>
           ) : (
             currentData.map((plan) => (
-              <tr key={plan.id} className="bg-white border-b">
+              <tr key={plan.id} className="border-b">
                 <td className="px-4 py-2">{plan.id}</td>
                 <td className="px-4 py-2">{plan.plan_name}</td>
+
+                {/* NEW COLUMN for plan type */}
+                <td className="px-4 py-2">
+                  {plan.plan_type === "premium" && <span className="text-yellow-600 font-bold">Premium</span>}
+                  {plan.plan_type === "basic" && <span className="text-gray-700">Basic</span>}
+                  {plan.plan_type === "offer" && <span className="text-green-600 font-bold">Offer</span>}
+                </td>
+
                 <td className="px-4 py-2">{plan.bandwidth}</td>
                 <td className="px-4 py-2">{plan.plan_price}</td>
                 <td className="px-4 py-2">{plan.shared_users}</td>
-                <td className="px-4 py-2">
-                  {formatValidity(plan.plan_validity)}
-                </td>
+                <td className="px-4 py-2">{formatValidity(plan.plan_validity)}</td>
+
                 <td className="px-4 py-2 text-center">
                   <Link href={`/services/hotspotplans/edithotspotplan?plan_id=${plan.id}`}>
                     <i className="fa fa-pencil cursor-pointer text-info text-xl hover:text-blue-700"></i>
                   </Link>
                 </td>
-                <td className="px-4 py-2 text-blue-600 text-center">
+
+                <td className="px-4 py-2 text-center text-danger">
                   <i
-                    className="fa fa-trash-o cursor-finger text-danger"
+                    className="fa fa-trash-o cursor-pointer"
                     onClick={() => handlePreDelete(plan.id)}
                   ></i>
                 </td>
@@ -270,14 +279,12 @@ const HotspotPlansList: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
         <Button disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>
           Previous
         </Button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
+        <span>Page {currentPage} of {totalPages}</span>
         <Button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>
           Next
         </Button>

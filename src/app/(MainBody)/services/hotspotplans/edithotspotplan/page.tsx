@@ -19,6 +19,7 @@ interface FormData {
   company_username: string;
   company_id: number;
   router_id: number;
+  offer: number | null; // 👈 new field
 }
 
 const EditHotspotPlan: React.FC = () => {
@@ -46,9 +47,11 @@ const EditHotspotPlan: React.FC = () => {
     router_name: "",
     company_username: "",
     company_id: 0,
-    router_id: 0
+    router_id: 0,
+    offer: null
   });
 
+  // Load company info into form
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -59,6 +62,7 @@ const EditHotspotPlan: React.FC = () => {
     }
   }, [user]);
 
+  // Fetch plan details
   useEffect(() => {
     const fetchPlan = async () => {
       if (!planId) return;
@@ -85,6 +89,7 @@ const EditHotspotPlan: React.FC = () => {
           company_username: plan.company_username,
           company_id: plan.company_id,
           router_id: plan.router_id,
+          offer: plan.offer ?? null, // 👈 load offer value
         });
 
       } catch (error) {
@@ -100,16 +105,18 @@ const EditHotspotPlan: React.FC = () => {
     fetchPlan();
   }, [planId, accessToken]);
 
+  // Handle field change
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const updatedValue = name === 'bandwidth' || name === 'shared_users' ? parseInt(value) || 0 : value;
+    const updatedValue =
+      name === 'bandwidth' || name === 'shared_users'
+        ? parseInt(value) || 0
+        : value;
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: updatedValue,
-    }));
+    setFormData(prev => ({ ...prev, [name]: updatedValue }));
   };
 
+  // Validate
   const validateForm = () => {
     const { plan_name, plan_price, shared_users, plan_validity, router_id, bandwidth, plan_type } = formData;
 
@@ -141,6 +148,7 @@ const EditHotspotPlan: React.FC = () => {
     return true;
   };
 
+  // Update plan
   const handleUpdateHotspotPlan = async () => {
     if (!validateForm()) return;
 
@@ -175,6 +183,7 @@ const EditHotspotPlan: React.FC = () => {
     }
   };
 
+  // Loading placeholder
   if (loading) {
     return (
       <Container fluid className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
@@ -192,7 +201,8 @@ const EditHotspotPlan: React.FC = () => {
         </Alert>
 
         <Row className="g-3 pb-4">
-          {/* Plan Type (Checkbox) */}
+
+          {/* Limited / Unlimited toggle */}
           <Col sm="6" className="d-flex align-items-end">
             <div className="form-check">
               <Input
@@ -213,6 +223,27 @@ const EditHotspotPlan: React.FC = () => {
             </div>
           </Col>
 
+          {/* Offer toggle */}
+          <Col sm="6" className="d-flex align-items-end">
+            <div className="form-check form-switch">
+              <Input
+                type="checkbox"
+                id="offerCheck"
+                className="form-check-input"
+                checked={formData.offer === 1}
+                onChange={(e) =>
+                  setFormData(prev => ({
+                    ...prev,
+                    offer: e.target.checked ? 1 : null,
+                  }))
+                }
+              />
+              <Label className="form-check-label" htmlFor="offerCheck">
+                Mark this as an Offer
+              </Label>
+            </div>
+          </Col>
+
           {/* Plan Name */}
           <Col sm="6">
             <Label>Plan Name <span className="text-danger">*</span></Label>
@@ -221,14 +252,14 @@ const EditHotspotPlan: React.FC = () => {
               name="plan_name"
               value={formData.plan_name}
               onChange={handleInputChange}
-              placeholder="Enter Plan Name (e.g. Songo Plan)"
+              placeholder="Enter Plan Name"
             />
           </Col>
 
           {/* Bandwidth */}
           <Col sm="6">
             <Label>
-              Bandwidth (Mbps) 
+              Bandwidth (Mbps)
               {formData.plan_type === 'Limited' && <span className="text-danger">*</span>}
             </Label>
             <Input
@@ -242,7 +273,7 @@ const EditHotspotPlan: React.FC = () => {
             />
           </Col>
 
-          {/* Plan Price */}
+          {/* Price */}
           <Col sm="6">
             <Label>Plan Price <span className="text-danger">*</span></Label>
             <Input
@@ -250,7 +281,7 @@ const EditHotspotPlan: React.FC = () => {
               name="plan_price"
               value={formData.plan_price}
               onChange={handleInputChange}
-              placeholder="Enter price (e.g. 100)"
+              placeholder="Enter price"
             />
           </Col>
 
@@ -266,7 +297,7 @@ const EditHotspotPlan: React.FC = () => {
             />
           </Col>
 
-          {/* Plan Validity */}
+          {/* Validity */}
           <Col sm="6">
             <Label>Plan Validity (Hours) <span className="text-danger">*</span></Label>
             <Input
@@ -278,7 +309,7 @@ const EditHotspotPlan: React.FC = () => {
             />
           </Col>
 
-          {/* Save Button */}
+          {/* Save button */}
           <Col sm="12" className="pt-4">
             <Button color="info" onClick={handleUpdateHotspotPlan} disabled={updating}>
               {updating ? (
@@ -291,6 +322,7 @@ const EditHotspotPlan: React.FC = () => {
               )}
             </Button>
           </Col>
+
         </Row>
       </Container>
     </>

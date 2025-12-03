@@ -18,6 +18,7 @@ interface FormData {
   company_username: string;
   company_id: number;
   router_id: number;
+  offer: number;              // ✅ NEW FIELD
 }
 
 interface Router {
@@ -53,7 +54,8 @@ const AddHotspotPlan: React.FC = () => {
     router_name: "",
     company_username: "",
     company_id: 0,
-    router_id: 0
+    router_id: 0,
+    offer: 0             // ✅ default is no offer
   });
 
   useEffect(() => {
@@ -93,8 +95,7 @@ const AddHotspotPlan: React.FC = () => {
 
   const validateForm = () => {
     const { plan_name, plan_type, plan_price, shared_users, plan_validity, router_id, bandwidth } = formData;
-    
-    // Check mandatory fields for all plans
+
     if (!plan_name || !plan_price || !shared_users || !plan_validity || !router_id) {
       setAlertColor('danger');
       setAlertMessage('Please fill in all required fields.');
@@ -102,7 +103,6 @@ const AddHotspotPlan: React.FC = () => {
       return false;
     }
 
-    // Additional validation for Limited plans - bandwidth is mandatory
     if (plan_type === 'Limited') {
       if (!bandwidth || bandwidth <= 0) {
         setAlertColor('danger');
@@ -110,18 +110,6 @@ const AddHotspotPlan: React.FC = () => {
         setVisible(true);
         return false;
       }
-    }
-
-    // Validate numeric fields
-    if (
-      isNaN(Number(shared_users)) ||
-      isNaN(Number(plan_validity)) ||
-      isNaN(Number(formData.bandwidth))
-    ) {
-      setAlertColor('danger');
-      setAlertMessage('Please enter valid numbers where required.');
-      setVisible(true);
-      return false;
     }
 
     return true;
@@ -136,9 +124,9 @@ const AddHotspotPlan: React.FC = () => {
       const res = await fetch('/backend/hotspot-plans', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify(formData)
       });
 
@@ -157,7 +145,7 @@ const AddHotspotPlan: React.FC = () => {
     } catch (error) {
       console.error(error);
       setAlertColor('danger');
-      setAlertMessage("Error occurred. Check if a plan with that validity already exists.");
+      setAlertMessage("Error occurred. Check if a plan with this validity already exists.");
       setVisible(true);
     } finally {
       setAddLoading(false);
@@ -181,6 +169,7 @@ const AddHotspotPlan: React.FC = () => {
         </Alert>
 
         <Row className="g-3 pb-4">
+
           {/* Router Selector */}
           <Col sm="6">
             <Label>Router <span className="text-danger">*</span></Label>
@@ -208,7 +197,7 @@ const AddHotspotPlan: React.FC = () => {
             </Input>
           </Col>
 
-          {/* Plan Type (Checkbox) */}
+          {/* Limited Bandwidth Switch */}
           <Col sm="6" className="d-flex align-items-end">
             <div className="form-check">
               <Input
@@ -229,6 +218,27 @@ const AddHotspotPlan: React.FC = () => {
             </div>
           </Col>
 
+          {/* NEW: Offer Switch */}
+          <Col sm="6">
+            <div className="form-check pt-2">
+              <Input
+                type="checkbox"
+                id="offerCheck"
+                className="form-check-input"
+                checked={formData.offer === 1}
+                onChange={(e) =>
+                  setFormData(prev => ({
+                    ...prev,
+                    offer: e.target.checked ? 1 : 0,
+                  }))
+                }
+              />
+              <Label className="form-check-label" htmlFor="offerCheck">
+                Mark As Offer
+              </Label>
+            </div>
+          </Col>
+
           {/* Plan Name */}
           <Col sm="6">
             <Label>Plan Name <span className="text-danger">*</span></Label>
@@ -244,7 +254,7 @@ const AddHotspotPlan: React.FC = () => {
           {/* Bandwidth */}
           <Col sm="6">
             <Label>
-              Bandwidth (Mbps) 
+              Bandwidth (Mbps)
               {formData.plan_type === 'Limited' && <span className="text-danger">*</span>}
             </Label>
             <Input
@@ -254,11 +264,13 @@ const AddHotspotPlan: React.FC = () => {
               step="1"
               value={formData.bandwidth}
               onChange={handleInputChange}
-              placeholder={formData.plan_type === 'Limited' ? 'Enter bandwidth limit' : 'Enter bandwidth (optional for unlimited)'}
+              placeholder={formData.plan_type === 'Limited'
+                ? 'Enter bandwidth limit'
+                : 'Optional'}
             />
           </Col>
 
-          {/* Plan Price */}
+          {/* Price */}
           <Col sm="6">
             <Label>Plan Price <span className="text-danger">*</span></Label>
             <Input
@@ -282,7 +294,7 @@ const AddHotspotPlan: React.FC = () => {
             />
           </Col>
 
-          {/* Plan Validity */}
+          {/* Validity */}
           <Col sm="6">
             <Label>Plan Validity (Hours) <span className="text-danger">*</span></Label>
             <Input
@@ -307,6 +319,7 @@ const AddHotspotPlan: React.FC = () => {
               )}
             </Button>
           </Col>
+
         </Row>
       </Container>
     </>
