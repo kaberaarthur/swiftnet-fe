@@ -88,11 +88,6 @@ const EditRouter: React.FC = () => {
           if (response.ok) {
             const data = await response.json();
 
-            if (user.company_id !== data.company_id) {
-              setNotFound(true);
-              return;
-            }
-
             setFormData(prev => ({
               ...prev,
               router_name: data.router_name || '',
