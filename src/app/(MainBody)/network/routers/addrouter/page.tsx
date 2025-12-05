@@ -22,6 +22,7 @@ interface FormData {
   company_id: number;
   created_by: number;
   company_username: string;
+  port: number;   // <-- NEW FIELD
 }
 
 const AddNewRouter: React.FC = () => {
@@ -34,7 +35,6 @@ const AddNewRouter: React.FC = () => {
   const onDismiss = () => setVisible(false);
   const onDismissAlert = () => setVisibleAlert(false);
   const onDismissAlertThree = () => setVisibleAlertThree(false);
-  // Alert
 
   const [error, setError] = useState<string | null>(null); // State for error message
 
@@ -50,12 +50,12 @@ const AddNewRouter: React.FC = () => {
     company_id: 0,
     created_by: 0,
     company_username: "@company",
+    port: 22,  // <-- DEFAULT PORT
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
 
   useEffect(() => {
-    // Ensure user is loaded before accessing its properties
     if (user) {
       setFormData((prevData) => ({
         ...prevData,
@@ -70,20 +70,20 @@ const AddNewRouter: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: name === "port" ? Number(value) : value,
     }));
   };
 
   const handleAddRouter = async () => {
     const url = '/backend/routers';
 
-    // Validate form data
     const requiredFields = [
       'router_name',
       'ip_address',
       'username',
       'interface',
       'router_secret',
+      'port'
     ];
 
     for (const field of requiredFields) {
@@ -93,14 +93,14 @@ const AddNewRouter: React.FC = () => {
       }
     }
 
-    setError(null); // Reset error message if validation passes
+    setError(null);
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}` // Adjust token retrieval method as needed
+          "Authorization": `Bearer ${accessToken}`
         },
         body: JSON.stringify(formData),
       });
@@ -110,9 +110,10 @@ const AddNewRouter: React.FC = () => {
         throw new Error(`Network response was not ok: ${errorBody}`);
       }
 
-      const result = await response.json();
+      await response.json();
       setVisible(true);
       setFormData(initialFormData);
+
     } catch (error) {
       console.error('Error adding router:', error);
     }
@@ -123,13 +124,13 @@ const AddNewRouter: React.FC = () => {
       <Breadcrumbs mainTitle={'Add a Router'} parent={FormsControl} />
       <Container fluid>
         <Row className="g-3">
+
           <Col sm="12">
             <Label>{'Router Name'}</Label>
             <Input
               value={formData.router_name}
               name="router_name"
               type="text"
-              placeholder=''
               onChange={handleInputChange}
             />
           </Col>
@@ -140,7 +141,6 @@ const AddNewRouter: React.FC = () => {
               value={formData.ip_address}
               name="ip_address"
               type="text"
-              placeholder=''
               onChange={handleInputChange}
             />
           </Col>
@@ -151,7 +151,6 @@ const AddNewRouter: React.FC = () => {
               value={formData.username}
               name="username"
               type="text"
-              placeholder=''
               onChange={handleInputChange}
             />
           </Col>
@@ -162,7 +161,6 @@ const AddNewRouter: React.FC = () => {
               value={formData.interface}
               name="interface"
               type="text"
-              placeholder=''
               onChange={handleInputChange}
             />
           </Col>
@@ -173,7 +171,18 @@ const AddNewRouter: React.FC = () => {
               value={formData.router_secret}
               name="router_secret"
               type="text"
-              placeholder=''
+              onChange={handleInputChange}
+            />
+          </Col>
+
+          {/* NEW PORT FIELD */}
+          <Col sm="12">
+            <Label>{'Port (Default: 22)'}</Label>
+            <Input
+              value={formData.port}
+              name="port"
+              type="number"
+              placeholder="22"
               onChange={handleInputChange}
             />
           </Col>
@@ -184,7 +193,6 @@ const AddNewRouter: React.FC = () => {
               value={formData.description}
               name="description"
               type="textarea"
-              placeholder=''
               onChange={handleInputChange}
             />
           </Col>
@@ -208,8 +216,11 @@ const AddNewRouter: React.FC = () => {
           </Col>
 
           <Col sm="12">
-            <Button color='info' className="px-6 py-2" onClick={handleAddRouter}>Add Router</Button>
+            <Button color='info' className="px-6 py-2" onClick={handleAddRouter}>
+              Add Router
+            </Button>
           </Col>
+
         </Row>
       </Container>
     </>
