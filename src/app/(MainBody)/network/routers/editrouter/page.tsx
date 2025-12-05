@@ -9,7 +9,6 @@ import { RootState } from '../../../../../Redux/Store';
 import Cookies from "js-cookie";
 import config from "../../../config/config.json";
 
-
 // Routing
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -24,22 +23,19 @@ interface FormData {
   interface: string;
   router_secret: string;
   description: string;
-  status: number;  // Added status field
+  status: number;
   company_id: number;
   created_by: number;
   company_username: string;
+  port: number;   // <-- NEW FIELD
 }
 
 const EditRouter: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
-  // console.log("Current User: ", user)
 
-  // Route Params
   const searchParams = useSearchParams();
   const router_id = searchParams!.get('router_id');
 
-  // Alert States
-  const [visible, setVisible] = useState<boolean>(false);
   const [visibleError, setVisibleError] = useState<boolean>(true);
   const [visibleSuccess, setVisibleSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,65 +53,61 @@ const EditRouter: React.FC = () => {
     interface: '',
     router_secret: '',
     description: '',
-    status: 1,  // Default status to 'Active'
+    status: 1,
     company_id: 0,
     created_by: 0,
     company_username: '@company',
+    port: 22,   // <-- DEFAULT PORT
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
 
   useEffect(() => {
-    // Ensure user is loaded before accessing its properties
     if (user) {
-      setFormData((prevData) => ({
-        ...prevData,
-        company_id: user.company_id !== null ? user.company_id : 0,
-        created_by: user.id !== null ? user.id : 0,
-        company_username: user.company_username !== null ? user.company_username : '@company',
+      setFormData(prev => ({
+        ...prev,
+        company_id: user.company_id ?? 0,
+        created_by: user.id ?? 0,
+        company_username: user.company_username ?? "@company",
       }));
     }
   }, [user]);
 
   useEffect(() => {
-    // Fetch router details only if router_id is present and user is loaded
-    if (router_id && user && typeof user.company_id === 'number') {
+    if (router_id && user) {
       const fetchRouter = async () => {
-        console.log("Access Token: ", accessToken)
         try {
-          // const response = await fetch(`http://localhost:8000/routers/${router_id}`, {
           const response = await fetch(`${config.baseUrl}/routers/${router_id}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}` 
+              'Authorization': `Bearer ${accessToken}`
             },
           });
-  
+
           if (response.ok) {
             const data = await response.json();
-  
-            // Check if user.company_id matches data.company_id
+
             if (user.company_id !== data.company_id) {
-              setNotFound(true); // Simulate router not found if company_id doesn't match
+              setNotFound(true);
               return;
             }
-  
-            // Update the form with fetched router data
-            setFormData((prevData) => ({
-              ...prevData,
+
+            setFormData(prev => ({
+              ...prev,
               router_name: data.router_name || '',
               ip_address: data.ip_address || '',
               username: data.username || '',
               interface: data.interface || '',
               router_secret: data.router_secret || '',
               description: data.description || '',
-              status: data.status !== undefined ? data.status : 1, // Load status value
+              status: data.status ?? 1,
               company_id: data.company_id || 0,
               created_by: data.created_by || 0,
-              company_username: data.company_username || '@company',
+              company_username: data.company_username ?? '@company',
+              port: data.port ?? 22,   // <-- LOAD PORT FROM API
             }));
-  
+
           } else if (response.status === 404) {
             setNotFound(true);
           } else {
@@ -126,65 +118,59 @@ const EditRouter: React.FC = () => {
           console.error('Error loading router:', error);
         }
       };
-  
+
       fetchRouter();
     }
-  }, [user, router_id, accessToken]);  
+  }, [router_id, user, accessToken]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: name === 'status' ? parseInt(value, 10) : value,
-    }));
-  };
 
-  const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const value = parseInt(e.target.value, 10); // Convert to number
-    setFormData((prevData) => ({
-      ...prevData,
-      status: value, // Set status as 1 (Active) or 0 (Inactive)
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === "status" ? Number(value) :
+              name === "port" ? Number(value) :
+              value,
     }));
   };
 
   const handleUpdateRouter = async () => {
-    // console.log("Form Data: ", formData);
     if (!router_id) {
       setError('Router ID is missing');
       return;
     }
 
-    // Validate form data
-    const requiredFields = ['router_name', 'ip_address', 'username', 'interface', 'router_secret'];
+    const requiredFields = ['router_name', 'ip_address', 'username', 'interface', 'router_secret', 'port'];
 
     for (const field of requiredFields) {
-      if (!formData[field as keyof FormData]) {
+      if (!formData[field as keyof FormData] && formData[field as keyof FormData] !== 0) {
         setError(`Please fill out the ${field.replace(/_/g, ' ')} field.`);
         return;
       }
     }
 
-    setError(null); // Reset error message if validation passes
+    setError(null);
 
     try {
       const response = await fetch(`/backend/routers/${router_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}` 
+          'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`Network response was not ok: ${errorBody}`);
+        const errText = await response.text();
+        throw new Error(errText);
       }
 
       setVisibleSuccess(true);
+
     } catch (error) {
+      console.error(error);
       setError('Error updating router');
-      console.error('Error updating router:', error);
     }
   };
 
@@ -193,88 +179,63 @@ const EditRouter: React.FC = () => {
       <Breadcrumbs mainTitle={'Edit Router'} parent={FormsControl} />
       <Container fluid className='pb-4'>
         <Row className="g-3">
+
           {notFound ? (
             <Col sm="12">
-              <Alert color="danger" fade isOpen={visibleError} toggle={onDismissError}>
+              <Alert color="danger" isOpen={visibleError} toggle={onDismissError}>
                 Router not found.
               </Alert>
             </Col>
           ) : (
             <>
               <Col sm="12">
-                <Label>{'Router Name'}</Label>
+                <Label>Router Name</Label>
+                <Input name="router_name" value={formData.router_name} onChange={handleInputChange} />
+              </Col>
+
+              <Col sm="12">
+                <Label>IP Address</Label>
+                <Input name="ip_address" value={formData.ip_address} onChange={handleInputChange} />
+              </Col>
+
+              <Col sm="12">
+                <Label>Username</Label>
+                <Input name="username" value={formData.username} onChange={handleInputChange} />
+              </Col>
+
+              <Col sm="12">
+                <Label>Interface</Label>
+                <Input name="interface" value={formData.interface} onChange={handleInputChange} />
+              </Col>
+
+              <Col sm="12">
+                <Label>Router Secret</Label>
+                <Input name="router_secret" value={formData.router_secret} onChange={handleInputChange} />
+              </Col>
+
+              <Col sm="12">
+                <Label>Port (Default: 22)</Label>
                 <Input
-                  value={formData.router_name}
-                  name="router_name"
-                  type="text"
-                  placeholder=""
+                  type="number"
+                  name="port"
+                  value={formData.port}
                   onChange={handleInputChange}
                 />
               </Col>
 
               <Col sm="12">
-                <Label>{'IP Address'}</Label>
+                <Label>Description</Label>
                 <Input
-                  value={formData.ip_address}
-                  name="ip_address"
-                  type="text"
-                  placeholder=""
-                  onChange={handleInputChange}
-                />
-              </Col>
-
-              <Col sm="12">
-                <Label>{'Username'}</Label>
-                <Input
-                  value={formData.username}
-                  name="username"
-                  type="text"
-                  placeholder=""
-                  onChange={handleInputChange}
-                />
-              </Col>
-
-              <Col sm="12">
-                <Label>{'Interface'}</Label>
-                <Input
-                  value={formData.interface}
-                  name="interface"
-                  type="text"
-                  placeholder=""
-                  onChange={handleInputChange}
-                />
-              </Col>
-
-              <Col sm="12">
-                <Label>{'Router Secret'}</Label>
-                <Input
-                  value={formData.router_secret}
-                  name="router_secret"
-                  type="text"
-                  placeholder=""
-                  onChange={handleInputChange}
-                />
-              </Col>
-
-              <Col sm="12">
-                <Label>{'Description'}</Label>
-                <Input
-                  value={formData.description}
-                  name="description"
                   type="textarea"
-                  placeholder=""
+                  name="description"
+                  value={formData.description}
                   onChange={handleInputChange}
                 />
               </Col>
 
               <Col sm="12">
-                <Label>{'Status'}</Label>
-                <Input
-                  type="select"
-                  value={formData.status.toString()} // Convert to string
-                  name="status"
-                  onChange={handleInputChange}
-                >
+                <Label>Status</Label>
+                <Input type="select" name="status" value={formData.status} onChange={handleInputChange}>
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </Input>
@@ -282,14 +243,14 @@ const EditRouter: React.FC = () => {
 
               {error && (
                 <Col sm="12">
-                  <Alert color="danger" fade isOpen={visibleError} toggle={onDismissError}>
+                  <Alert color="danger" isOpen={visibleError} toggle={onDismissError}>
                     {error}
                   </Alert>
                 </Col>
               )}
 
               <Col sm="12">
-                <Alert color="success" fade isOpen={visibleSuccess} toggle={onDismissSuccess}>
+                <Alert color="success" isOpen={visibleSuccess} toggle={onDismissSuccess}>
                   Router updated successfully.
                 </Alert>
               </Col>
@@ -301,6 +262,7 @@ const EditRouter: React.FC = () => {
               </Col>
             </>
           )}
+
         </Row>
       </Container>
     </>
