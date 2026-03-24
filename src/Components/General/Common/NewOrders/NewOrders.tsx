@@ -20,26 +20,29 @@ const NewOrders = () => {
   const [payments, setPayments] = useState({
     total_today: "0.00",
     total_month: "0.00",
+    total_day_hotspot: "0.00",
+    total_month_hotspot: "0.00",
   });
 
   const accessToken =
     Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
+  // ==========================
+  // FETCH FUNCTIONS
+  // ==========================
   useEffect(() => {
     const fetchTotals = async () => {
       try {
-        const res = await fetch(
-          `${config.baseUrl}/dashboard/total-users`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const res = await fetch(`${config.baseUrl}/dashboard/total-users`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         if (!res.ok) throw new Error("Failed to fetch totals");
+
         const data = await res.json();
         console.log("📊 Total Users:", data);
         setTotals(data);
@@ -62,8 +65,9 @@ const NewOrders = () => {
         );
 
         if (!res.ok) throw new Error("Failed to fetch payments");
+
         const data = await res.json();
-        console.log("💰 PPPoE Payments:", data);
+        console.log("💰 Payments Totals:", data);
         setPayments(data);
       } catch (error) {
         console.error("Error fetching payments:", error);
@@ -76,45 +80,57 @@ const NewOrders = () => {
     }
   }, [accessToken]);
 
+  // ==========================
+  // COMPUTED TOTALS
+  // ==========================
+  const totalTodayCombined =
+    Number(payments.total_today) + Number(payments.total_day_hotspot);
+
+  const totalMonthCombined =
+    Number(payments.total_month) + Number(payments.total_month_hotspot);
+
+  // ==========================
+  // DASHBOARD CARDS DATA
+  // ==========================
   const totalSalesData = [
     {
-      title: "Income Today",
+      title: "Income Today (PPPoE + Hotspot)",
       badgeColor: "danger",
       svgIcon: "arrow-up-right",
-      amount: `Kes. ${Number(payments.total_today).toLocaleString()}`, // dynamic 👈
+      amount: `Kes. ${totalTodayCombined.toLocaleString()}`,
       btnColor: "primary",
       icon: "Product-discount",
-      details: "20% since Last Month",
+      details: "Combined daily income",
       chart: totalSaleChartData,
     },
     {
-      title: "Monthly Income",
+      title: "Monthly Income (PPPoE + Hotspot)",
       badgeColor: "success",
       svgIcon: "arrow-down-right",
-      amount: `Kes. ${Number(payments.total_month).toLocaleString()}`, // dynamic 👈
+      amount: `Kes. ${totalMonthCombined.toLocaleString()}`,
       btnColor: "secondary",
       icon: "order-product",
-      details: "14% since Last Month",
+      details: "Combined monthly income",
       chart: orderChartData,
     },
     {
       title: "Hotspot Users",
       badgeColor: "warning",
       svgIcon: "icon-signal",
-      amount: totals.hotspot_total, // dynamic
+      amount: totals.hotspot_total,
       btnColor: "tertiary",
       icon: "delivery-van",
-      details: "10% since Last Month",
+      details: "Active hotspot users",
       chart: orderChartData,
     },
     {
       title: "PPPoE Users",
       badgeColor: "danger",
       svgIcon: "arrow-up-right",
-      amount: totals.pppoe_total, // dynamic
+      amount: totals.pppoe_total,
       btnColor: "tertiary",
       icon: "delivery-van",
-      details: "10% since Last Month",
+      details: "Active PPPoE users",
       chart: deliveryChartData,
     },
   ];

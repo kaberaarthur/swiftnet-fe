@@ -48,6 +48,8 @@ export const MenuList: MenuItem[] = [
           { path: `/hotspot/captive-portal`, title: "Captive Portal", type: "link" },
           { path: `/services/hotspotplans`, title: "Hotspot Plans", type: "link" },
           { path: `/clients/hotspotclients`, title: "Hotspot Clients", type: "link" },
+          { path: `/services/createvoucher`, title: "Create Voucher", type: "link" },
+          { path: `/payments/hotspottransactions`, title: "Hotspot Transactions", type: "link" },
           { path: `/hotspot/importplans`, title: "Import Plans", type: "link" },
         ],
       },
@@ -125,9 +127,10 @@ export const MenuList: MenuItem[] = [
         active: false,
         children: [
           /*{ path: `/payments/mpesatransactions`, title: "Mpesa Transactions", type: "link" },*/
-          { path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },
+          /*{ path: `/payments/mpesareports`, title: "Mpesa Reports", type: "link" },*/
           /*{ path: `/payments/mpesatransactionstatus`, title: "Transaction Status", type: "link" },*/
           { path: `/payments/pppoetransactions`, title: "PPPOE Transactions", type: "link" },
+          { path: `/payments/hotspottransactions`, title: "Hotspot Transactions", type: "link" },
           { path: `/payments/alltransactions`, title: "All Transactions", type: "link" },
         ],
       },

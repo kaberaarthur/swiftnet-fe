@@ -71,21 +71,30 @@ const SidebarMenuList = () => {
   const filteredMenuList: MenuItem[] = modifiedMenuList.map((mainMenu) => ({
     ...mainMenu,
     Items: mainMenu.Items?.filter((item) => {
-      // Existing filter for "People"
-      if (item.title === "People") {
-        return user.user_type === "admin" || user.user_type === "superadmin";
-      }
-      // Existing filter for "Network"
-      if (item.title === "Network" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
-        return false;
-      }
-      // Existing filter for "Network"
-      if (item.title === "System Logs" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
-        return false;
-      }
-      return true;
-    }) ?? [],
+        // Hide "People" unless admin or superadmin
+        if (item.title === "People") {
+          return user.user_type === "admin" || user.user_type === "superadmin";
+        }
+
+        // Hide "Network" unless admin or superadmin
+        if (item.title === "Network" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
+          return false;
+        }
+
+        // Hide "System Logs" unless admin or superadmin
+        if (item.title === "System Logs" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
+          return false;
+        }
+
+        // 🔥 NEW FILTER — Hide All Transactions unless superadmin
+        if (item.title === "All Transactions" && user.user_type !== "superadmin") {
+          return false;
+        }
+
+        return true;
+      }) ?? [],
   }));
+
 
   return (
     <>
