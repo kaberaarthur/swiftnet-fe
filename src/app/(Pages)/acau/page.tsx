@@ -10,7 +10,7 @@ const ACAU = () => {
         if (id) {
             window.location.href = `https://swiftnet-fe.vercel.app/authentication/acustomer?id=${id}`;
         }
-    }, [id]); // Depend on `id` to ensure it updates correctly
+    }, [id]); // Depend on `id` to ensure it updates correctly.
     
     return (
         <div className="flex items-center justify-center h-screen text-xl font-bold">

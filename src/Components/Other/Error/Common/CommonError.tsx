@@ -9,10 +9,10 @@ const CommonError: React.FC<{ errorSvg: JSX.Element }> = ({ errorSvg }) => {
         <Container>
           <div className="svg-wrraper">{errorSvg}</div>
           <Col md="8" className="offset-md-2">
-            <h3>{PageNotFound}</h3>
-            <p className="sub-content">{"The page you are attempting to reach is currently not available. This may be because the page does not exist or has been moved."}</p>
-            <Button color={"primary"} href={`/dashboard/default`}>
-              {BackToHomePage}
+            <h3>Error Loading Page</h3>
+            <p className="sub-content">{"Sign in again to access this page. A change has been made by your admin."}</p>
+            <Button color={"primary"} href={`/auth/login`}>
+              Sign In
             </Button>
           </Col>
         </Container>
