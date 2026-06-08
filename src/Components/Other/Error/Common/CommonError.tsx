@@ -10,7 +10,7 @@ const CommonError: React.FC<{ errorSvg: JSX.Element }> = ({ errorSvg }) => {
           <div className="svg-wrraper">{errorSvg}</div>
           <Col md="8" className="offset-md-2">
             <h3>Error Loading Page</h3>
-            <p className="sub-content">{"Sign in again to access this page. A change has been effected by your admin."}</p>
+            <p className="sub-content">{"Sign in again to access this page. A change has been made by your admin."}</p>
             <Button color={"primary"} href={`/auth/login`}>
               Sign In
             </Button>
