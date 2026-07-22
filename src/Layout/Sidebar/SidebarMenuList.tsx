@@ -40,7 +40,21 @@ const SidebarMenuList = () => {
         if (index === 0 && menu.Items) {
           return {
             ...menu,
-            Items: menu.Items.filter((item, itemIndex) => {
+            Items: menu.Items.map((item) => {
+              // Hide "Hotspot Management" link unless superadmin
+              if (item.title === "Hotspot" && item.children) {
+                return {
+                  ...item,
+                  children: item.children.filter((child) => {
+                    if (child.title === "Hotspot Management") {
+                      return user.user_type === "superadmin";
+                    }
+                    return true;
+                  }),
+                };
+              }
+              return item;
+            }).filter((item, itemIndex) => {
               // Hide item at index 6 (assuming it's "Routers") if not admin
               /*if (itemIndex === 6 && user.user_type !== "admin" && user.user_type !== "superadmin") {
                 return false;
