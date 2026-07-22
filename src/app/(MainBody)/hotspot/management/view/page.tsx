@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import {
   Container,
   Row,
@@ -32,8 +33,10 @@ interface House {
 interface Transaction {
   id: number;
   amount: number;
+  payment_type: "power_tokens" | "amount" | "free_voucher";
   for_month: string;
   paid_on: string;
+  meter_reading: number | null;
   notes: string | null;
 }
 
@@ -41,8 +44,8 @@ interface SiteDetail {
   id: number;
   site_name: string;
   phone_number: string;
-  location: string;
-  agreement_type: string;
+  location: string | null;
+  agreement_type: "power_tokens" | "amount" | "free_voucher" | null;
   agreement_value: number | null;
   agreement_notes: string | null;
   status: string;
@@ -56,6 +59,18 @@ const agreementLabels: Record<string, string> = {
   free_voucher: "Free Internet Voucher",
 };
 
+const statusBadgeColor = (status: string) => {
+  if (status === "installed") return "success";
+  if (status === "pending") return "warning";
+  return "secondary";
+};
+
+const statusLabel = (status: string) => {
+  if (status === "installed") return "Installed";
+  if (status === "pending") return "Pending";
+  return status;
+};
+
 const currentMonthValue = () => new Date().toISOString().slice(0, 7);
 const todayDateValue = () => new Date().toISOString().slice(0, 10);
 
@@ -64,7 +79,7 @@ const ViewHotspotSitePage: React.FC = () => {
   const site_id = searchParams!.get("site_id");
 
   const user = useSelector((state: RootState) => state.user);
-  const isSuperAdmin = user.user_type === "superadmin";
+  const isAuthorized = user.user_type === "superadmin" || user.user_type === "manager";
 
   const [site, setSite] = useState<SiteDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,8 +90,10 @@ const ViewHotspotSitePage: React.FC = () => {
   const [addingHouse, setAddingHouse] = useState(false);
 
   const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentType, setPaymentType] = useState("");
   const [paymentMonth, setPaymentMonth] = useState(currentMonthValue());
   const [paymentPaidOn, setPaymentPaidOn] = useState(todayDateValue());
+  const [meterReading, setMeterReading] = useState("");
   const [paymentNotes, setPaymentNotes] = useState("");
   const [recordingPayment, setRecordingPayment] = useState(false);
 
@@ -92,6 +109,7 @@ const ViewHotspotSitePage: React.FC = () => {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       setSite(response.data);
+      setPaymentType((prev) => (prev ? prev : response.data.agreement_type || "amount"));
     } catch (err) {
       setError("Failed to fetch site details");
     } finally {
@@ -100,13 +118,13 @@ const ViewHotspotSitePage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isSuperAdmin) {
+    if (!isAuthorized) {
       setLoading(false);
       return;
     }
     fetchSite();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site_id, isSuperAdmin]);
+  }, [site_id, isAuthorized]);
 
   const handleAddHouse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,13 +172,16 @@ const ViewHotspotSitePage: React.FC = () => {
         `/backend/hotspot-management/sites/${site_id}/transactions`,
         {
           amount: Number(paymentAmount),
+          payment_type: paymentType,
           for_month: `${paymentMonth}-01`,
           paid_on: paymentPaidOn,
+          meter_reading: meterReading ? Number(meterReading) : null,
           notes: paymentNotes || null,
         },
         { headers: { Authorization: `Bearer ${getToken()}` } }
       );
       setPaymentAmount("");
+      setMeterReading("");
       setPaymentNotes("");
       setActionSuccess("Payment recorded");
       await fetchSite();
@@ -184,7 +205,7 @@ const ViewHotspotSitePage: React.FC = () => {
     }
   };
 
-  if (!isSuperAdmin) {
+  if (!isAuthorized) {
     return (
       <Container className="mt-5">
         <Alert color="warning">You are not authorized to view this page.</Alert>
@@ -215,6 +236,11 @@ const ViewHotspotSitePage: React.FC = () => {
 
   return (
     <Container className="mt-5 mb-5">
+      <Link href="/hotspot/management" passHref>
+        <Button color="link" className="mb-3 ps-0 d-inline-flex align-items-center gap-1">
+          <ArrowLeft size={16} /> Back to All Sites
+        </Button>
+      </Link>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>{site.site_name}</h1>
         <Link href={{ pathname: "/hotspot/management/update", query: { site_id: site.id } }} passHref>
@@ -229,19 +255,17 @@ const ViewHotspotSitePage: React.FC = () => {
         <CardBody>
           <Row>
             <Col md="3">
-              <strong>Location:</strong> {site.location}
+              <strong>Location:</strong> {site.location || "-"}
             </Col>
             <Col md="3">
               <strong>Phone:</strong> {site.phone_number}
             </Col>
             <Col md="3">
               <strong>Status:</strong>{" "}
-              <Badge color={site.status === "installed" ? "success" : "warning"}>
-                {site.status === "installed" ? "Installed" : "Pending"}
-              </Badge>
+              <Badge color={statusBadgeColor(site.status)}>{statusLabel(site.status)}</Badge>
             </Col>
             <Col md="3">
-              <strong>Agreement:</strong> {agreementLabels[site.agreement_type]}
+              <strong>Agreement:</strong> {site.agreement_type ? agreementLabels[site.agreement_type] : "-"}
               {site.agreement_value ? ` (Kes. ${Number(site.agreement_value).toLocaleString()}/mo)` : ""}
             </Col>
           </Row>
@@ -341,6 +365,23 @@ const ViewHotspotSitePage: React.FC = () => {
                   </Col>
                   <Col xs="6">
                     <FormGroup>
+                      <Label for="payment_type">Payment Type</Label>
+                      <Input
+                        type="select"
+                        id="payment_type"
+                        value={paymentType}
+                        onChange={(e) => setPaymentType(e.target.value)}
+                      >
+                        <option value="power_tokens">Power Tokens</option>
+                        <option value="amount">Amount</option>
+                        <option value="free_voucher">Free Internet Voucher</option>
+                      </Input>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs="6">
+                    <FormGroup>
                       <Label for="payment_month">For Month</Label>
                       <Input
                         type="month"
@@ -351,8 +392,6 @@ const ViewHotspotSitePage: React.FC = () => {
                       />
                     </FormGroup>
                   </Col>
-                </Row>
-                <Row>
                   <Col xs="6">
                     <FormGroup>
                       <Label for="payment_paid_on">Paid On</Label>
@@ -362,6 +401,20 @@ const ViewHotspotSitePage: React.FC = () => {
                         value={paymentPaidOn}
                         onChange={(e) => setPaymentPaidOn(e.target.value)}
                         required
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs="6">
+                    <FormGroup>
+                      <Label for="meter_reading">Meter Reading</Label>
+                      <Input
+                        type="number"
+                        id="meter_reading"
+                        value={meterReading}
+                        onChange={(e) => setMeterReading(e.target.value)}
+                        placeholder="optional"
                       />
                     </FormGroup>
                   </Col>
@@ -394,7 +447,9 @@ const ViewHotspotSitePage: React.FC = () => {
               <tr>
                 <th>Month</th>
                 <th>Amount</th>
+                <th>Payment Type</th>
                 <th>Paid On</th>
+                <th>Meter Reading</th>
                 <th>Notes</th>
                 <th></th>
               </tr>
@@ -404,7 +459,9 @@ const ViewHotspotSitePage: React.FC = () => {
                 <tr key={t.id}>
                   <td>{t.for_month?.slice(0, 7)}</td>
                   <td>Kes. {Number(t.amount).toLocaleString()}</td>
+                  <td>{agreementLabels[t.payment_type] || t.payment_type}</td>
                   <td>{t.paid_on?.slice(0, 10)}</td>
+                  <td>{t.meter_reading ?? "-"}</td>
                   <td>{t.notes || "-"}</td>
                   <td>
                     <Button color="danger" outline size="sm" onClick={() => handleDeleteTransaction(t.id)}>
@@ -415,7 +472,7 @@ const ViewHotspotSitePage: React.FC = () => {
               ))}
               {site.transactions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-muted text-center">
+                  <td colSpan={7} className="text-muted text-center">
                     No payments recorded yet.
                   </td>
                 </tr>

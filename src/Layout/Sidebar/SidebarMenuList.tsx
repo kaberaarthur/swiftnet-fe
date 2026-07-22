@@ -47,7 +47,7 @@ const SidebarMenuList = () => {
                   ...item,
                   children: item.children.filter((child) => {
                     if (child.title === "Hotspot Management") {
-                      return user.user_type === "superadmin";
+                      return user.user_type === "superadmin" || user.user_type === "manager";
                     }
                     return true;
                   }),

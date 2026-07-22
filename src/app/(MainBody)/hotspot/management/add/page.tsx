@@ -4,6 +4,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import {
   Container,
   Form,
@@ -26,15 +28,16 @@ interface HouseInput {
 const AddHotspotSitePage: React.FC = () => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.user);
-  const isSuperAdmin = user.user_type === "superadmin";
+  const isAuthorized = user.user_type === "superadmin" || user.user_type === "manager";
 
   const [siteName, setSiteName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [location, setLocation] = useState("");
-  const [agreementType, setAgreementType] = useState("power_tokens");
+  const [agreementType, setAgreementType] = useState("");
   const [agreementValue, setAgreementValue] = useState("");
   const [agreementNotes, setAgreementNotes] = useState("");
-  const [status, setStatus] = useState("pending");
+  const [statusChoice, setStatusChoice] = useState("pending");
+  const [customStatus, setCustomStatus] = useState("");
   const [houses, setHouses] = useState<HouseInput[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
@@ -54,6 +57,7 @@ const AddHotspotSitePage: React.FC = () => {
     setSuccess(null);
 
     const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+    const status = statusChoice === "other" ? customStatus.trim() : statusChoice;
 
     try {
       await axios.post(
@@ -61,8 +65,8 @@ const AddHotspotSitePage: React.FC = () => {
         {
           site_name: siteName,
           phone_number: phoneNumber,
-          location,
-          agreement_type: agreementType,
+          location: location || null,
+          agreement_type: agreementType || null,
           agreement_value: agreementValue ? Number(agreementValue) : null,
           agreement_notes: agreementNotes || null,
           status,
@@ -80,7 +84,7 @@ const AddHotspotSitePage: React.FC = () => {
     }
   };
 
-  if (!isSuperAdmin) {
+  if (!isAuthorized) {
     return (
       <Container className="mt-5">
         <Alert color="warning">You are not authorized to view this page.</Alert>
@@ -90,6 +94,11 @@ const AddHotspotSitePage: React.FC = () => {
 
   return (
     <Container className="mt-5 mb-5">
+      <Link href="/hotspot/management" passHref>
+        <Button color="link" className="mb-3 ps-0 d-inline-flex align-items-center gap-1">
+          <ArrowLeft size={16} /> Back to All Sites
+        </Button>
+      </Link>
       <h1 className="mb-4">Add Hotspot Site</h1>
       {success && <Alert color="success">{success}</Alert>}
       {error && <Alert color="danger">{error}</Alert>}
@@ -114,7 +123,7 @@ const AddHotspotSitePage: React.FC = () => {
           <Col lg="12" xs="12">
             <FormGroup>
               <Label for="location">Location</Label>
-              <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} required />
+              <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
             </FormGroup>
           </Col>
         </Row>
@@ -129,6 +138,7 @@ const AddHotspotSitePage: React.FC = () => {
                 value={agreementType}
                 onChange={(e) => setAgreementType(e.target.value)}
               >
+                <option value="">Not set</option>
                 <option value="power_tokens">Power Tokens</option>
                 <option value="amount">Amount</option>
                 <option value="free_voucher">Free Internet Voucher</option>
@@ -150,10 +160,25 @@ const AddHotspotSitePage: React.FC = () => {
           <Col lg="4" xs="12">
             <FormGroup>
               <Label for="status">Status</Label>
-              <Input type="select" id="status" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <Input
+                type="select"
+                id="status"
+                value={statusChoice}
+                onChange={(e) => setStatusChoice(e.target.value)}
+              >
                 <option value="pending">Pending</option>
                 <option value="installed">Installed</option>
+                <option value="other">Other</option>
               </Input>
+              {statusChoice === "other" && (
+                <Input
+                  className="mt-2"
+                  placeholder="Describe the status"
+                  value={customStatus}
+                  onChange={(e) => setCustomStatus(e.target.value)}
+                  required
+                />
+              )}
             </FormGroup>
           </Col>
         </Row>

@@ -11,10 +11,10 @@ interface HotspotSite {
   id: number;
   site_name: string;
   phone_number: string;
-  location: string;
-  agreement_type: "power_tokens" | "amount" | "free_voucher";
+  location: string | null;
+  agreement_type: "power_tokens" | "amount" | "free_voucher" | null;
   agreement_value: number | null;
-  status: "pending" | "installed";
+  status: string;
   houses_count: number;
   settled_this_month: number;
 }
@@ -25,16 +25,28 @@ const agreementLabels: Record<string, string> = {
   free_voucher: "Free Internet Voucher",
 };
 
+const statusBadgeColor = (status: string) => {
+  if (status === "installed") return "success";
+  if (status === "pending") return "warning";
+  return "secondary";
+};
+
+const statusLabel = (status: string) => {
+  if (status === "installed") return "Installed";
+  if (status === "pending") return "Pending";
+  return status;
+};
+
 const HotspotManagementPage: React.FC = () => {
   const [sites, setSites] = useState<HotspotSite[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const user = useSelector((state: RootState) => state.user);
-  const isSuperAdmin = user.user_type === "superadmin";
+  const isAuthorized = user.user_type === "superadmin" || user.user_type === "manager";
 
   useEffect(() => {
-    if (!isSuperAdmin) {
+    if (!isAuthorized) {
       setLoading(false);
       return;
     }
@@ -55,9 +67,9 @@ const HotspotManagementPage: React.FC = () => {
     };
 
     fetchSites();
-  }, [isSuperAdmin]);
+  }, [isAuthorized]);
 
-  if (!isSuperAdmin) {
+  if (!isAuthorized) {
     return (
       <Container className="mt-5">
         <Alert color="warning">You are not authorized to view this page.</Alert>
@@ -85,9 +97,14 @@ const HotspotManagementPage: React.FC = () => {
     <Container className="mt-5 mb-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Hotspot Management</h1>
-        <Link href="/hotspot/management/add" passHref>
-          <Button color="primary">+ Add Site</Button>
-        </Link>
+        <div>
+          <Link href="/hotspot/management/import" passHref>
+            <Button color="secondary" outline className="me-2">Import from Excel</Button>
+          </Link>
+          <Link href="/hotspot/management/add" passHref>
+            <Button color="primary">+ Add Site</Button>
+          </Link>
+        </div>
       </div>
 
       <Table responsive striped>
@@ -107,17 +124,15 @@ const HotspotManagementPage: React.FC = () => {
           {sites.map((site) => (
             <tr key={site.id}>
               <td>{site.site_name}</td>
-              <td>{site.location}</td>
+              <td>{site.location || "-"}</td>
               <td>{site.phone_number}</td>
               <td>
-                {agreementLabels[site.agreement_type]}
+                {site.agreement_type ? agreementLabels[site.agreement_type] : "-"}
                 {site.agreement_value ? ` (Kes. ${Number(site.agreement_value).toLocaleString()})` : ""}
               </td>
               <td>{site.houses_count}</td>
               <td>
-                <Badge color={site.status === "installed" ? "success" : "warning"}>
-                  {site.status === "installed" ? "Installed" : "Pending"}
-                </Badge>
+                <Badge color={statusBadgeColor(site.status)}>{statusLabel(site.status)}</Badge>
               </td>
               <td>
                 <Badge color={site.settled_this_month ? "success" : "danger"}>

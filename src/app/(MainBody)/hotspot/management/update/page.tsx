@@ -4,6 +4,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Container, Form, FormGroup, Label, Input, Button, Alert, Spinner } from "reactstrap";
 import { RootState } from "../../../../../Redux/Store";
 
@@ -11,8 +13,8 @@ interface HotspotSite {
   id: number;
   site_name: string;
   phone_number: string;
-  location: string;
-  agreement_type: string;
+  location: string | null;
+  agreement_type: string | null;
   agreement_value: number | null;
   agreement_notes: string | null;
   status: string;
@@ -24,7 +26,7 @@ const UpdateHotspotSitePage: React.FC = () => {
   const site_id = searchParams!.get("site_id");
 
   const user = useSelector((state: RootState) => state.user);
-  const isSuperAdmin = user.user_type === "superadmin";
+  const isAuthorized = user.user_type === "superadmin" || user.user_type === "manager";
 
   const [site, setSite] = useState<HotspotSite | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -32,8 +34,11 @@ const UpdateHotspotSitePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const [statusChoice, setStatusChoice] = useState("pending");
+  const [customStatus, setCustomStatus] = useState("");
+
   useEffect(() => {
-    if (!isSuperAdmin) {
+    if (!isAuthorized) {
       setLoading(false);
       return;
     }
@@ -46,6 +51,13 @@ const UpdateHotspotSitePage: React.FC = () => {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         setSite(response.data);
+        if (response.data.status === "pending" || response.data.status === "installed") {
+          setStatusChoice(response.data.status);
+          setCustomStatus("");
+        } else {
+          setStatusChoice("other");
+          setCustomStatus(response.data.status);
+        }
       } catch (err) {
         setError("Failed to fetch site details");
       } finally {
@@ -53,7 +65,7 @@ const UpdateHotspotSitePage: React.FC = () => {
       }
     };
     fetchSite();
-  }, [site_id, isSuperAdmin]);
+  }, [site_id, isAuthorized]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -69,6 +81,7 @@ const UpdateHotspotSitePage: React.FC = () => {
     setSuccess(null);
 
     const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+    const status = statusChoice === "other" ? customStatus.trim() : statusChoice;
 
     try {
       await axios.patch(
@@ -76,11 +89,11 @@ const UpdateHotspotSitePage: React.FC = () => {
         {
           site_name: site.site_name,
           phone_number: site.phone_number,
-          location: site.location,
-          agreement_type: site.agreement_type,
+          location: site.location || null,
+          agreement_type: site.agreement_type || null,
           agreement_value: site.agreement_value,
           agreement_notes: site.agreement_notes,
-          status: site.status,
+          status,
         },
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
@@ -92,7 +105,7 @@ const UpdateHotspotSitePage: React.FC = () => {
     }
   };
 
-  if (!isSuperAdmin) {
+  if (!isAuthorized) {
     return (
       <Container className="mt-5">
         <Alert color="warning">You are not authorized to view this page.</Alert>
@@ -116,6 +129,11 @@ const UpdateHotspotSitePage: React.FC = () => {
 
   return (
     <Container className="mt-5 mb-5">
+      <Link href="/hotspot/management" passHref>
+        <Button color="link" className="mb-3 ps-0 d-inline-flex align-items-center gap-1">
+          <ArrowLeft size={16} /> Back to All Sites
+        </Button>
+      </Link>
       <h1 className="mb-4">Edit Site: {site.site_name}</h1>
       {success && <Alert color="success">{success}</Alert>}
       {error && <Alert color="danger">{error}</Alert>}
@@ -133,7 +151,7 @@ const UpdateHotspotSitePage: React.FC = () => {
 
         <FormGroup>
           <Label for="location">Location</Label>
-          <Input name="location" id="location" value={site.location} onChange={handleInputChange} required />
+          <Input name="location" id="location" value={site.location ?? ""} onChange={handleInputChange} />
         </FormGroup>
 
         <FormGroup>
@@ -142,9 +160,10 @@ const UpdateHotspotSitePage: React.FC = () => {
             type="select"
             name="agreement_type"
             id="agreement_type"
-            value={site.agreement_type}
+            value={site.agreement_type ?? ""}
             onChange={handleInputChange}
           >
+            <option value="">Not set</option>
             <option value="power_tokens">Power Tokens</option>
             <option value="amount">Amount</option>
             <option value="free_voucher">Free Internet Voucher</option>
@@ -175,10 +194,25 @@ const UpdateHotspotSitePage: React.FC = () => {
 
         <FormGroup>
           <Label for="status">Status</Label>
-          <Input type="select" name="status" id="status" value={site.status} onChange={handleInputChange}>
+          <Input
+            type="select"
+            id="status"
+            value={statusChoice}
+            onChange={(e) => setStatusChoice(e.target.value)}
+          >
             <option value="pending">Pending</option>
             <option value="installed">Installed</option>
+            <option value="other">Other</option>
           </Input>
+          {statusChoice === "other" && (
+            <Input
+              className="mt-2"
+              placeholder="Describe the status"
+              value={customStatus}
+              onChange={(e) => setCustomStatus(e.target.value)}
+              required
+            />
+          )}
         </FormGroup>
 
         <Button color="primary" type="submit" className="mt-3" disabled={submitting}>
