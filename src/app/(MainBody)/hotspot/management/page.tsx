@@ -1,7 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Container, Table, Button, Spinner, Alert, Badge } from "reactstrap";
+import {
+  Container,
+  Table,
+  Button,
+  Spinner,
+  Alert,
+  Badge,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useSelector } from "react-redux";
@@ -42,6 +53,10 @@ const HotspotManagementPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [deleteTarget, setDeleteTarget] = useState<HotspotSite | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const user = useSelector((state: RootState) => state.user);
   const isAuthorized = user.user_type === "superadmin" || user.user_type === "manager";
 
@@ -68,6 +83,31 @@ const HotspotManagementPage: React.FC = () => {
 
     fetchSites();
   }, [isAuthorized]);
+
+  const closeDeleteModal = () => {
+    setDeleteTarget(null);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+
+    const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
+    try {
+      await axios.delete(`/backend/hotspot-management/sites/${deleteTarget.id}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      setSites((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+      closeDeleteModal();
+    } catch (err: any) {
+      setDeleteError(err?.response?.data?.error || "Failed to delete site");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   if (!isAuthorized) {
     return (
@@ -143,9 +183,9 @@ const HotspotManagementPage: React.FC = () => {
                 <Link href={{ pathname: "/hotspot/management/view", query: { site_id: site.id } }} passHref>
                   <Button color="secondary" size="sm" className="me-2">View</Button>
                 </Link>
-                <Link href={{ pathname: "/hotspot/management/update", query: { site_id: site.id } }} passHref>
-                  <Button color="primary" size="sm">Edit</Button>
-                </Link>
+                <Button color="danger" outline size="sm" onClick={() => setDeleteTarget(site)}>
+                  Delete
+                </Button>
               </td>
             </tr>
           ))}
@@ -156,6 +196,23 @@ const HotspotManagementPage: React.FC = () => {
           )}
         </tbody>
       </Table>
+
+      <Modal isOpen={deleteTarget !== null} toggle={closeDeleteModal}>
+        <ModalHeader toggle={closeDeleteModal}>Delete Site</ModalHeader>
+        <ModalBody>
+          {deleteError && <Alert color="danger">{deleteError}</Alert>}
+          Do you really want to delete the {deleteTarget?.site_name} Site? This action cannot be undone, it is
+          permanent.
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" outline onClick={closeDeleteModal} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button color="danger" onClick={handleConfirmDelete} disabled={deleting}>
+            {deleting ? <Spinner size="sm" /> : "Delete"}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Container>
   );
 };
