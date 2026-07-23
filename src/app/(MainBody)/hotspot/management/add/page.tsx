@@ -142,6 +142,7 @@ const AddHotspotSitePage: React.FC = () => {
                 <option value="power_tokens">Power Tokens</option>
                 <option value="amount">Amount</option>
                 <option value="free_voucher">Free Internet Voucher</option>
+                <option value="free_wifi">Free Wi-Fi</option>
               </Input>
             </FormGroup>
           </Col>

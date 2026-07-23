@@ -23,7 +23,7 @@ interface HotspotSite {
   site_name: string;
   phone_number: string;
   location: string | null;
-  agreement_type: "power_tokens" | "amount" | "free_voucher" | null;
+  agreement_type: "power_tokens" | "amount" | "free_voucher" | "free_wifi" | null;
   agreement_value: number | null;
   status: string;
   houses_count: number;
@@ -34,6 +34,7 @@ const agreementLabels: Record<string, string> = {
   power_tokens: "Power Tokens",
   amount: "Amount",
   free_voucher: "Free Internet Voucher",
+  free_wifi: "Free Wi-Fi",
 };
 
 const statusBadgeColor = (status: string) => {

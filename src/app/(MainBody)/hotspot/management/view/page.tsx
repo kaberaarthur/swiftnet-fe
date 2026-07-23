@@ -33,7 +33,7 @@ interface House {
 interface Transaction {
   id: number;
   amount: number;
-  payment_type: "power_tokens" | "amount" | "free_voucher";
+  payment_type: "power_tokens" | "amount" | "free_voucher" | "free_wifi";
   for_month: string;
   paid_on: string;
   meter_reading: number | null;
@@ -45,7 +45,7 @@ interface SiteDetail {
   site_name: string;
   phone_number: string;
   location: string | null;
-  agreement_type: "power_tokens" | "amount" | "free_voucher" | null;
+  agreement_type: "power_tokens" | "amount" | "free_voucher" | "free_wifi" | null;
   agreement_value: number | null;
   agreement_notes: string | null;
   status: string;
@@ -57,6 +57,7 @@ const agreementLabels: Record<string, string> = {
   power_tokens: "Power Tokens",
   amount: "Amount",
   free_voucher: "Free Internet Voucher",
+  free_wifi: "Free Wi-Fi",
 };
 
 const statusBadgeColor = (status: string) => {
@@ -375,6 +376,7 @@ const ViewHotspotSitePage: React.FC = () => {
                         <option value="power_tokens">Power Tokens</option>
                         <option value="amount">Amount</option>
                         <option value="free_voucher">Free Internet Voucher</option>
+                        <option value="free_wifi">Free Wi-Fi</option>
                       </Input>
                     </FormGroup>
                   </Col>
