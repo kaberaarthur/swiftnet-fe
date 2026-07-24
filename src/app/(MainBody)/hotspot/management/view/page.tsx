@@ -45,6 +45,7 @@ interface SiteDetail {
   site_name: string;
   phone_number: string;
   location: string | null;
+  region_name: string | null;
   agreement_type: "power_tokens" | "amount" | "free_voucher" | "free_wifi" | null;
   agreement_value: number | null;
   agreement_notes: string | null;
@@ -259,13 +260,18 @@ const ViewHotspotSitePage: React.FC = () => {
               <strong>Location:</strong> {site.location || "-"}
             </Col>
             <Col md="3">
+              <strong>Region:</strong> {site.region_name || "-"}
+            </Col>
+            <Col md="3">
               <strong>Phone:</strong> {site.phone_number}
             </Col>
             <Col md="3">
               <strong>Status:</strong>{" "}
               <Badge color={statusBadgeColor(site.status)}>{statusLabel(site.status)}</Badge>
             </Col>
-            <Col md="3">
+          </Row>
+          <Row className="mt-2">
+            <Col md="12">
               <strong>Agreement:</strong> {site.agreement_type ? agreementLabels[site.agreement_type] : "-"}
               {site.agreement_value ? ` (Kes. ${Number(site.agreement_value).toLocaleString()}/mo)` : ""}
             </Col>

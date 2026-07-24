@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,11 @@ interface HouseInput {
   notes: string;
 }
 
+interface Region {
+  id: number;
+  name: string;
+}
+
 const AddHotspotSitePage: React.FC = () => {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.user);
@@ -33,6 +38,8 @@ const AddHotspotSitePage: React.FC = () => {
   const [siteName, setSiteName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [location, setLocation] = useState("");
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [regionId, setRegionId] = useState("");
   const [agreementType, setAgreementType] = useState("");
   const [agreementValue, setAgreementValue] = useState("");
   const [agreementNotes, setAgreementNotes] = useState("");
@@ -43,6 +50,21 @@ const AddHotspotSitePage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+      try {
+        const response = await axios.get<Region[]>("/backend/hotspot-management/regions", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setRegions(response.data);
+      } catch (err) {
+        // non-fatal - region selection just stays empty
+      }
+    };
+    fetchRegions();
+  }, []);
 
   const addHouseRow = () => setHouses((prev) => [...prev, { house_label: "", notes: "" }]);
   const removeHouseRow = (index: number) => setHouses((prev) => prev.filter((_, i) => i !== index));
@@ -66,6 +88,7 @@ const AddHotspotSitePage: React.FC = () => {
           site_name: siteName,
           phone_number: phoneNumber,
           location: location || null,
+          region_id: regionId ? Number(regionId) : null,
           agreement_type: agreementType || null,
           agreement_value: agreementValue ? Number(agreementValue) : null,
           agreement_notes: agreementNotes || null,
@@ -120,10 +143,23 @@ const AddHotspotSitePage: React.FC = () => {
         </Row>
 
         <Row>
-          <Col lg="12" xs="12">
+          <Col lg="8" xs="12">
             <FormGroup>
               <Label for="location">Location</Label>
               <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
+            </FormGroup>
+          </Col>
+          <Col lg="4" xs="12">
+            <FormGroup>
+              <Label for="region_id">Region</Label>
+              <Input type="select" id="region_id" value={regionId} onChange={(e) => setRegionId(e.target.value)}>
+                <option value="">No region</option>
+                {regions.map((region) => (
+                  <option key={region.id} value={region.id}>
+                    {region.name}
+                  </option>
+                ))}
+              </Input>
             </FormGroup>
           </Col>
         </Row>

@@ -12,6 +12,11 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Row,
+  Col,
+  FormGroup,
+  Label,
+  Input,
 } from "reactstrap";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -23,11 +28,18 @@ interface HotspotSite {
   site_name: string;
   phone_number: string;
   location: string | null;
+  region_id: number | null;
+  region_name: string | null;
   agreement_type: "power_tokens" | "amount" | "free_voucher" | "free_wifi" | null;
   agreement_value: number | null;
   status: string;
   houses_count: number;
   settled_this_month: number;
+}
+
+interface Region {
+  id: number;
+  name: string;
 }
 
 const agreementLabels: Record<string, string> = {
@@ -51,6 +63,9 @@ const statusLabel = (status: string) => {
 
 const HotspotManagementPage: React.FC = () => {
   const [sites, setSites] = useState<HotspotSite[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,9 +82,9 @@ const HotspotManagementPage: React.FC = () => {
       return;
     }
 
-    const fetchSites = async () => {
-      const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+    const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
 
+    const fetchSites = async () => {
       try {
         const response = await axios.get<HotspotSite[]>("/backend/hotspot-management/sites", {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -82,8 +97,31 @@ const HotspotManagementPage: React.FC = () => {
       }
     };
 
+    const fetchRegions = async () => {
+      try {
+        const response = await axios.get<Region[]>("/backend/hotspot-management/regions", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setRegions(response.data);
+      } catch (err) {
+        // non-fatal - filter dropdown just stays empty
+      }
+    };
+
     fetchSites();
+    fetchRegions();
   }, [isAuthorized]);
+
+  const filteredSites = sites.filter((site) => {
+    if (selectedRegion && String(site.region_id) !== selectedRegion) return false;
+    if (searchText) {
+      const q = searchText.trim().toLowerCase();
+      const matchesName = site.site_name.toLowerCase().includes(q);
+      const matchesPhone = site.phone_number.toLowerCase().includes(q);
+      if (!matchesName && !matchesPhone) return false;
+    }
+    return true;
+  });
 
   const closeDeleteModal = () => {
     setDeleteTarget(null);
@@ -148,11 +186,44 @@ const HotspotManagementPage: React.FC = () => {
         </div>
       </div>
 
+      <Row className="mb-3">
+        <Col md="4" xs="12">
+          <FormGroup>
+            <Label for="region_filter">Filter by Region</Label>
+            <Input
+              type="select"
+              id="region_filter"
+              value={selectedRegion}
+              onChange={(e) => setSelectedRegion(e.target.value)}
+            >
+              <option value="">All Regions</option>
+              {regions.map((region) => (
+                <option key={region.id} value={region.id}>
+                  {region.name}
+                </option>
+              ))}
+            </Input>
+          </FormGroup>
+        </Col>
+        <Col md="4" xs="12">
+          <FormGroup>
+            <Label for="site_search">Search by Site Name or Phone Number</Label>
+            <Input
+              id="site_search"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search..."
+            />
+          </FormGroup>
+        </Col>
+      </Row>
+
       <Table responsive striped>
         <thead>
           <tr>
             <th>Site Name</th>
             <th>Location</th>
+            <th>Region</th>
             <th>Phone Number</th>
             <th>Agreement</th>
             <th>Houses</th>
@@ -162,10 +233,11 @@ const HotspotManagementPage: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {sites.map((site) => (
+          {filteredSites.map((site) => (
             <tr key={site.id}>
               <td>{site.site_name}</td>
               <td>{site.location || "-"}</td>
+              <td>{site.region_name || "-"}</td>
               <td>{site.phone_number}</td>
               <td>
                 {site.agreement_type ? agreementLabels[site.agreement_type] : "-"}
@@ -192,7 +264,12 @@ const HotspotManagementPage: React.FC = () => {
           ))}
           {sites.length === 0 && (
             <tr>
-              <td colSpan={8} className="text-center text-muted">No sites recorded yet.</td>
+              <td colSpan={9} className="text-center text-muted">No sites recorded yet.</td>
+            </tr>
+          )}
+          {sites.length > 0 && filteredSites.length === 0 && (
+            <tr>
+              <td colSpan={9} className="text-center text-muted">No sites match your filters.</td>
             </tr>
           )}
         </tbody>

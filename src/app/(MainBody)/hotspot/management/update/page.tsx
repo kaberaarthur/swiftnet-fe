@@ -14,10 +14,16 @@ interface HotspotSite {
   site_name: string;
   phone_number: string;
   location: string | null;
+  region_id: number | string | null;
   agreement_type: string | null;
   agreement_value: number | null;
   agreement_notes: string | null;
   status: string;
+}
+
+interface Region {
+  id: number;
+  name: string;
 }
 
 const UpdateHotspotSitePage: React.FC = () => {
@@ -36,6 +42,22 @@ const UpdateHotspotSitePage: React.FC = () => {
 
   const [statusChoice, setStatusChoice] = useState("pending");
   const [customStatus, setCustomStatus] = useState("");
+  const [regions, setRegions] = useState<Region[]>([]);
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+      try {
+        const response = await axios.get<Region[]>("/backend/hotspot-management/regions", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        setRegions(response.data);
+      } catch (err) {
+        // non-fatal - region selection just stays empty
+      }
+    };
+    fetchRegions();
+  }, []);
 
   useEffect(() => {
     if (!isAuthorized) {
@@ -90,6 +112,7 @@ const UpdateHotspotSitePage: React.FC = () => {
           site_name: site.site_name,
           phone_number: site.phone_number,
           location: site.location || null,
+          region_id: site.region_id ? Number(site.region_id) : null,
           agreement_type: site.agreement_type || null,
           agreement_value: site.agreement_value,
           agreement_notes: site.agreement_notes,
@@ -152,6 +175,18 @@ const UpdateHotspotSitePage: React.FC = () => {
         <FormGroup>
           <Label for="location">Location</Label>
           <Input name="location" id="location" value={site.location ?? ""} onChange={handleInputChange} />
+        </FormGroup>
+
+        <FormGroup>
+          <Label for="region_id">Region</Label>
+          <Input type="select" name="region_id" id="region_id" value={site.region_id ?? ""} onChange={handleInputChange}>
+            <option value="">No region</option>
+            {regions.map((region) => (
+              <option key={region.id} value={region.id}>
+                {region.name}
+              </option>
+            ))}
+          </Input>
         </FormGroup>
 
         <FormGroup>

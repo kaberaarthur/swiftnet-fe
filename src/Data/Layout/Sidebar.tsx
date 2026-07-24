@@ -52,6 +52,7 @@ export const MenuList: MenuItem[] = [
           { path: `/payments/hotspottransactions`, title: "Hotspot Transactions", type: "link" },
           { path: `/hotspot/importplans`, title: "Import Plans", type: "link" },
           { path: `/hotspot/management`, title: "Hotspot Management", type: "link" },
+          { path: `/hotspot/management/regions`, title: "Hotspot Regions", type: "link" },
         ],
       },
       {
