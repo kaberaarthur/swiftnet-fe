@@ -2,12 +2,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import JSZip from "jszip";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Container, Table, Button, Badge, Alert, Spinner } from "reactstrap";
+import { ArrowLeft, Download } from "lucide-react";
+import {
+  Container,
+  Table,
+  Button,
+  Badge,
+  Alert,
+  Spinner,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 import { RootState } from "../../../../../../Redux/Store";
+import { buildRegionExportHtml, RegionExportData } from "../exportViewerTemplate";
+import { buildExportFilename, downloadBlob } from "../exportUtils";
 
 interface RegionSite {
   id: number;
@@ -46,6 +60,10 @@ const ViewHotspotRegionPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [exporting, setExporting] = useState<"json" | "zip" | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!isAuthorized) {
       setLoading(false);
@@ -69,6 +87,48 @@ const ViewHotspotRegionPage: React.FC = () => {
 
     fetchRegion();
   }, [region_id, isAuthorized]);
+
+  const fetchExportData = async (): Promise<RegionExportData> => {
+    const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+    const response = await axios.get<RegionExportData>(
+      `/backend/hotspot-management/regions/${region_id}/export`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    return response.data;
+  };
+
+  const handleDownloadJson = async () => {
+    setExporting("json");
+    setExportError(null);
+    try {
+      const data = await fetchExportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      downloadBlob(blob, buildExportFilename(data.region_name, "json"));
+      setExportModalOpen(false);
+    } catch (err) {
+      setExportError("Failed to export data. Please try again.");
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    setExporting("zip");
+    setExportError(null);
+    try {
+      const data = await fetchExportData();
+      const zip = new JSZip();
+      zip.file("data.json", JSON.stringify(data, null, 2));
+      zip.file("index.html", buildRegionExportHtml(data));
+      const blob = await zip.generateAsync({ type: "blob" });
+      downloadBlob(blob, buildExportFilename(data.region_name, "zip"));
+      setExportModalOpen(false);
+    } catch (err) {
+      setExportError("Failed to export data. Please try again.");
+    } finally {
+      setExporting(null);
+    }
+  };
 
   if (!isAuthorized) {
     return (
@@ -107,7 +167,20 @@ const ViewHotspotRegionPage: React.FC = () => {
         </Button>
       </Link>
 
-      <h1 className="mb-4">{region.name}</h1>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="mb-0">{region.name}</h1>
+        <Button
+          color="secondary"
+          outline
+          className="d-inline-flex align-items-center gap-1"
+          onClick={() => {
+            setExportError(null);
+            setExportModalOpen(true);
+          }}
+        >
+          <Download size={16} /> Export
+        </Button>
+      </div>
 
       <Table responsive striped>
         <thead>
@@ -142,6 +215,27 @@ const ViewHotspotRegionPage: React.FC = () => {
           )}
         </tbody>
       </Table>
+
+      <Modal isOpen={exportModalOpen} toggle={() => setExportModalOpen(false)}>
+        <ModalHeader toggle={() => setExportModalOpen(false)}>Export {region.name}</ModalHeader>
+        <ModalBody>
+          {exportError && <Alert color="danger">{exportError}</Alert>}
+          <p className="mb-0">
+            Choose how you'd like to export this region's data — every site, its houses, and its recorded payments.
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" outline onClick={() => setExportModalOpen(false)} disabled={exporting !== null}>
+            Cancel
+          </Button>
+          <Button color="secondary" onClick={handleDownloadJson} disabled={exporting !== null}>
+            {exporting === "json" ? <Spinner size="sm" /> : "Download JSON"}
+          </Button>
+          <Button color="primary" onClick={handleDownloadZip} disabled={exporting !== null}>
+            {exporting === "zip" ? <Spinner size="sm" /> : "Download ZIP (with viewer)"}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Container>
   );
 };
