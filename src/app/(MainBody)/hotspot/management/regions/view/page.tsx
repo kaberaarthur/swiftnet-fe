@@ -6,7 +6,7 @@ import JSZip from "jszip";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Pencil } from "lucide-react";
 import {
   Container,
   Table,
@@ -18,6 +18,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Form,
+  FormGroup,
+  Label,
+  Input,
 } from "reactstrap";
 import { RootState } from "../../../../../../Redux/Store";
 import { buildRegionExportHtml, RegionExportData } from "../exportViewerTemplate";
@@ -63,6 +67,11 @@ const ViewHotspotRegionPage: React.FC = () => {
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exporting, setExporting] = useState<"json" | "zip" | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthorized) {
@@ -130,6 +139,37 @@ const ViewHotspotRegionPage: React.FC = () => {
     }
   };
 
+  const openEditModal = () => {
+    if (!region) return;
+    setEditName(region.name);
+    setEditError(null);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!region) return;
+
+    setEditSubmitting(true);
+    setEditError(null);
+
+    const accessToken = Cookies.get("accessToken") || localStorage.getItem("accessToken");
+
+    try {
+      await axios.patch(
+        `/backend/hotspot-management/regions/${region_id}`,
+        { name: editName },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      setRegion((prev) => (prev ? { ...prev, name: editName.trim() } : prev));
+      setEditModalOpen(false);
+    } catch (err: any) {
+      setEditError(err?.response?.data?.error || "Failed to update region");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   if (!isAuthorized) {
     return (
       <Container className="mt-5">
@@ -169,17 +209,27 @@ const ViewHotspotRegionPage: React.FC = () => {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="mb-0">{region.name}</h1>
-        <Button
-          color="secondary"
-          outline
-          className="d-inline-flex align-items-center gap-1"
-          onClick={() => {
-            setExportError(null);
-            setExportModalOpen(true);
-          }}
-        >
-          <Download size={16} /> Export
-        </Button>
+        <div>
+          <Button
+            color="primary"
+            outline
+            className="me-2 d-inline-flex align-items-center gap-1"
+            onClick={openEditModal}
+          >
+            <Pencil size={16} /> Edit
+          </Button>
+          <Button
+            color="secondary"
+            outline
+            className="d-inline-flex align-items-center gap-1"
+            onClick={() => {
+              setExportError(null);
+              setExportModalOpen(true);
+            }}
+          >
+            <Download size={16} /> Export
+          </Button>
+        </div>
       </div>
 
       <Table responsive striped>
@@ -235,6 +285,32 @@ const ViewHotspotRegionPage: React.FC = () => {
             {exporting === "zip" ? <Spinner size="sm" /> : "Download ZIP (with viewer)"}
           </Button>
         </ModalFooter>
+      </Modal>
+
+      <Modal isOpen={editModalOpen} toggle={() => setEditModalOpen(false)}>
+        <ModalHeader toggle={() => setEditModalOpen(false)}>Edit Region</ModalHeader>
+        <Form onSubmit={handleEditSubmit}>
+          <ModalBody>
+            {editError && <Alert color="danger">{editError}</Alert>}
+            <FormGroup>
+              <Label for="edit_region_name">Region Name</Label>
+              <Input
+                id="edit_region_name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+              />
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" outline type="button" onClick={() => setEditModalOpen(false)} disabled={editSubmitting}>
+              Cancel
+            </Button>
+            <Button color="primary" type="submit" disabled={editSubmitting}>
+              {editSubmitting ? <Spinner size="sm" /> : "Save Changes"}
+            </Button>
+          </ModalFooter>
+        </Form>
       </Modal>
     </Container>
   );

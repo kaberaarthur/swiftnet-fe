@@ -12,10 +12,14 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Form,
+  FormGroup,
+  Label,
+  Input,
 } from "reactstrap";
 import Cookies from "js-cookie";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Pencil } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../Redux/Store";
 import {
@@ -41,6 +45,11 @@ const HotspotRegionsPage: React.FC = () => {
   const [exportRegion, setExportRegion] = useState<Region | null>(null);
   const [exporting, setExporting] = useState<"json" | "zip" | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  const [editTarget, setEditTarget] = useState<Region | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const user = useSelector((state: RootState) => state.user);
   const isAuthorized = user.user_type === "superadmin" || user.user_type === "manager";
@@ -151,6 +160,41 @@ const HotspotRegionsPage: React.FC = () => {
     }
   };
 
+  const openEditModal = (region: Region) => {
+    setEditTarget(region);
+    setEditName(region.name);
+    setEditError(null);
+  };
+
+  const closeEditModal = () => {
+    setEditTarget(null);
+    setEditError(null);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+
+    setEditSubmitting(true);
+    setEditError(null);
+
+    try {
+      await axios.patch(
+        `/backend/hotspot-management/regions/${editTarget.id}`,
+        { name: editName },
+        { headers: { Authorization: `Bearer ${getToken()}` } }
+      );
+      setRegions((prev) =>
+        prev.map((r) => (r.id === editTarget.id ? { ...r, name: editName.trim() } : r))
+      );
+      closeEditModal();
+    } catch (err: any) {
+      setEditError(err?.response?.data?.error || "Failed to update region");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   if (!isAuthorized) {
     return (
       <Container className="mt-5">
@@ -217,6 +261,9 @@ const HotspotRegionsPage: React.FC = () => {
                 <Link href={{ pathname: "/hotspot/management/regions/view", query: { region_id: region.id } }} passHref>
                   <Button color="secondary" size="sm" className="me-2">View</Button>
                 </Link>
+                <Button color="primary" outline size="sm" className="me-2" onClick={() => openEditModal(region)}>
+                  Edit
+                </Button>
                 <Button color="secondary" outline size="sm" onClick={() => openRegionExport(region)}>
                   Export
                 </Button>
@@ -254,6 +301,32 @@ const HotspotRegionsPage: React.FC = () => {
             {exporting === "zip" ? <Spinner size="sm" /> : "Download ZIP (with viewer)"}
           </Button>
         </ModalFooter>
+      </Modal>
+
+      <Modal isOpen={editTarget !== null} toggle={closeEditModal}>
+        <ModalHeader toggle={closeEditModal}>Edit Region</ModalHeader>
+        <Form onSubmit={handleEditSubmit}>
+          <ModalBody>
+            {editError && <Alert color="danger">{editError}</Alert>}
+            <FormGroup>
+              <Label for="edit_region_name">Region Name</Label>
+              <Input
+                id="edit_region_name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+              />
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" outline type="button" onClick={closeEditModal} disabled={editSubmitting}>
+              Cancel
+            </Button>
+            <Button color="primary" type="submit" disabled={editSubmitting}>
+              {editSubmitting ? <Spinner size="sm" /> : "Save Changes"}
+            </Button>
+          </ModalFooter>
+        </Form>
       </Modal>
     </Container>
   );
