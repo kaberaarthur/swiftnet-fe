@@ -95,6 +95,11 @@ const SidebarMenuList = () => {
           return false;
         }
 
+        // Hide "Speed Upgrade" unless admin or superadmin
+        if (item.title === "Speed Upgrade" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
+          return false;
+        }
+
         // Hide "System Logs" unless admin or superadmin
         if (item.title === "System Logs" && (user.user_type !== "admin" && user.user_type !== "superadmin")) {
           return false;

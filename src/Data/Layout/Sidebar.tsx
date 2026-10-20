@@ -149,6 +149,16 @@ export const MenuList: MenuItem[] = [
         ]
       },
       {
+        title: "Speed Upgrade",
+        id: 34,
+        icon: "Arrow-up-circle",
+        type: "sub",
+        active: false,
+        children: [
+          { path: `/network/speedupgrade`, title: "Plan Migration", type: "link" },
+        ]
+      },
+      {
         title: "System Logs",
         id: 34,
         icon: "Activity",

@@ -11,6 +11,10 @@ const nextConfig = {
       },
     ];
   },
+  // Allow long-running backend calls through the /backend proxy (e.g. Speed Upgrade router batches)
+  experimental: {
+    proxyTimeout: 300000,
+  },
   devIndicators: {
     buildActivity: false,
     buildActivityPosition: 'bottom-left', // or 'top-right'
